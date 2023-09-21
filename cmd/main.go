@@ -4,19 +4,26 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
-	"math/rand"
 	"net/http"
-	"time"
+	"short-link/internal"
 )
 
-type URLShortener struct {
-	urls map[string]string
+type UrlShortener struct {
+	Urls map[string]string
+}
+
+type Handler struct {
+	UrlShortener *internal.UrlShortener
 }
 
 func main() {
 
-	shortener := &URLShortener{
-		urls: make(map[string]string),
+	shortenerUrl := &internal.UrlShortener{
+		Urls: make(map[string]string),
+	}
+
+	shortener := &Handler{
+		UrlShortener: shortenerUrl,
 	}
 
 	router := gin.Default()
@@ -35,21 +42,20 @@ func main() {
 	router.Run() // listen and serve on 0.0.0.0:8080
 }
 
-func (us *URLShortener) HandleRedirect(c *gin.Context) {
+func (us *Handler) HandleRedirect(c *gin.Context) {
 
 	shortKey := c.Param("url")
 
 	// Retrieve the original URL from the `urls` map using the shortened key
-	originalURL, _ := us.urls[shortKey]
+	originalURL, _ := us.UrlShortener.Urls[shortKey]
 
-	log.Println(originalURL,"sd",shortKey, us.urls)
-
+	log.Println(originalURL, shortKey, us.UrlShortener.Urls)
 
 	// Redirect the user to the original URL
 	c.Redirect(http.StatusMovedPermanently, originalURL)
 }
 
-func (us *URLShortener) HandleShorten(c *gin.Context) {
+func (us *Handler) HandleShorten(c *gin.Context) {
 	//if r.Method != http.MethodPost {
 	//	http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 	//	return
@@ -64,8 +70,8 @@ func (us *URLShortener) HandleShorten(c *gin.Context) {
 	link := c.PostForm("link")
 
 	// Generate a unique shortened key for the original URL
-	shortKey := generateShortKey()
-	us.urls[shortKey] = link
+	shortKey := internal.GenerateShortKey()
+	us.UrlShortener.Urls[shortKey] = link
 
 	log.Println(link)
 
@@ -74,28 +80,4 @@ func (us *URLShortener) HandleShorten(c *gin.Context) {
 
 	log.Println(shortenedURL)
 
-	//// Render the HTML response with the shortened URL
-	//w.Header().Set("Content-Type", "text/html")
-	//responseHTML := fmt.Sprintf(`
-    //    <h2>URL Shortener</h2>
-    //    <p>Original URL: %s</p>
-    //    <p>Shortened URL: <a href="%s">%s</a></p>
-    //    <form method="post" action="/shorten">
-    //        <input type="text" name="url" placeholder="Enter a URL">
-    //        <input type="submit" value="Shorten">
-    //    </form>
-    //`, originalURL, shortenedURL, shortenedURL)
-	//fmt.Fprintf(w, responseHTML)
-}
-
-func generateShortKey() string {
-	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-	const keyLength = 6
-
-	rand.Seed(time.Now().UnixNano())
-	shortKey := make([]byte, keyLength)
-	for i := range shortKey {
-		shortKey[i] = charset[rand.Intn(len(charset))]
-	}
-	return string(shortKey)
 }
