@@ -13,17 +13,13 @@ type UrlShortener struct {
 }
 
 type Handler struct {
-	UrlShortener *internal.UrlShortener
+	Service *internal.Service
 }
 
 func main() {
 
-	shortenerUrl := &internal.UrlShortener{
-		Urls: make(map[string]string),
-	}
-
 	shortener := &Handler{
-		UrlShortener: shortenerUrl,
+		Service: internal.CreateService(),
 	}
 
 	router := gin.Default()
@@ -47,9 +43,9 @@ func (us *Handler) HandleRedirect(c *gin.Context) {
 	shortKey := c.Param("url")
 
 	// Retrieve the original URL from the `urls` map using the shortened key
-	originalURL, _ := us.UrlShortener.Urls[shortKey]
+	originalURL := us.Service.GetUrl(shortKey)
 
-	log.Println(originalURL, shortKey, us.UrlShortener.Urls)
+	log.Println(originalURL, shortKey)
 
 	// Redirect the user to the original URL
 	c.Redirect(http.StatusMovedPermanently, originalURL)
@@ -70,8 +66,7 @@ func (us *Handler) HandleShorten(c *gin.Context) {
 	link := c.PostForm("link")
 
 	// Generate a unique shortened key for the original URL
-	shortKey := internal.GenerateShortKey()
-	us.UrlShortener.Urls[shortKey] = link
+	shortKey := us.Service.SetUrl(link)
 
 	log.Println(link)
 
