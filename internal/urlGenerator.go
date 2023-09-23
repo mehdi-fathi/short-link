@@ -2,6 +2,7 @@ package internal
 
 import (
 	"math/rand"
+	service_interface "short-link/internal/interface"
 	"time"
 )
 
@@ -25,8 +26,8 @@ func GenerateShortKey() string {
 	return string(shortKey)
 }
 
-// CreateService creates an instance of membership Service with the necessary dependencies
-func CreateService() *Service {
+// CreateService creates an instance of membership interface with the necessary dependencies
+func CreateService() service_interface.Service {
 
 	shortenerUrl := &UrlShortener{
 		Urls: make(map[string]string),

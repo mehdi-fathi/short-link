@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"short-link/internal"
+	service_interface "short-link/internal/interface"
 )
 
 type UrlShortener struct {
@@ -13,7 +14,7 @@ type UrlShortener struct {
 }
 
 type Handler struct {
-	Service *internal.Service
+	Service service_interface.Service
 }
 
 func main() {
