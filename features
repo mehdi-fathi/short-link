@@ -1,0 +1,5 @@
+1- Showing list of short link along with link
+2- Saving records of them in postgres db
+3- Make swagger file for api
+4- Make docker file
+5- make tests

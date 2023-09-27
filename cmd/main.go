@@ -12,10 +12,6 @@ import (
 	service_interface "short-link/internal/interface"
 )
 
-type UrlShortener struct {
-	Urls map[string]string
-}
-
 type Handler struct {
 	Service service_interface.Service
 }
@@ -40,7 +36,7 @@ func main() {
 		log.Println(errors.Wrapf(err, "failed to load config: %s", "CreateService"))
 	}
 
-	shortener := &Handler{
+	httpHandler := &Handler{
 		Service: internal.CreateService(cfg),
 	}
 
@@ -54,8 +50,9 @@ func main() {
 		})
 	})
 
-	router.POST("/make", shortener.HandleShorten)
-	router.GET("/short/:url", shortener.HandleRedirect)
+	router.POST("/make", httpHandler.HandleShorten)
+	router.GET("/short/:url", httpHandler.HandleRedirect)
+	router.GET("/list/all", httpHandler.HandleList)
 
 	router.Run() // listen and serve on 0.0.0.0:8080
 }
@@ -81,6 +78,17 @@ func (us *Handler) HandleRedirect(c *gin.Context) {
 
 	// Redirect the user to the original URL
 	c.Redirect(http.StatusMovedPermanently, originalURL)
+}
+
+func (us *Handler) HandleList(c *gin.Context) {
+
+	allUrl := us.Service.GetAllUrl()
+
+	log.Println(allUrl,"hi")
+
+	c.HTML(http.StatusOK, "list.html", gin.H{
+		"data": allUrl,
+	})
 }
 
 func (us *Handler) HandleShorten(c *gin.Context) {

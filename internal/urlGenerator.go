@@ -49,3 +49,7 @@ func (service *Service) SetUrl(link string) string {
 	service.Shortener.Urls[shortKey] = link
 	return shortKey
 }
+
+func (service *Service) GetAllUrl() map[string]string {
+	return service.Shortener.Urls
+}
