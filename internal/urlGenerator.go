@@ -7,30 +7,31 @@ import (
 )
 
 type UrlShortener struct {
-	Urls map[string]string
+	Urls   map[string]string
+	Config *Config
 }
 
 type Service struct {
 	Shortener *UrlShortener
 }
 
-func GenerateShortKey() string {
-	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+func GenerateShortKey(hashCode string) string {
 	const keyLength = 6
 
 	rand.Seed(time.Now().UnixNano())
 	shortKey := make([]byte, keyLength)
 	for i := range shortKey {
-		shortKey[i] = charset[rand.Intn(len(charset))]
+		shortKey[i] = hashCode[rand.Intn(len(hashCode))]
 	}
 	return string(shortKey)
 }
 
 // CreateService creates an instance of membership interface with the necessary dependencies
-func CreateService() service_interface.Service {
+func CreateService(cfg *Config) service_interface.Service {
 
 	shortenerUrl := &UrlShortener{
-		Urls: make(map[string]string),
+		Urls:   make(map[string]string),
+		Config: cfg,
 	}
 
 	return &Service{
@@ -44,7 +45,7 @@ func (service *Service) GetUrl(shortKey string) string {
 
 func (service *Service) SetUrl(link string) string {
 
-	shortKey := GenerateShortKey()
+	shortKey := GenerateShortKey(service.Shortener.Config.HASHCODE)
 	service.Shortener.Urls[shortKey] = link
 	return shortKey
 }

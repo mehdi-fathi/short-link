@@ -1,10 +1,13 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/pkg/errors"
 	"log"
 	"net/http"
+	"os"
 	"short-link/internal"
 	service_interface "short-link/internal/interface"
 )
@@ -19,8 +22,26 @@ type Handler struct {
 
 func main() {
 
+	// Default Config file based on the environment variable
+	defaultConfigFile := "config/config-local.yaml"
+	if env := os.Getenv("APP_MODE"); env != "" {
+		defaultConfigFile = fmt.Sprintf("config/config-%s.yaml", env)
+	}
+
+	// Load Master Config File
+	var configFile string
+	flag.StringVar(&configFile, "config", defaultConfigFile, "The environment configuration file of application")
+	flag.Usage = usage
+	flag.Parse()
+
+	// Loading the config file
+	cfg, err := internal.LoadConfig(configFile)
+	if err != nil {
+		log.Println(errors.Wrapf(err, "failed to load config: %s", "CreateService"))
+	}
+
 	shortener := &Handler{
-		Service: internal.CreateService(),
+		Service: internal.CreateService(cfg),
 	}
 
 	router := gin.Default()
@@ -37,6 +58,16 @@ func main() {
 	router.GET("/short/:url", shortener.HandleRedirect)
 
 	router.Run() // listen and serve on 0.0.0.0:8080
+}
+
+func usage() {
+	usageStr := `
+Usage: server [options]
+Options:
+	-c,  --config   <config file name>   Path of yaml configuration file
+`
+	fmt.Printf("%s\n", usageStr)
+	os.Exit(0)
 }
 
 func (us *Handler) HandleRedirect(c *gin.Context) {
