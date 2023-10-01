@@ -9,6 +9,8 @@ import (
 	"net/http"
 	"os"
 	"short-link/internal"
+	"short-link/internal/Db"
+	"short-link/internal/Db/Repository"
 	service_interface "short-link/internal/interface"
 )
 
@@ -16,7 +18,25 @@ type Handler struct {
 	Service service_interface.Service
 }
 
+/*
+go mod tidy ensures that the go.mod file matches the source code in the module.
+It adds any missing module requirements necessary to build the current module’s packages and dependencies,
+if there are some not used dependencies go mod tidy will remove those from go.mod accordingly
+*/
+
 func main() {
+
+	// connect to DB first
+	var errDb error
+	dbLayer := Db.CreateDb()
+	_, errDb = dbLayer.ConnectDB()
+	if errDb != nil {
+		log.Fatalf("failed to start the server: %v", errDb)
+	}
+
+	Repo := Repository.CreateRepository(dbLayer)
+
+	Repo.FindById(1)
 
 	// Default Config file based on the environment variable
 	defaultConfigFile := "config/config-local.yaml"
@@ -84,7 +104,7 @@ func (us *Handler) HandleList(c *gin.Context) {
 
 	allUrl := us.Service.GetAllUrl()
 
-	log.Println(allUrl,"hi")
+	log.Println(allUrl, "hi")
 
 	c.HTML(http.StatusOK, "list.html", gin.H{
 		"data": allUrl,
