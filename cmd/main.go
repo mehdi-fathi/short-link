@@ -1,17 +1,18 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
 	"log"
-	"net/http"
 	"os"
+	"os/signal"
 	"short-link/internal"
-	"short-link/internal/Db"
-	"short-link/internal/Db/Repository"
 	service_interface "short-link/internal/interface"
+	"short-link/pkg/logger"
+	"syscall"
+	"time"
 )
 
 type Handler struct {
@@ -26,17 +27,7 @@ if there are some not used dependencies go mod tidy will remove those from go.mo
 
 func main() {
 
-	// connect to DB first
-	var errDb error
-	dbLayer := Db.CreateDb()
-	_, errDb = dbLayer.ConnectDB()
-	if errDb != nil {
-		log.Fatalf("failed to start the server: %v", errDb)
-	}
-
-	Repo := Repository.CreateRepository(dbLayer)
-
-	Repo.FindById(1)
+	startTime := time.Now()
 
 	// Default Config file based on the environment variable
 	defaultConfigFile := "config/config-local.yaml"
@@ -56,25 +47,49 @@ func main() {
 		log.Println(errors.Wrapf(err, "failed to load config: %s", "CreateService"))
 	}
 
-	httpHandler := &Handler{
-		Service: internal.CreateService(cfg),
+	loggerInstance := logger.CreateLogger(cfg.Logger)
+	loggerInstance.Info("[OK] Logger Configured")
+
+	//loggerInstance := logrus.Logger{}
+	//loggerInstance.Info("[OK] Logger Configured")
+
+	// Setting up the main context
+	ctx := context.Background()
+	ctx, cancel := context.WithCancel(ctx)
+
+	// Create New Server
+	server := NewServer(startTime)
+
+	// Initialize the Server Dependencies
+	err = server.Initialize(cfg, ctx)
+
+	done := make(chan bool, 1)
+	quiteSignal := make(chan os.Signal, 1)
+	signal.Notify(quiteSignal, syscall.SIGINT, syscall.SIGTERM)
+
+	// Graceful shutdown goroutine
+	go server.GracefulShutdown(quiteSignal, done)
+
+	// Start server in blocking mode
+	server.Start(ctx)
+
+	if err != nil {
+		log.Fatal(errors.Wrap(err, "server error"))
 	}
 
-	router := gin.Default()
 
-	router.LoadHTMLGlob("tmp/*")
-	//router.LoadHTMLFiles("templates/template1.html", "templates/template2.html")
-	router.GET("/index", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "index.html", gin.H{
-			"title": "Main website",
-		})
-	})
+	// Wait for graceful shutdown signal
+	<-done
 
-	router.POST("/make", httpHandler.HandleShorten)
-	router.GET("/short/:url", httpHandler.HandleRedirect)
-	router.GET("/list/all", httpHandler.HandleList)
+	// Kill other background jobs
+	cancel()
+	log.Println("Waiting for background jobs to finish their works...")
 
-	router.Run() // listen and serve on 0.0.0.0:8080
+	// Wait for all other background jobs to finish their works
+	server.Wait()
+
+	log.Println("Master App Shutdown successfully, see you next time ;-)")
+
 }
 
 func usage() {
@@ -87,52 +102,3 @@ Options:
 	os.Exit(0)
 }
 
-func (us *Handler) HandleRedirect(c *gin.Context) {
-
-	shortKey := c.Param("url")
-
-	// Retrieve the original URL from the `urls` map using the shortened key
-	originalURL := us.Service.GetUrl(shortKey)
-
-	log.Println(originalURL, shortKey)
-
-	// Redirect the user to the original URL
-	c.Redirect(http.StatusMovedPermanently, originalURL)
-}
-
-func (us *Handler) HandleList(c *gin.Context) {
-
-	allUrl := us.Service.GetAllUrl()
-
-	log.Println(allUrl, "hi")
-
-	c.HTML(http.StatusOK, "list.html", gin.H{
-		"data": allUrl,
-	})
-}
-
-func (us *Handler) HandleShorten(c *gin.Context) {
-	//if r.Method != http.MethodPost {
-	//	http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
-	//	return
-	//}
-	//
-	//originalURL := r.FormValue("url")
-	//if originalURL == "" {
-	//	http.Error(w, "URL parameter is missing", http.StatusBadRequest)
-	//	return
-	//}
-
-	link := c.PostForm("link")
-
-	// Generate a unique shortened key for the original URL
-	shortKey := us.Service.SetUrl(link)
-
-	log.Println(link)
-
-	// Construct the full shortened URL
-	shortenedURL := fmt.Sprintf("http://localhost:8080/short/%s", shortKey)
-
-	log.Println(shortenedURL)
-
-}

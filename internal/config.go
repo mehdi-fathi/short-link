@@ -5,6 +5,7 @@ import (
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
 	"os"
+	"short-link/pkg/logger"
 )
 
 var ErrInvalidYamlFile = errors.New("invalid yaml file")
@@ -16,7 +17,7 @@ type Config struct {
 	RefererHost string `yaml:"REFERER_HOST" envconfig:"REFERER_HOST"`
 	AppMod      string `yaml:"APP_MOD" envconfig:"APP_MOD"`
 	HASHCODE    string `yaml:"HASHCODE" envconfig:"HASHCODE"`
-	//Logger      logger.Config `yaml:"LOGGER"`
+	Logger      logger.Config `yaml:"LOGGER"`
 	Redis Redis `yaml:"REDIS"`
 }
 
