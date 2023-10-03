@@ -12,13 +12,13 @@ var ErrInvalidYamlFile = errors.New("invalid yaml file")
 
 // Config holds the app master configuration
 type Config struct {
-	HTTPPort    int    `yaml:"HTTP_PORT" envconfig:"HTTP_PORT"`
-	GRPCPort    int    `yaml:"GRPC_PORT" envconfig:"GRPC_PORT"`
-	RefererHost string `yaml:"REFERER_HOST" envconfig:"REFERER_HOST"`
-	AppMod      string `yaml:"APP_MOD" envconfig:"APP_MOD"`
-	HASHCODE    string `yaml:"HASHCODE" envconfig:"HASHCODE"`
+	HTTPPort    int           `yaml:"HTTP_PORT" envconfig:"HTTP_PORT"`
+	GRPCPort    int           `yaml:"GRPC_PORT" envconfig:"GRPC_PORT"`
+	RefererHost string        `yaml:"REFERER_HOST" envconfig:"REFERER_HOST"`
+	AppMod      string        `yaml:"APP_MOD" envconfig:"APP_MOD"`
+	HASHCODE    string        `yaml:"HASHCODE" envconfig:"HASHCODE"`
 	Logger      logger.Config `yaml:"LOGGER"`
-	Redis Redis `yaml:"REDIS"`
+	Redis       Redis         `yaml:"REDIS"`
 }
 
 type Redis struct {

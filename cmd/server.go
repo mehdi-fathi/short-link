@@ -41,9 +41,8 @@ func (s *server) Initialize(cfg *internal.Config, ctx context.Context) error {
 	//httpHandler := &Handler{
 	//	Service: internal.CreateService(cfg),
 	//}
-	Repo.FindById(1)
 
-	var ser = internal.CreateService(cfg)
+	var ser = internal.CreateService(cfg, Repo)
 
 	handler := rest.CreateHandler(ser)
 
@@ -64,7 +63,6 @@ func (s *server) Start(ctx context.Context) {
 	s.RESTHandler.Start(ctx, router, 8080)
 }
 
-
 // GracefulShutdown listen over the quitSignal to graceful shutdown the app
 func (s *server) GracefulShutdown(quitSignal <-chan os.Signal, done chan<- bool) {
 	const op = "app.gacefulshutdown"
@@ -77,4 +75,3 @@ func (s *server) GracefulShutdown(quitSignal <-chan os.Signal, done chan<- bool)
 
 	close(done)
 }
-

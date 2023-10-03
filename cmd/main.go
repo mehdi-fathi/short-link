@@ -9,15 +9,10 @@ import (
 	"os"
 	"os/signal"
 	"short-link/internal"
-	service_interface "short-link/internal/interface"
 	"short-link/pkg/logger"
 	"syscall"
 	"time"
 )
-
-type Handler struct {
-	Service service_interface.Service
-}
 
 /*
 go mod tidy ensures that the go.mod file matches the source code in the module.
@@ -77,18 +72,17 @@ func main() {
 		log.Fatal(errors.Wrap(err, "server error"))
 	}
 
-
 	// Wait for graceful shutdown signal
 	<-done
 
 	// Kill other background jobs
 	cancel()
-	log.Println("Waiting for background jobs to finish their works...")
+	loggerInstance.Info("Waiting for background jobs to finish their works...")
 
 	// Wait for all other background jobs to finish their works
 	server.Wait()
 
-	log.Println("Master App Shutdown successfully, see you next time ;-)")
+	loggerInstance.Info("Master App Shutdown successfully, see you next time ;-)")
 
 }
 
@@ -101,4 +95,3 @@ Options:
 	fmt.Printf("%s\n", usageStr)
 	os.Exit(0)
 }
-

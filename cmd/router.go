@@ -8,7 +8,6 @@ import (
 
 func SetupRouter(handler *rest.Handler) *gin.Engine {
 
-
 	router := gin.Default()
 
 	router.LoadHTMLGlob("tmp/*")
@@ -22,7 +21,6 @@ func SetupRouter(handler *rest.Handler) *gin.Engine {
 	router.POST("/make", handler.HandleShorten)
 	router.GET("/short/:url", handler.HandleRedirect)
 	router.GET("/list/all", handler.HandleList)
-
 
 	return router
 }

@@ -1,6 +1,6 @@
 package service_interface
 
-type Service interface {
+type ServiceInterface interface {
 	GetUrl(shortKey string) string
 
 	SetUrl(link string) string
