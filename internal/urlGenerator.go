@@ -55,6 +55,14 @@ func (service *Service) SetUrl(link string) string {
 
 	shortKey := GenerateShortKey(service.Shortener.Config.HASHCODE)
 	service.Shortener.Urls[shortKey] = link
+
+	id,err := service.LinkRepo.Create(link)
+
+	log.Println(id)
+	if err != nil {
+		return ""
+	}
+
 	return shortKey
 }
 

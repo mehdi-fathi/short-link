@@ -1,6 +1,5 @@
 package repository_interface
 
-
 // Character is one character from the database.
 type Link struct {
 	ID   int64
@@ -9,4 +8,5 @@ type Link struct {
 
 type RepositoryInterface interface {
 	FindById(idIn int) (*Link, error)
+	Create(link string) (int, error)
 }

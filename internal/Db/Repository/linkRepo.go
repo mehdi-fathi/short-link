@@ -12,7 +12,6 @@ type Repository struct {
 	*Db.Db
 }
 
-
 func (db *Repository) FindById(idIn int) (*repository_interface.Link, error) {
 
 	q := `SELECT * FROM links WHERE id=$1;`
@@ -27,6 +26,21 @@ func (db *Repository) FindById(idIn int) (*repository_interface.Link, error) {
 		return nil, nil
 	}
 	return &linkTable, err
+
+}
+
+func (db *Repository) Create(link string) (int, error) {
+
+	q := `insert into links (link) values($1) returning id;`
+	row := db.Sql.QueryRow(q, link)
+
+	var id int
+
+	row.Scan(&id)
+
+	var err error
+
+	return id, err
 
 }
 
