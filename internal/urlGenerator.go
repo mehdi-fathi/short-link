@@ -43,12 +43,12 @@ func CreateService(cfg *Config, linkRepo repository_interface.RepositoryInterfac
 	}
 }
 
-func (service *Service) GetUrl(shortKey string) string {
+func (service *Service) GetUrl(shortKey string) *repository_interface.Link {
 
-	c, _ := service.LinkRepo.FindById(1)
+	c, _ := service.LinkRepo.FindByShortKey(shortKey)
 	log.Println("links : ", c)
 
-	return service.Shortener.Urls[shortKey]
+	return c
 }
 
 func (service *Service) SetUrl(link string) string {
@@ -56,7 +56,7 @@ func (service *Service) SetUrl(link string) string {
 	shortKey := GenerateShortKey(service.Shortener.Config.HASHCODE)
 	service.Shortener.Urls[shortKey] = link
 
-	id,err := service.LinkRepo.Create(link)
+	id, err := service.LinkRepo.Create(link, shortKey)
 
 	log.Println(id)
 	if err != nil {
@@ -66,6 +66,12 @@ func (service *Service) SetUrl(link string) string {
 	return shortKey
 }
 
-func (service *Service) GetAllUrl() map[string]string {
-	return service.Shortener.Urls
+//func (service *Service) GetAllUrl() map[string]string {
+//	//return service.Shortener.Urls
+//	return service.LinkRepo.GetAll()
+//}
+
+func (service *Service) GetAllUrlV2() (map[int]*repository_interface.Link, error) {
+	//return service.Shortener.Urls
+	return service.LinkRepo.GetAll()
 }

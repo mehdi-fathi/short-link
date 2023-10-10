@@ -4,9 +4,12 @@ package repository_interface
 type Link struct {
 	ID   int64
 	Link string
+	ShortKey string
 }
 
 type RepositoryInterface interface {
 	FindById(idIn int) (*Link, error)
-	Create(link string) (int, error)
+	FindByShortKey(shortKey string) (*Link, error)
+	Create(link string, shortKey string) (int, error)
+	GetAll() (map[int]*Link, error)
 }

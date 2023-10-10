@@ -43,16 +43,16 @@ func (h *Handler) HandleRedirect(c *gin.Context) {
 	log.Println(originalURL, shortKey)
 
 	// Redirect the user to the original URL
-	c.Redirect(http.StatusMovedPermanently, originalURL)
+	c.Redirect(http.StatusMovedPermanently, originalURL.Link)
 }
 
 func (h *Handler) HandleList(c *gin.Context) {
 
-	allUrl := h.linkService.GetAllUrl()
+	//allUrl := h.linkService.GetAllUrl()
 
-	log.Println(allUrl, "hi")
+	all, _ := h.linkService.GetAllUrlV2()
 
 	c.HTML(http.StatusOK, "list.html", gin.H{
-		"data": allUrl,
+		"data": all,
 	})
 }

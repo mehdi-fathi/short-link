@@ -29,9 +29,9 @@
     </tr>
     {{ range $k, $v := .data}}
     <tr>
-        <td>{{ $k }}</td>
-        <td>{{ $v }}</td>
-        <td><a href=http://localhost:8080/short/{{ $k }}> http://localhost:8080/short/{{ $k }}</a> </td>
+        <td>{{ $v.ID }}</td>
+        <td>{{ $v.Link }}</td>
+        <td><a href=http://localhost:8080/short/{{ $v.ShortKey }}> http://localhost:8080/short/{{ $v.ShortKey }}</a> </td>
     </tr>
     {{ end }}
 </table>
