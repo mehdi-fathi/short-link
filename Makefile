@@ -17,3 +17,12 @@ test_coverage:
 
 fmt:
 	go fmt ./...
+
+migration_up:
+	migrate -path database/migration/ -database "postgresql://default:secret@localhost:5432/slink?sslmode=disable" -verbose up
+
+migration_down:
+	migrate -path database/migration/ -database "postgresql://default:secret@localhost:5432/slink?sslmode=disable" -verbose down
+
+migration_fix:
+	migrate -path database/migration/ -database "postgresql://default:secret@localhost:5432/slink?sslmode=disable" force 1
