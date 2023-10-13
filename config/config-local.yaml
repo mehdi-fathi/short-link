@@ -6,6 +6,12 @@ REDIS:
   USE_AUTH: false
   PASSWORD:
 HASHCODE : abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
+DB:
+  HOST: localhost
+  PORT: 5432
+  USER: default
+  PASSWORD: secret
+  DBNAME: slink
 LOGGER:
   LOG_LEVEL: TRACE
   GRAYLOG_ACTIVE: false

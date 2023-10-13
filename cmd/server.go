@@ -2,12 +2,9 @@ package main
 
 import (
 	"context"
-	"log"
 	"os"
 	"short-link/cmd/rest"
 	"short-link/internal"
-	"short-link/internal/Db"
-	"short-link/internal/Db/Repository"
 	"sync"
 	"time"
 )
@@ -28,25 +25,9 @@ func NewServer(startTime time.Time) *server {
 // Initialize is responsible for app initialization and wrapping required dependencies
 func (s *server) Initialize(cfg *internal.Config, ctx context.Context) error {
 
-	// connect to DB first
-	var errDb error
-	dbLayer := Db.CreateDb()
-	_, errDb = dbLayer.ConnectDB()
-	if errDb != nil {
-		log.Fatalf("failed to start the server: %v", errDb)
-	}
+	dependencies := CreateDependencies(cfg)
 
-	Repo := Repository.CreateRepository(dbLayer)
-
-	//httpHandler := &Handler{
-	//	Service: internal.CreateService(cfg),
-	//}
-
-	var ser = internal.CreateService(cfg, Repo)
-
-	handler := rest.CreateHandler(ser)
-
-	s.RESTHandler = handler
+	s.RESTHandler = dependencies.Handler
 
 	return nil
 }
