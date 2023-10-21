@@ -3,6 +3,7 @@ package internal
 import (
 	"log"
 	"math/rand"
+	cache_interface "short-link/internal/Cache/Interface"
 	"short-link/internal/Db/Repository/interface"
 	service_interface "short-link/internal/interface"
 	"time"
@@ -16,6 +17,7 @@ type UrlShortener struct {
 type Service struct {
 	Shortener *UrlShortener
 	LinkRepo  repository_interface.RepositoryInterface
+	Cache     cache_interface.CacheInterface
 }
 
 func GenerateShortKey(hashCode string) string {
@@ -30,7 +32,7 @@ func GenerateShortKey(hashCode string) string {
 }
 
 // CreateService creates an instance of membership interface with the necessary dependencies
-func CreateService(cfg *Config, linkRepo repository_interface.RepositoryInterface) service_interface.ServiceInterface {
+func CreateService(cfg *Config, linkRepo repository_interface.RepositoryInterface, cache cache_interface.CacheInterface) service_interface.ServiceInterface {
 
 	shortenerUrl := &UrlShortener{
 		Urls:   make(map[string]string),
@@ -40,6 +42,7 @@ func CreateService(cfg *Config, linkRepo repository_interface.RepositoryInterfac
 	return &Service{
 		Shortener: shortenerUrl,
 		LinkRepo:  linkRepo,
+		Cache:     cache,
 	}
 }
 
@@ -47,6 +50,12 @@ func (service *Service) GetUrl(shortKey string) *repository_interface.Link {
 
 	c, _ := service.LinkRepo.FindByShortKey(shortKey)
 	log.Println("links : ", c)
+
+	service.Cache.IncrBy(shortKey, 1)
+
+	hget,_ := service.Cache.Get(shortKey)
+
+	log.Println("run",hget)
 
 	return c
 }

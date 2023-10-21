@@ -5,4 +5,4 @@
 5- make tests
 6- Delete/regenerate short link by owner
 7- make gracefully structure
-8-record stat in redis and save them in db by a queue
+8- record stat in redis and save them in db by a queue

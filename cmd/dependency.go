@@ -4,6 +4,7 @@ import (
 	"log"
 	"short-link/cmd/rest"
 	"short-link/internal"
+	"short-link/internal/Cache"
 	"short-link/internal/Db"
 	"short-link/internal/Db/Repository"
 )
@@ -28,7 +29,9 @@ func CreateDependencies(cfg *internal.Config) out {
 	//	Service: internal.CreateService(cfg),
 	//}
 
-	var ser = internal.CreateService(cfg, Repo)
+	client := Cache.CreateCache()
+
+	var ser = internal.CreateService(cfg, Repo, client)
 
 	handler := rest.CreateHandler(ser)
 
