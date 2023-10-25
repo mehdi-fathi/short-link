@@ -5,6 +5,7 @@ type Link struct {
 	ID       int64
 	Link     string
 	ShortKey string
+	Visit    int
 }
 
 type RepositoryInterface interface {
@@ -12,4 +13,5 @@ type RepositoryInterface interface {
 	FindByShortKey(shortKey string) (*Link, error)
 	Create(link string, shortKey string) (int, error)
 	GetAll() (map[int]*Link, error)
+	UpdateVisit(visit int, shortKey string) (int, error)
 }

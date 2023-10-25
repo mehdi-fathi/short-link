@@ -23,7 +23,7 @@ func (h *Handler) HandleShorten(c *gin.Context) {
 	link := c.PostForm("link")
 
 	// Generate a unique shortened key for the original URL
-	shortKey := h.linkService.SetUrl(link)
+	shortKey := h.LinkService.SetUrl(link)
 
 	log.Println(link)
 
@@ -38,7 +38,7 @@ func (h *Handler) HandleRedirect(c *gin.Context) {
 	shortKey := c.Param("url")
 
 	// Retrieve the original URL from the `urls` map using the shortened key
-	originalURL := h.linkService.GetUrl(shortKey)
+	originalURL := h.LinkService.GetUrl(shortKey)
 
 	log.Println(originalURL, shortKey)
 
@@ -48,9 +48,11 @@ func (h *Handler) HandleRedirect(c *gin.Context) {
 
 func (h *Handler) HandleList(c *gin.Context) {
 
-	//allUrl := h.linkService.GetAllUrl()
+	//allUrl := h.LinkService.GetAllUrl()
 
-	all, _ := h.linkService.GetAllUrlV2()
+	all, _ := h.LinkService.GetAllUrlV2()
+
+	log.Println(all[0].ShortKey)
 
 	c.HTML(http.StatusOK, "list.html", gin.H{
 		"data": all,

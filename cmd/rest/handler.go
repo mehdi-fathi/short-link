@@ -18,13 +18,13 @@ type Handler struct {
 		StartTime time.Time
 	}
 	HTTPServer  *http.Server
-	linkService service_interface.ServiceInterface
+	LinkService service_interface.ServiceInterface
 }
 
 // CreateHandler Creates a new instance of REST handler
 func CreateHandler(linkService service_interface.ServiceInterface) *Handler {
 	return &Handler{
-		linkService: linkService,
+		LinkService: linkService,
 	}
 }
 

@@ -25,12 +25,14 @@
     <tr>
         <th>Key</th>
         <th>Url</th>
+        <th>Visit</th>
         <th>Short Link</th>
     </tr>
     {{ range $k, $v := .data}}
     <tr>
         <td>{{ $v.ID }}</td>
         <td>{{ $v.Link }}</td>
+        <td>{{ $v.Visit }}</td>
         <td><a href=http://localhost:8080/short/{{ $v.ShortKey }}> http://localhost:8080/short/{{ $v.ShortKey }}</a> </td>
     </tr>
     {{ end }}

@@ -2,7 +2,9 @@ package main
 
 import (
 	"context"
+	"github.com/go-co-op/gocron"
 	"os"
+	"short-link/cmd/cron"
 	"short-link/cmd/rest"
 	"short-link/internal"
 	"sync"
@@ -29,15 +31,22 @@ func (s *server) Initialize(cfg *internal.Config, ctx context.Context) error {
 
 	s.RESTHandler = dependencies.Handler
 
+	cronjob = gocron.NewScheduler(time.UTC)
+
 	return nil
 }
+
+var cronjob *gocron.Scheduler
 
 // Start starts the application in blocking mode
 func (s *server) Start(ctx context.Context) {
 	const op = "app.start"
 
+	go cron.StartCron(cronjob, s.RESTHandler.LinkService, ctx)
+
 	// Create Router for HTTP Server
 	router := SetupRouter(s.RESTHandler)
+
 	// Start GRPC Server in go-routine
 	//go s.GRPCHandler.Start(ctx, s.Config.GRPCPort)
 	// Start REST Server in Blocking mode
@@ -54,5 +63,8 @@ func (s *server) GracefulShutdown(quitSignal <-chan os.Signal, done chan<- bool)
 	s.RESTHandler.Stop()
 	//s.GRPCHandler.Stop()
 
+	cronjob.StopBlockingChan()
+
 	close(done)
+
 }

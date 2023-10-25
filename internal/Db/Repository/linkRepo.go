@@ -59,7 +59,7 @@ func (db *Repository) GetAll() (map[int]*repository_interface.Link, error) {
 	for i := 0; rows.Next(); i++ {
 		var linkTable repository_interface.Link
 
-		err = rows.Scan(&linkTable.ID, &linkTable.Link, &linkTable.ShortKey)
+		err = rows.Scan(&linkTable.ID, &linkTable.Link, &linkTable.ShortKey, &linkTable.Visit)
 
 		users[i] = &linkTable
 
@@ -76,6 +76,21 @@ func (db *Repository) Create(link string, shortKey string) (int, error) {
 
 	q := `insert into links (link,short_key) values($1,$2) returning id;`
 	row := db.Sql.QueryRow(q, link, shortKey)
+
+	var id int
+
+	row.Scan(&id)
+
+	var err error
+
+	return id, err
+
+}
+
+func (db *Repository) UpdateVisit(visit int, shortKey string) (int, error) {
+
+	q := `update links set visit = $1 where short_key = $2;`
+	row := db.Sql.QueryRow(q, visit, shortKey)
 
 	var id int
 

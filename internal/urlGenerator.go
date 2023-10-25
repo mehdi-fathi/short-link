@@ -6,6 +6,7 @@ import (
 	cache_interface "short-link/internal/Cache/Interface"
 	"short-link/internal/Db/Repository/interface"
 	service_interface "short-link/internal/interface"
+	"strconv"
 	"time"
 )
 
@@ -53,11 +54,36 @@ func (service *Service) GetUrl(shortKey string) *repository_interface.Link {
 
 	service.Cache.IncrBy(shortKey, 1)
 
-	hget,_ := service.Cache.Get(shortKey)
+	hget, _ := service.Cache.Get(shortKey)
 
-	log.Println("run",hget)
+	log.Println("run", hget)
 
 	return c
+}
+
+func (service *Service) UpdateStats() int {
+
+	all, _ := service.LinkRepo.GetAll()
+
+	log.Println(all[0].Link)
+	for _, data := range all {
+
+		hget, _ := service.Cache.Get(data.ShortKey)
+
+		visitCache, _ := strconv.Atoi(hget)
+
+		if visitCache > data.Visit {
+			service.LinkRepo.UpdateVisit(visitCache, data.ShortKey)
+		}
+
+		//var linkTable repository_interface.Link
+		//
+		//err = rows.Scan(&linkTable.ID, &linkTable.Link, &linkTable.ShortKey)
+		//
+		//users[i] = &linkTable
+
+	}
+	return 1
 }
 
 func (service *Service) SetUrl(link string) string {
