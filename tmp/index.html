@@ -1,10 +1,27 @@
 <html>
+
 <h1>
     {{ .title }}
 </h1>
+
+<h2>
+    Generate Link
+</h2>
+
+<h3>
+    <a href=http://localhost:8080/index>
+        Generate link
+    </a>
+
+    <a href=http://localhost:8080/list/all>
+        List link
+    </a>
+</h3>
+
+
 <form method="post" action="/make">
     <input name="link">
 
-	<button type="submit">Send</button>
+    <button type="submit">Send</button>
 </form>
 </html>

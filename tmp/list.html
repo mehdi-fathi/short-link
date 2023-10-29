@@ -18,8 +18,19 @@
     }
 </style>
 <h1>
-    List
+    List Links
 </h1>
+
+<h3>
+
+    <a href=http://localhost:8080/index>
+        Generate link
+    </a>
+
+    <a href=http://localhost:8080/list/all>
+        List link
+    </a>
+</h3>
 
 <table border="1">
     <tr>
@@ -27,13 +38,16 @@
         <th>Url</th>
         <th>Visit</th>
         <th>Short Link</th>
+        <th>Updated At</th>
     </tr>
     {{ range $k, $v := .data}}
     <tr>
         <td>{{ $v.ID }}</td>
         <td>{{ $v.Link }}</td>
         <td>{{ $v.Visit }}</td>
-        <td><a href=http://localhost:8080/short/{{ $v.ShortKey }}> http://localhost:8080/short/{{ $v.ShortKey }}</a> </td>
+        <td><a href=http://localhost:8080/short/{{ $v.ShortKey }}> http://localhost:8080/short/{{ $v.ShortKey }}</a>
+        <td>{{ $v.UpdatedAt }}</td>
+        </td>
     </tr>
     {{ end }}
 </table>

@@ -11,7 +11,6 @@ import (
 )
 
 type UrlShortener struct {
-	Urls   map[string]string
 	Config *Config
 }
 
@@ -36,7 +35,6 @@ func GenerateShortKey(hashCode string) string {
 func CreateService(cfg *Config, linkRepo repository_interface.RepositoryInterface, cache cache_interface.CacheInterface) service_interface.ServiceInterface {
 
 	shortenerUrl := &UrlShortener{
-		Urls:   make(map[string]string),
 		Config: cfg,
 	}
 
@@ -86,7 +84,6 @@ func (service *Service) UpdateStats() int {
 func (service *Service) SetUrl(link string) string {
 
 	shortKey := GenerateShortKey(service.Shortener.Config.HASHCODE)
-	service.Shortener.Urls[shortKey] = link
 
 	id, err := service.LinkRepo.Create(link, shortKey)
 

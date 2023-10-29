@@ -1,7 +1,6 @@
 package rest
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
@@ -23,14 +22,10 @@ func (h *Handler) HandleShorten(c *gin.Context) {
 	link := c.PostForm("link")
 
 	// Generate a unique shortened key for the original URL
-	shortKey := h.LinkService.SetUrl(link)
+	h.LinkService.SetUrl(link)
 
-	log.Println(link)
+	c.Redirect(http.StatusMovedPermanently, "http://localhost:8080/list/all")
 
-	// Construct the full shortened URL
-	shortenedURL := fmt.Sprintf("http://localhost:8080/short/%s", shortKey)
-
-	log.Println(shortenedURL)
 }
 
 func (h *Handler) HandleRedirect(c *gin.Context) {
