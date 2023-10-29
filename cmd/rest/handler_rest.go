@@ -40,8 +40,6 @@ func (h *Handler) HandleRedirect(c *gin.Context) {
 	// Retrieve the original URL from the `urls` map using the shortened key
 	originalURL := h.LinkService.GetUrl(shortKey)
 
-	log.Println(originalURL, shortKey)
-
 	// Redirect the user to the original URL
 	c.Redirect(http.StatusMovedPermanently, originalURL.Link)
 }

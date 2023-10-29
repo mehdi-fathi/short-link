@@ -35,15 +35,17 @@ func (db *Repository) FindByShortKey(shortKey string) (*repository_interface.Lin
 
 	q := `SELECT * FROM links WHERE short_key=$1;`
 	row := db.Sql.QueryRow(q, shortKey)
+
 	var err error
 
 	var linkTable repository_interface.Link
 
-	err = row.Scan(&linkTable.ID, &linkTable.Link, &linkTable.ShortKey)
+	err = row.Scan(&linkTable.ID, &linkTable.Link, &linkTable.ShortKey, &linkTable.Visit)
 
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, nil
 	}
+
 	return &linkTable, err
 
 }

@@ -49,23 +49,19 @@ func CreateService(cfg *Config, linkRepo repository_interface.RepositoryInterfac
 
 func (service *Service) GetUrl(shortKey string) *repository_interface.Link {
 
-	c, _ := service.LinkRepo.FindByShortKey(shortKey)
-	log.Println("links : ", c)
+	link, _ := service.LinkRepo.FindByShortKey(shortKey)
 
-	service.Cache.IncrBy(shortKey, 1)
+	if link.Link != "" {
+		service.Cache.IncrBy(shortKey, 1)
+	}
 
-	hget, _ := service.Cache.Get(shortKey)
-
-	log.Println("run", hget)
-
-	return c
+	return link
 }
 
 func (service *Service) UpdateStats() int {
 
 	all, _ := service.LinkRepo.GetAll()
 
-	log.Println(all[0].Link)
 	for _, data := range all {
 
 		hget, _ := service.Cache.Get(data.ShortKey)
@@ -74,6 +70,7 @@ func (service *Service) UpdateStats() int {
 
 		if visitCache > data.Visit {
 			service.LinkRepo.UpdateVisit(visitCache, data.ShortKey)
+			log.Printf("Updated %s : visit :%v", data.ShortKey, visitCache)
 		}
 
 		//var linkTable repository_interface.Link

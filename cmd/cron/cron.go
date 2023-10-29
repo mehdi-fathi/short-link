@@ -20,8 +20,8 @@ func hello(name string) {
 func StartCron(cron *gocron.Scheduler, service service_interface.ServiceInterface, ctx context.Context) {
 
 	// 4
-	cron.Every(2).Seconds().Tag("test").Do(func() {
-		hello("Saving stat links")
+	cron.Every(10).Seconds().Tag("test").Do(func() {
+		hello("Updating stat links...")
 		service.UpdateStats()
 	})
 
