@@ -7,6 +7,7 @@ import (
 	"short-link/internal/Cache"
 	"short-link/internal/Db"
 	"short-link/internal/Db/Repository"
+	"short-link/internal/Queue"
 )
 
 type out struct {
@@ -23,7 +24,7 @@ func CreateDependencies(cfg *internal.Config) out {
 		log.Fatalf("failed to start the server: %v", errDb)
 	}
 
-	Repo := Repository.CreateRepository(cfg, dbLayer)
+	repo := Repository.CreateRepository(cfg, dbLayer)
 
 	//httpHandler := &Handler{
 	//	Service: internal.CreateService(cfg),
@@ -31,7 +32,9 @@ func CreateDependencies(cfg *internal.Config) out {
 
 	client := Cache.CreateCache()
 
-	var ser = internal.CreateService(cfg, Repo, client)
+	queue := Queue.CreateConnection()
+
+	var ser = internal.CreateService(cfg, repo, client, queue)
 
 	handler := rest.CreateHandler(ser)
 

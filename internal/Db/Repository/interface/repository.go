@@ -2,9 +2,9 @@ package repository_interface
 
 // Character is one character from the database.
 type Link struct {
-	ID         int64
-	Link       string
-	ShortKey   string
+	ID        int64
+	Link      string
+	ShortKey  string
 	Visit     int
 	UpdatedAt string
 }
