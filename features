@@ -6,3 +6,4 @@
 6- Delete/regenerate short link by owner
 7- make gracefully structure
 8- record stat in redis and save them in db by a queue
+9- use env for rabbitmq

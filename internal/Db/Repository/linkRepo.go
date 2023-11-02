@@ -3,7 +3,7 @@ package Repository
 import (
 	"database/sql"
 	"errors"
-	"short-link/internal"
+	"short-link/internal/Config"
 	"short-link/internal/Db"
 	repository_interface "short-link/internal/Db/Repository/interface"
 )
@@ -11,7 +11,7 @@ import (
 // Db holds database connection to Postgres
 type Repository struct {
 	*Db.Db
-	Config *internal.Config
+	Config *Config.Config
 }
 
 func (db *Repository) FindById(idIn int) (*repository_interface.Link, error) {
@@ -105,7 +105,7 @@ func (db *Repository) UpdateVisit(visit int, shortKey string) (int, error) {
 }
 
 // CreateService creates an instance of membership interface with the necessary dependencies
-func CreateRepository(cfg *internal.Config, dbLayer *Db.Db) repository_interface.RepositoryInterface {
+func CreateRepository(cfg *Config.Config, dbLayer *Db.Db) repository_interface.RepositoryInterface {
 
 	Repo := &Repository{dbLayer, cfg}
 

@@ -17,3 +17,8 @@ LOGGER:
   GRAYLOG_ACTIVE: false
   GRAYLOG_SERVER:
   GRAYLOG_STREAM: short-link
+QueueRabbit:
+  HOST: localhost
+  PORT: 5672
+  USER: guest
+  PASSWORD: guest

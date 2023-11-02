@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"short-link/internal"
+	"short-link/internal/Config"
 
 	_ "github.com/lib/pq"
 )
@@ -12,18 +12,8 @@ import (
 // Db holds database connection to Postgres
 type Db struct {
 	Sql    *sql.DB
-	Config *internal.Config
+	Config *Config.Config
 }
-
-// database variables
-// usually we should get them from env like os.Getenv("variableName")
-const (
-	host     = "localhost"
-	port     = 5432
-	user     = "default"
-	password = "secret"
-	dbname   = "slink"
-)
 
 // ConnectDB tries to connect DB and on succcesful it returns
 // DB connection string and nil error, otherwise return empty DB and the corresponding error.
@@ -40,7 +30,7 @@ func (db *Db) ConnectDB() (*Db, error) {
 	var err error
 
 	db.Sql, err = sql.Open("postgres", connString)
-	log.Println("err", err)
+
 	if err != nil {
 		log.Printf("failed to connect to database: %v", err)
 		return &Db{}, err
@@ -62,7 +52,7 @@ func (db *Db) ConnectDB() (*Db, error) {
 }
 
 // CreateService creates an instance of membership interface with the necessary dependencies
-func CreateDb(cfg *internal.Config) *Db {
+func CreateDb(cfg *Config.Config) *Db {
 
 	Db := &Db{
 		Sql:    new(sql.DB),

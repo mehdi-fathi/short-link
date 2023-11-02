@@ -1,4 +1,4 @@
-package internal
+package Config
 
 import (
 	"github.com/kelseyhightower/envconfig"
@@ -18,6 +18,7 @@ type Config struct {
 	AppMod      string        `yaml:"APP_MOD" envconfig:"APP_MOD"`
 	HASHCODE    string        `yaml:"HASHCODE" envconfig:"HASHCODE"`
 	DB          DB            `yaml:"DB"`
+	QueueRabbit QueueRabbit   `yaml:"QueueRabbit"`
 	Logger      logger.Config `yaml:"LOGGER"`
 	Redis       Redis         `yaml:"REDIS"`
 }
@@ -28,6 +29,13 @@ type DB struct {
 	User     string `yaml:"USER" `
 	Password string `yaml:"PASSWORD" envconfig:"PASSWORD"`
 	Dbname   string `yaml:"DBNAME" envconfig:"DBNAME"`
+}
+
+type QueueRabbit struct {
+	Host     string `yaml:"HOST" envconfig:"HOST"`
+	Port     int    `yaml:"PORT" envconfig:"PORT"`
+	User     string `yaml:"USER" `
+	Password string `yaml:"PASSWORD" envconfig:"PASSWORD"`
 }
 
 type Redis struct {

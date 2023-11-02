@@ -4,39 +4,46 @@ import (
 	"fmt"
 	"github.com/streadway/amqp"
 	"log"
+	"short-link/internal/Config"
 )
 
 type Queue struct {
 	Connection *amqp.Connection
+	cfg        *Config.Config
 }
 
-func CreateConnection() *Queue {
+func CreateConnection(cfg *Config.Config) *amqp.Connection {
 
 	fmt.Println("RabbitMQ in Golang: Getting started tutorial")
 
-	connection, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+	connString := fmt.Sprintf("amqp://%s:%s@%s:%d/",
+		cfg.QueueRabbit.User,
+		cfg.QueueRabbit.Password,
+		cfg.QueueRabbit.Host,
+		cfg.QueueRabbit.Port,
+	)
+
+	connection, err := amqp.Dial(connString)
+
 	if err != nil {
 		log.Println(err)
-		panic(err)
+		panic(err.(interface{}))
 	}
 
-	queue := &Queue{
-		Connection: connection,
-	}
+	log.Println("Successfully connected to RabbitMQ instance")
 
-	return queue
+	return connection
 }
 
 func (qu *Queue) Publish() {
 
 	defer qu.Connection.Close()
 
-	fmt.Println("Successfully connected to RabbitMQ instance")
-
+	var err error
 	// opening a channel over the connection established to interact with RabbitMQ
 	channel, err := qu.Connection.Channel()
 	if err != nil {
-		panic(err)
+		panic(err.(interface{}))
 	}
 	defer channel.Close()
 
@@ -50,7 +57,7 @@ func (qu *Queue) Publish() {
 		nil,       // args
 	)
 	if err != nil {
-		panic(err)
+		panic(err.(interface{}))
 	}
 
 	// publishing a message
@@ -65,9 +72,19 @@ func (qu *Queue) Publish() {
 		},
 	)
 	if err != nil {
-		panic(err)
+		panic(err.(interface{}))
 	}
 
 	fmt.Println("Queue status:", queue)
 	fmt.Println("Successfully published message")
+}
+
+func CreateQueue(cfg *Config.Config) *Queue {
+
+	queue := &Queue{
+		Connection: CreateConnection(cfg),
+		cfg:        cfg,
+	}
+
+	return queue
 }

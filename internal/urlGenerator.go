@@ -4,6 +4,7 @@ import (
 	"log"
 	"math/rand"
 	cache_interface "short-link/internal/Cache/Interface"
+	Config2 "short-link/internal/Config"
 	"short-link/internal/Db/Repository/interface"
 	"short-link/internal/Queue"
 	service_interface "short-link/internal/interface"
@@ -12,7 +13,7 @@ import (
 )
 
 type UrlShortener struct {
-	Config *Config
+	Config *Config2.Config
 }
 
 type Service struct {
@@ -35,7 +36,7 @@ func GenerateShortKey(hashCode string) string {
 
 // CreateService creates an instance of membership interface with the necessary dependencies
 func CreateService(
-	cfg *Config, linkRepo repository_interface.RepositoryInterface,
+	cfg *Config2.Config, linkRepo repository_interface.RepositoryInterface,
 	cache cache_interface.CacheInterface, queue *Queue.Queue,
 ) service_interface.ServiceInterface {
 

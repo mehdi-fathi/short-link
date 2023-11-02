@@ -6,7 +6,7 @@ import (
 	"os"
 	"short-link/cmd/cron"
 	"short-link/cmd/rest"
-	"short-link/internal"
+	"short-link/internal/Config"
 	"sync"
 	"time"
 )
@@ -25,7 +25,7 @@ func NewServer(startTime time.Time) *server {
 }
 
 // Initialize is responsible for app initialization and wrapping required dependencies
-func (s *server) Initialize(cfg *internal.Config, ctx context.Context) error {
+func (s *server) Initialize(cfg *Config.Config, ctx context.Context) error {
 
 	dependencies := CreateDependencies(cfg)
 

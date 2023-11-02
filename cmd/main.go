@@ -8,7 +8,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
-	"short-link/internal"
+	"short-link/internal/Config"
 	"short-link/pkg/logger"
 	"syscall"
 	"time"
@@ -37,7 +37,7 @@ func main() {
 	flag.Parse()
 
 	// Loading the config file
-	cfg, err := internal.LoadConfig(configFile)
+	cfg, err := Config.LoadConfig(configFile)
 	if err != nil {
 		log.Println(errors.Wrapf(err, "failed to load config: %s", "CreateService"))
 	}

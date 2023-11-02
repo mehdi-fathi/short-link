@@ -5,6 +5,7 @@ import (
 	"short-link/cmd/rest"
 	"short-link/internal"
 	"short-link/internal/Cache"
+	"short-link/internal/Config"
 	"short-link/internal/Db"
 	"short-link/internal/Db/Repository"
 	"short-link/internal/Queue"
@@ -14,7 +15,7 @@ type out struct {
 	Handler *rest.Handler
 }
 
-func CreateDependencies(cfg *internal.Config) out {
+func CreateDependencies(cfg *Config.Config) out {
 
 	// connect to DB first
 	var errDb error
@@ -32,7 +33,7 @@ func CreateDependencies(cfg *internal.Config) out {
 
 	client := Cache.CreateCache()
 
-	queue := Queue.CreateConnection()
+	queue := Queue.CreateQueue(cfg)
 
 	var ser = internal.CreateService(cfg, repo, client, queue)
 
