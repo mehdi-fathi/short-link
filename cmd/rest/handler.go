@@ -29,7 +29,7 @@ func CreateHandler(linkService service_interface.ServiceInterface) *Handler {
 }
 
 // Start starts the http server
-func (h *Handler) Start(ctx context.Context, r *gin.Engine, defaultPort int) {
+func (h *Handler) Start(r *gin.Engine, defaultPort int) {
 	const op = "http.rest.start"
 
 	addr := fmt.Sprintf(":%d", defaultPort)

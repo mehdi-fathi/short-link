@@ -7,3 +7,4 @@
 7- make gracefully structure
 8- record stat in redis and save them in db by a queue
 9- use env for rabbitmq
+10 - load migration in test mod and mock database in testing mod

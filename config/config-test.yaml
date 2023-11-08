@@ -1,0 +1,24 @@
+HTTP_PORT: 8000
+REFERER_HOST: localhost
+APP_MOD: local
+REDIS:
+  HOST: [localhost:7000,localhost:7001,localhost:7002]
+  USE_AUTH: false
+  PASSWORD:
+HASHCODE : abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
+DB:
+  HOST: localhost
+  PORT: 5432
+  USER: default
+  PASSWORD: secret
+  DBNAME: slink_test
+LOGGER:
+  LOG_LEVEL: TRACE
+  GRAYLOG_ACTIVE: false
+  GRAYLOG_SERVER:
+  GRAYLOG_STREAM: short-link
+QueueRabbit:
+  HOST: localhost
+  PORT: 5672
+  USER: guest
+  PASSWORD: guest

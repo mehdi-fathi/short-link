@@ -56,7 +56,7 @@ func main() {
 	server := NewServer(startTime)
 
 	// Initialize the Server Dependencies
-	err = server.Initialize(cfg, ctx)
+	err = server.Initialize(cfg)
 
 	done := make(chan bool, 1)
 	quiteSignal := make(chan os.Signal, 1)
@@ -66,7 +66,7 @@ func main() {
 	go server.GracefulShutdown(quiteSignal, done)
 
 	// Start server in blocking mode
-	server.Start(ctx)
+	server.Start()
 
 	if err != nil {
 		log.Fatal(errors.Wrap(err, "server error"))

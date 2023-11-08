@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"github.com/go-co-op/gocron"
 	"os"
 	"short-link/cmd/cron"
@@ -25,7 +24,7 @@ func NewServer(startTime time.Time) *server {
 }
 
 // Initialize is responsible for app initialization and wrapping required dependencies
-func (s *server) Initialize(cfg *Config.Config, ctx context.Context) error {
+func (s *server) Initialize(cfg *Config.Config) error {
 
 	dependencies := CreateDependencies(cfg)
 
@@ -39,10 +38,10 @@ func (s *server) Initialize(cfg *Config.Config, ctx context.Context) error {
 var cronjob *gocron.Scheduler
 
 // Start starts the application in blocking mode
-func (s *server) Start(ctx context.Context) {
+func (s *server) Start() {
 	const op = "app.start"
 
-	go cron.StartCron(cronjob, s.RESTHandler.LinkService, ctx)
+	go cron.StartCron(cronjob, s.RESTHandler.LinkService)
 
 	// Create Router for HTTP Server
 	router := SetupRouter(s.RESTHandler)
@@ -50,7 +49,7 @@ func (s *server) Start(ctx context.Context) {
 	// Start GRPC Server in go-routine
 	//go s.GRPCHandler.Start(ctx, s.Config.GRPCPort)
 	// Start REST Server in Blocking mode
-	s.RESTHandler.Start(ctx, router, 8080)
+	s.RESTHandler.Start(router, 8080)
 }
 
 // GracefulShutdown listen over the quitSignal to graceful shutdown the app

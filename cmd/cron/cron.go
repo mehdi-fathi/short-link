@@ -1,7 +1,6 @@
 package cron
 
 import (
-	"context"
 	"fmt"
 	"github.com/go-co-op/gocron"
 	service_interface "short-link/internal/interface"
@@ -17,7 +16,7 @@ func hello(name string) {
 	fmt.Println(message)
 }
 
-func StartCron(cron *gocron.Scheduler, service service_interface.ServiceInterface, ctx context.Context) {
+func StartCron(cron *gocron.Scheduler, service service_interface.ServiceInterface) {
 
 	// 4
 	cron.Every(10).Seconds().Tag("test").Do(func() {
