@@ -40,10 +40,10 @@ type QueueRabbit struct {
 }
 
 type Redis struct {
-	HOST     []string `yaml:"HOST" envconfig:"HOST"`
-	PORT     int      `yaml:"PORT" envconfig:"PORT"`
-	USEAUTH  bool     `yaml:"USE_AUTH" envconfig:"USE_AUTH"`
-	PASSWORD string   `yaml:"PASSWORD" envconfig:"PASSWORD"`
+	HOST     string `yaml:"HOST" envconfig:"HOST"`
+	PORT     int    `yaml:"PORT" envconfig:"PORT"`
+	USEAUTH  bool   `yaml:"USE_AUTH" envconfig:"USE_AUTH"`
+	PASSWORD string `yaml:"PASSWORD" envconfig:"PASSWORD"`
 }
 
 // LoadConfig loads configs form provided yaml file or overrides it with env variables

@@ -67,7 +67,7 @@ func setupRouterAndHandler(cfg *Config.Config, db *Db.Db) (*Handler, *gin.Engine
 	//	Service: internal.CreateService(cfg),
 	//}
 
-	client := Cache.CreateCache()
+	client := Cache.CreateCache(cfg)
 
 	queue := Queue.CreateQueue(cfg)
 

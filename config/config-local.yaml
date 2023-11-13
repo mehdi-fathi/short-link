@@ -2,10 +2,11 @@ HTTP_PORT: 8000
 REFERER_HOST: localhost
 APP_MOD: local
 REDIS:
-  HOST: [localhost:7000,localhost:7001,localhost:7002]
+  HOST: localhost
+  PORT: 6379
   USE_AUTH: false
   PASSWORD:
-HASHCODE : abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
+HASHCODE: abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
 DB:
   HOST: localhost
   PORT: 5432

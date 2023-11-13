@@ -1,20 +1,26 @@
 package Cache
 
 import (
+	"errors"
+	"fmt"
 	"github.com/go-redis/redis/v8"
 	cache_interface "short-link/internal/Cache/Interface"
+	"short-link/internal/Config"
 )
 
 // Db holds database connection to Postgres
 type Cache struct {
 	client *redis.Client
+	Config *Config.Config
 }
 
-func Connect() *redis.Client {
+func Connect(cfg *Config.Config) *redis.Client {
+
+	url := fmt.Sprintf("%s:%d", cfg.Redis.HOST, cfg.Redis.PORT)
 
 	client := redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
-		Password: "",
+		Addr:     url,
+		Password: cfg.Redis.PASSWORD,
 		DB:       0,
 	})
 
@@ -45,12 +51,17 @@ func (Cache *Cache) IncrBy(key string, value int64) (int64, error) {
 	return Cache.client.IncrBy(Cache.client.Context(), key, value).Result()
 }
 
-// CreateService creates an instance of membership interface with the necessary dependencies
-func CreateCache() cache_interface.CacheInterface {
+func CreateCache(cfg *Config.Config) cache_interface.CacheInterface {
 
-	client := Connect()
+	client := Connect(cfg)
 
-	cache := &Cache{client}
+	cache := &Cache{client, cfg}
+
+	// Send a PING command to check the connection.
+	_, err := cache.Ping()
+	if err != nil {
+		panic(errors.New("Redis: Can't connect to redis").(interface{}))
+	}
 
 	return cache
 }

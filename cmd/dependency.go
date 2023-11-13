@@ -31,7 +31,7 @@ func CreateDependencies(cfg *Config.Config) out {
 	//	Service: internal.CreateService(cfg),
 	//}
 
-	client := Cache.CreateCache()
+	client := Cache.CreateCache(cfg)
 
 	queue := Queue.CreateQueue(cfg)
 
