@@ -8,3 +8,6 @@
 8- record stat in redis and save them in db by a queue
 9- use env for rabbitmq
 10 - load migration in test mod and mock database in testing mod
+11 - Expiration for Links
+12 - Unit Testing
+13 - make config for redis

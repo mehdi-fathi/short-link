@@ -1,55 +1,124 @@
+<!DOCTYPE html>
 <html>
+<head>
+    <title>Link List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+            line-height: 1.6;
+        }
 
-<style>
-    table {
-        font-family: arial, sans-serif;
-        border-collapse: collapse;
-        width: 100%;
-    }
+        .container {
+            width: 80%;
+            margin: auto;
+            overflow: hidden;
+        }
 
-    td, th {
-        border: 1px solid #dddddd;
-        text-align: left;
-        padding: 8px;
-    }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
 
-    tr:nth-child(even) {
-        background-color: #dddddd;
-    }
-</style>
-<h1>
-    List Links
-</h1>
+        h3 a {
+            color: #333;
+            margin: 0 10px;
+            text-decoration: none;
+        }
 
-<h3>
+        h3 a:hover {
+            color: #007bff;
+        }
 
-    <a href=http://localhost:8080/index>
-        Generate link
-    </a>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-bottom: 20px;
+        }
 
-    <a href=http://localhost:8080/list/all>
-        List link
-    </a>
-</h3>
+        td, th {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
 
-<table border="1">
-    <tr>
-        <th>Key</th>
-        <th>Url</th>
-        <th>Visit</th>
-        <th>Short Link</th>
-        <th>Updated At</th>
-    </tr>
-    {{ range $k, $v := .data}}
-    <tr>
-        <td>{{ $v.ID }}</td>
-        <td>{{ $v.Link }}</td>
-        <td>{{ $v.Visit }}</td>
-        <td><a href=http://localhost:8080/short/{{ $v.ShortKey }}> http://localhost:8080/short/{{ $v.ShortKey }}</a>
-        <td>{{ $v.UpdatedAt }}</td>
-        </td>
-    </tr>
-    {{ end }}
-</table>
+        th {
+            background-color: #007bff;
+            color: white;
+        }
 
+        tr:nth-child(even) {
+            background-color: #dddddd;
+        }
+
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px 0;
+            font-size: 0.8em;
+        }
+
+
+        .nav-buttons {
+            margin-bottom: 20px;
+        }
+
+        .nav-buttons a {
+            display: inline-block;
+            padding: 10px 15px;
+            margin: 0 10px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s;
+        }
+
+        .nav-buttons a:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>List Links</h1>
+
+    <div class="nav-buttons">
+        <a href="http://localhost:8080/index">Generate Link</a>
+        <a href="http://localhost:8080/list/all">List Link</a>
+    </div>
+
+    <table border="1">
+        <tr>
+            <th>Key</th>
+            <th>Url</th>
+            <th>Visit</th>
+            <th>Short Link</th>
+            <th>Updated At</th>
+        </tr>
+        {{ range $k, $v := .data}}
+        <tr>
+            <td>{{ $v.ID }}</td>
+            <td>{{ $v.Link }}</td>
+            <td>{{ $v.Visit }}</td>
+            <td><a href="http://localhost:8080/short/{{ $v.ShortKey }}">http://localhost:8080/short/{{ $v.ShortKey }}</a></td>
+            <td>{{ $v.UpdatedAt }}</td>
+        </tr>
+        {{ end }}
+    </table>
+</div>
+
+<div class="footer">
+    &copy; 2023 Link List
+</div>
+
+</body>
 </html>

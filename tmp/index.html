@@ -1,27 +1,144 @@
+<!DOCTYPE html>
 <html>
+<head>
+    <title>Generate Link</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+            line-height: 1.6;
+        }
 
-<h1>
-    {{ .title }}
-</h1>
+        .container {
+            width: 80%;
+            margin: auto;
+            overflow: hidden;
+        }
 
-<h2>
-    Generate Link
-</h2>
+        h1, h2 {
+            text-align: center;
+            color: #333;
+        }
 
-<h3>
-    <a href=http://localhost:8080/index>
-        Generate link
-    </a>
+        h3 a {
+            color: #333;
+            margin: 0 10px;
+            text-decoration: none;
+        }
 
-    <a href=http://localhost:8080/list/all>
-        List link
-    </a>
-</h3>
+        h3 a:hover {
+            color: #007bff;
+        }
+
+        form {
+            max-width: 1400px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        input[name="link"] {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        button[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+
+        .description {
+            background: #fff;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-buttons {
+            margin-bottom: 20px;
+        }
+
+        .nav-buttons a {
+            display: inline-block;
+            padding: 10px 15px;
+            margin: 0 10px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s;
+        }
+
+        .nav-buttons a:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>{{ .title }}</h1>
+    <h2>Generate Link</h2>
+
+    <div class="nav-buttons">
+        <a href="http://localhost:8080/index">Generate Link</a>
+        <a href="http://localhost:8080/list/all">List Link</a>
+    </div>
+
+    <form method="post" action="/make">
+        <input name="link" placeholder="Enter your link here">
 
 
-<form method="post" action="/make">
-    <input name="link">
+        <button type="submit">Send</button>
 
-    <button type="submit">Send</button>
-</form>
+
+        <div class="description">
+            <h3>Short Link Technology</h3>
+            <p>Welcome to our Short Link Generator! Short links are a form of URL simplification, where a long and often
+                complex URL is transformed into a shorter, more manageable version. This technology is not only about
+                reducing the length of a URL but also about enhancing usability, tracking, and sharing of web links.</p>
+            <p><strong>Key Benefits:</strong></p>
+            <ul>
+                <li><strong>Ease of Sharing</strong>: Short links are easier to share, especially on social media
+                    platforms, in emails, and in print, where space is limited or aesthetics matter.
+                </li>
+                <li><strong>Enhanced Tracking</strong>: Short links often come with the ability to track and analyze
+                    traffic. This means you can see how many times your link was clicked, when it was clicked, and
+                    sometimes even where the clicks came from.
+                </li>
+                <li><strong>Improved Aesthetics</strong>: Long URLs can be unwieldy and unattractive. Short links
+                    provide a cleaner, more professional look.
+                </li>
+                <li><strong>Prevent URL Manipulation</strong>: By shortening a URL, you also protect the integrity of
+                    the link, ensuring that users reach the intended destination without tampering.
+                </li>
+            </ul>
+            <p>Using our service, you can easily generate short links for your long URLs. Just enter your link in the
+                input field and click "Send" to create a more concise, trackable, and shareable version of your URL.</p>
+            <p>Happy linking!</p>
+        </div>
+
+    </form>
+</div>
+
+</body>
 </html>

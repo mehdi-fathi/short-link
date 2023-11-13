@@ -1,6 +1,7 @@
 package Config
 
 import (
+	"fmt"
 	"github.com/kelseyhightower/envconfig"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
@@ -73,6 +74,14 @@ func readFile(cfg *Config, filePath string) error {
 		return ErrInvalidYamlFile
 	}
 	return nil
+}
+
+func LoadTestConfig() (*Config, error) {
+	defaultConfigFile := "../../config/config-test.yaml"
+	if env := os.Getenv("APP_MODE"); env != "" {
+		defaultConfigFile = fmt.Sprintf("../../config/config-%s.yaml", env)
+	}
+	return LoadConfig(defaultConfigFile)
 }
 
 func readEnv(cfg *Config) error {

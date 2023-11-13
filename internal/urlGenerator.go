@@ -56,7 +56,7 @@ func (service *Service) GetUrl(shortKey string) *repository_interface.Link {
 
 	link, _ := service.LinkRepo.FindByShortKey(shortKey)
 
-	if link.Link != "" {
+	if link != nil && link.Link != "" {
 		service.Cache.IncrBy(shortKey, 1)
 	}
 

@@ -2,7 +2,6 @@ package rest
 
 import (
 	"github.com/gin-gonic/gin"
-	"log"
 	"net/http"
 )
 
@@ -35,8 +34,13 @@ func (h *Handler) HandleRedirect(c *gin.Context) {
 	// Retrieve the original URL from the `urls` map using the shortened key
 	originalURL := h.LinkService.GetUrl(shortKey)
 
-	// Redirect the user to the original URL
-	c.Redirect(http.StatusMovedPermanently, originalURL.Link)
+	if originalURL != nil {
+		// Redirect the user to the original URL
+		c.Redirect(http.StatusMovedPermanently, originalURL.Link)
+	}
+
+	c.HTML(http.StatusNotFound, "404.html", nil)
+
 }
 
 func (h *Handler) HandleList(c *gin.Context) {
@@ -44,8 +48,6 @@ func (h *Handler) HandleList(c *gin.Context) {
 	//allUrl := h.LinkService.GetAllUrl()
 
 	all, _ := h.LinkService.GetAllUrlV2()
-
-	log.Println(all[0].ShortKey)
 
 	c.HTML(http.StatusOK, "list.html", gin.H{
 		"data": all,
