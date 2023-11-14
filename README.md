@@ -13,7 +13,7 @@ Short-Link is a URL shortening service created with Golang. It provides a simple
 ``
 ### Prerequisites
 - Golang
-- PostgreSQL``
+- PostgreSQL
 - Redis
 
 ### Steps
