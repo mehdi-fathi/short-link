@@ -3,8 +3,8 @@ package Queue
 import (
 	"fmt"
 	"github.com/streadway/amqp"
-	"log"
 	"short-link/internal/Config"
+	"short-link/pkg/logger"
 )
 
 type Queue struct {
@@ -13,8 +13,6 @@ type Queue struct {
 }
 
 func CreateConnection(cfg *Config.Config) *amqp.Connection {
-
-	fmt.Println("RabbitMQ in Golang: Getting started tutorial")
 
 	connString := fmt.Sprintf("amqp://%s:%s@%s:%d/",
 		cfg.QueueRabbit.User,
@@ -26,11 +24,11 @@ func CreateConnection(cfg *Config.Config) *amqp.Connection {
 	connection, err := amqp.Dial(connString)
 
 	if err != nil {
-		log.Println(err)
+		logger.CreateLogError(fmt.Sprintf("failed to connect to database: %v", err))
 		panic(err.(interface{}))
 	}
 
-	log.Println("Successfully connected to RabbitMQ instance")
+	logger.CreateLogInfo("Successfully connected to RabbitMQ instance")
 
 	return connection
 }
@@ -75,8 +73,7 @@ func (qu *Queue) Publish() {
 		panic(err.(interface{}))
 	}
 
-	fmt.Println("Queue status:", queue)
-	fmt.Println("Successfully published message")
+	logger.CreateLogInfo(fmt.Sprintf("Successfully published message - Queue status: %v", queue))
 }
 
 func CreateQueue(cfg *Config.Config) *Queue {

@@ -1,4 +1,9 @@
 
+
+ENTRY_BUILD_FILE=./cmd/.
+
+BINARY := short-link
+
 doc:
 	godoc -index
 
@@ -7,6 +12,12 @@ version:
 
 run:
 	go run cmd/*.go
+
+build:
+	go build -o ./bin/$(BINARY) $(ENTRY_BUILD_FILE) && chmod +x bin/$(BINARY)
+
+run_build:
+	bin/$(BINARY)
 
 test:
 	go test ./...

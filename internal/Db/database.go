@@ -3,8 +3,8 @@ package Db
 import (
 	"database/sql"
 	"fmt"
-	"log"
 	"short-link/internal/Config"
+	"short-link/pkg/logger"
 
 	_ "github.com/lib/pq"
 
@@ -29,14 +29,13 @@ func (db *Db) ConnectDB() (*Db, error) {
 		db.Config.DB.User,
 		db.Config.DB.Password,
 		db.Config.DB.Dbname)
-	log.Println(db.Config.DB.User)
 
 	var err error
 
 	db.Sql, err = sql.Open("postgres", connString)
 
 	if err != nil {
-		log.Printf("failed to connect to database: %v", err)
+		logger.CreateLogError(fmt.Sprintf("failed to connect to database: %v", err))
 		return &Db{}, err
 	}
 
@@ -84,7 +83,7 @@ func (db *Db) ConnectDBTest() (*Db, error) {
 	// Create a test database (pseudo-code)
 	db.Sql, err = sql.Open("postgres", connString)
 	if err != nil {
-		log.Println(err, "error")
+		logger.CreateLogError(err.Error())
 		return nil, err
 	}
 	rows, errorIs := db.Sql.Query("SELECT version();")
@@ -96,13 +95,10 @@ func (db *Db) ConnectDBTest() (*Db, error) {
 	for rows.Next() {
 		var ver string
 		rows.Scan(&ver)
-		fmt.Println(ver)
 	}
 
 	// Apply migrations
 	if err := applyMigrations("postgresql://default:secret@localhost:5432/slink_test?sslmode=disable", "file:///Users/mehdi/Sites/short-link/database/migration"); err != nil {
-
-		log.Println("run")
 		return nil, err
 	}
 
@@ -115,8 +111,6 @@ func applyMigrations(dbURL string, migrationsPath string) error {
 		dbURL,
 	)
 	if err != nil {
-		log.Println("run 2")
-
 		return err
 	}
 	if err := m.Up(); err != nil && err != migrate.ErrNoChange {

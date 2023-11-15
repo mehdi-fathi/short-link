@@ -19,6 +19,8 @@ type Config struct {
 	GrayLogStream string `yaml:"GRAYLOG_STREAM" envconfig:"LOGGER_GRAYLOG_STREAM"`
 }
 
+var StandardLoggerVar *logrus.Logger
+
 // CreateLogger create an instance of logger
 func CreateLogger(cfg Config) *StandardLogger {
 	level, _ := logrus.ParseLevel(cfg.LogLevel)
@@ -37,6 +39,8 @@ func CreateLogger(cfg Config) *StandardLogger {
 	}
 
 	standardLogger := &StandardLogger{logger}
+	StandardLoggerVar = logger
+
 	return standardLogger
 }
 
@@ -54,4 +58,14 @@ func DefaultLogger(cfg Config) {
 		hook := graylog.NewGraylogHook(cfg.GrayLogServer, map[string]interface{}{"stream": cfg.GrayLogStream})
 		logrus.AddHook(hook)
 	}
+}
+
+func CreateLogInfo(text string) {
+
+	StandardLoggerVar.Info(text)
+}
+
+func CreateLogError(text string) {
+
+	StandardLoggerVar.Error(text)
 }

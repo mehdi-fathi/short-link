@@ -43,7 +43,8 @@ func main() {
 	}
 
 	loggerInstance := logger.CreateLogger(cfg.Logger)
-	loggerInstance.Info("[OK] Logger Configured")
+
+	logger.CreateLogInfo("[OK] Logger Configured")
 
 	//loggerInstance := logrus.Logger{}
 	//loggerInstance.Info("[OK] Logger Configured")

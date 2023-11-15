@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
-	"log"
 	"net/http"
 	service_interface "short-link/internal/interface"
+	"short-link/pkg/logger"
 	"time"
 )
 
@@ -17,8 +17,9 @@ type Handler struct {
 		BuildTime string
 		StartTime time.Time
 	}
-	HTTPServer  *http.Server
-	LinkService service_interface.ServiceInterface
+	loggerInstance *logger.StandardLogger
+	HTTPServer     *http.Server
+	LinkService    service_interface.ServiceInterface
 }
 
 // CreateHandler Creates a new instance of REST handler
@@ -46,7 +47,7 @@ func (h *Handler) Start(r *gin.Engine, defaultPort int) {
 	//h.Logger.Infof("[OK] Starting HTTP REST Server on %s ", addr)
 	err := h.HTTPServer.ListenAndServe()
 	if err != http.ErrServerClosed {
-		log.Println(errors.WithMessage(err, op))
+		logger.CreateLogError(errors.WithMessage(err, op).Error())
 	}
 	//// Code Reach Here after HTTP Server Shutdown!
 	//h.Logger.Info("[OK] HTTP REST Server is shutting down!")
@@ -62,8 +63,8 @@ func (h *Handler) Stop() {
 
 	h.HTTPServer.SetKeepAlivesEnabled(false)
 	if err := h.HTTPServer.Shutdown(ctxTimeout); err != nil {
-		log.Println(errors.WithMessage(err, op))
+		logger.CreateLogError(errors.WithMessage(err, op).Error())
 	}
-	log.Println("HTTP REST Server graceful shutdown completed")
+	logger.CreateLogInfo("HTTP REST Server graceful shutdown completed")
 
 }

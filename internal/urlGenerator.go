@@ -1,13 +1,14 @@
 package internal
 
 import (
-	"log"
+	"fmt"
 	"math/rand"
 	cache_interface "short-link/internal/Cache/Interface"
 	Config2 "short-link/internal/Config"
 	"short-link/internal/Db/Repository/interface"
 	"short-link/internal/Queue"
 	service_interface "short-link/internal/interface"
+	"short-link/pkg/logger"
 	"strconv"
 	"time"
 )
@@ -75,7 +76,7 @@ func (service *Service) UpdateStats() int {
 
 		if visitCache > data.Visit {
 			service.LinkRepo.UpdateVisit(visitCache, data.ShortKey)
-			log.Printf("Updated %s : visit :%v", data.ShortKey, visitCache)
+			logger.CreateLogInfo(fmt.Sprintf("Updated %s : visit :%v", data.ShortKey, visitCache))
 		}
 
 		//var linkTable repository_interface.Link
@@ -92,11 +93,10 @@ func (service *Service) SetUrl(link string) string {
 
 	shortKey := GenerateShortKey(service.Shortener.Config.HASHCODE)
 
-	id, err := service.LinkRepo.Create(link, shortKey)
+	_, err := service.LinkRepo.Create(link, shortKey)
 
 	service.Queue.Publish()
 
-	log.Println(id)
 	if err != nil {
 		return ""
 	}
