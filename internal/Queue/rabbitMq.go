@@ -1,10 +1,15 @@
 package Queue
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/streadway/amqp"
+	"log"
 	"short-link/internal/Config"
+	"short-link/internal/Event"
 	"short-link/pkg/logger"
+	"time"
 )
 
 type Queue struct {
@@ -33,13 +38,11 @@ func CreateConnection(cfg *Config.Config) *amqp.Connection {
 	return connection
 }
 
-func (qu *Queue) Publish() {
-
-	defer qu.Connection.Close()
+func (qu *Queue) Publish(ch *amqp.Channel, queueName string, event Event.Event) {
 
 	var err error
 	// opening a channel over the connection established to interact with RabbitMQ
-	channel, err := qu.Connection.Channel()
+	channel := ch
 	if err != nil {
 		panic(err.(interface{}))
 	}
@@ -58,6 +61,8 @@ func (qu *Queue) Publish() {
 		panic(err.(interface{}))
 	}
 
+	body, _ := json.Marshal(event)
+
 	// publishing a message
 	err = channel.Publish(
 		"",        // exchange
@@ -66,7 +71,7 @@ func (qu *Queue) Publish() {
 		false,     // immediate
 		amqp.Publishing{
 			ContentType: "text/plain",
-			Body:        []byte("Test Message"),
+			Body:        body,
 		},
 	)
 	if err != nil {
@@ -84,4 +89,98 @@ func CreateQueue(cfg *Config.Config) *Queue {
 	}
 
 	return queue
+}
+
+// ConsumeEvents listens for messages on a RabbitMQ queue and processes them
+func (qu *Queue) ConsumeEvents(ctx context.Context, ch *amqp.Channel, queueName string) {
+
+	ch, err := qu.Connection.Channel()
+	if err != nil {
+		log.Fatalf("Failed to open a channel: %s", err)
+	}
+	defer ch.Close()
+
+	msgs, err := ch.Consume(
+		queueName, // queue
+		"",        // consumer
+		false,     // auto-ack
+		false,     // exclusive
+		false,     // no-local
+		false,     // no-wait
+		nil,       // args
+	)
+	if err != nil {
+		log.Fatalf("Failed to register a consumer: %s", err)
+	}
+
+	//forever := make(chan bool)
+
+	//for d := range msgs {
+	//	var event Event.Event
+	//	if err := json.Unmarshal(d.Body, &event); err != nil {
+	//		logger.CreateLogError(fmt.Sprintf("Error decoding event: %s", err))
+	//		continue
+	//	}
+	//	logger.CreateLogInfo(fmt.Sprintf("Received event: %s\n", event.Type))
+	//	// Process event here
+	//}
+
+	for {
+		select {
+		case <-ctx.Done(): // if cancel() is called
+			logger.CreateLogInfo("Consumer received shutdown signal")
+			return
+		case msg, ok := <-msgs:
+			if !ok {
+				logger.CreateLogInfo("Channel closed, consumer exiting")
+				return
+			}
+
+			logger.CreateLogInfo("Received a message")
+
+			var event Event.Event
+			if err := json.Unmarshal(msg.Body, &event); err != nil {
+				logger.CreateLogError(fmt.Sprintf("Error decoding event: %s", err))
+				msg.Nack(false, true) // negative acknowledgment, requeue the message
+				continue
+			}
+			if len(msg.Body) == 0 {
+				logger.CreateLogInfo("Received an empty message, skipping...")
+				msg.Nack(false, true) // negative acknowledgment, requeue the message
+				continue
+			}
+			// Create a new context with a timeout for the processing
+			procCtx, cancelProc := context.WithTimeout(ctx, 10*time.Second)
+			defer cancelProc()
+
+			// Process the event with its own context
+			// Replace `ProcessEvent` with actual event processing logic
+			if err := ProcessEvent(procCtx, event); err != nil {
+				logger.CreateLogError(fmt.Sprintf("Failed to process event: %s, error: %v", event.Type, err))
+				msg.Nack(false, true) // negative acknowledgment, requeue the message
+			} else {
+				logger.CreateLogInfo(fmt.Sprintf("Event processed successfully: %s", event.Type))
+				msg.Ack(false) // Acknowledge the message after successful processing
+			}
+		}
+	}
+
+	logger.CreateLogInfo(" [*] Waiting for events. To exit press CTRL+C")
+	//<-forever
+}
+//todo make some event listener
+// ProcessEvent simulates event processing.
+func ProcessEvent(ctx context.Context, event Event.Event) error {
+	// Simulate work
+	select {
+	case <-time.After(1 * time.Second):
+		time.Sleep(5 * time.Second)
+
+		logger.CreateLogInfo(fmt.Sprintf("Event processed Done: %s", event.Type))
+		return nil
+	case <-ctx.Done():
+		logger.CreateLogInfo(" Cancel queue")
+
+		return ctx.Err()
+	}
 }

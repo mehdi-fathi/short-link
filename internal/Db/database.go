@@ -97,10 +97,7 @@ func (db *Db) ConnectDBTest() (*Db, error) {
 		rows.Scan(&ver)
 	}
 
-	// Apply migrations
-	if err := applyMigrations("postgresql://default:secret@localhost:5432/slink_test?sslmode=disable", "file:///Users/mehdi/Sites/short-link/database/migration"); err != nil {
-		return nil, err
-	}
+	migrateTest(db.Config.DB)
 
 	return db, nil
 }
@@ -114,6 +111,39 @@ func applyMigrations(dbURL string, migrationsPath string) error {
 		return err
 	}
 	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
+		return err
+	}
+	return nil
+}
+
+func migrateTest(db Config.DB) {
+
+	connStringMigrate := fmt.Sprintf("postgresql://%s:%s@%s:%d/%s?sslmode=disable",
+		db.User,
+		db.Password,
+		db.Host,
+		db.Port,
+		db.Dbname)
+
+	// Apply migrations
+	if err := downMigrations(connStringMigrate, "file://../../database/migration"); err != nil {
+		panic(err.(interface{}))
+	}
+	// Apply migrations
+	if err := applyMigrations(connStringMigrate, "file://../../database/migration"); err != nil {
+		panic(err.(interface{}))
+	}
+}
+
+func downMigrations(dbURL string, migrationsPath string) error {
+	m, err := migrate.New(
+		migrationsPath,
+		dbURL,
+	)
+	if err != nil {
+		return err
+	}
+	if err := m.Down(); err != nil && err != migrate.ErrNoChange {
 		return err
 	}
 	return nil

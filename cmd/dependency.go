@@ -11,6 +11,8 @@ import (
 	"short-link/internal/Queue"
 )
 
+var queueMain *Queue.Queue
+
 type out struct {
 	Handler *rest.Handler
 }
@@ -34,6 +36,8 @@ func CreateDependencies(cfg *Config.Config) out {
 	client := Cache.CreateCache(cfg)
 
 	queue := Queue.CreateQueue(cfg)
+
+	queueMain = queue
 
 	var ser = internal.CreateService(cfg, repo, client, queue)
 

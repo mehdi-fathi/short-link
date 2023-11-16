@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"github.com/go-co-op/gocron"
 	"os"
 	"short-link/cmd/cron"
@@ -38,10 +39,35 @@ func (s *server) Initialize(cfg *Config.Config) error {
 var cronjob *gocron.Scheduler
 
 // Start starts the application in blocking mode
-func (s *server) Start() {
+func (s *server) Start(ctx context.Context) {
 	const op = "app.start"
 
-	go cron.StartCron(cronjob, s.RESTHandler.LinkService)
+	// Use a WaitGroup to wait for goroutines to finish
+	s.Add(1)
+
+	go func() {
+		defer s.Done()
+		cron.StartCron(ctx, cronjob, s.RESTHandler.LinkService)
+	}()
+
+	// Use a WaitGroup to wait for goroutines to finish
+	s.Add(1)
+
+	go func() {
+		defer s.Done()
+		ch, _ := queueMain.Connection.Channel()
+		// Start the consumer
+		queueMain.ConsumeEvents(ctx, ch, "testing")
+	}()
+
+	// Emit an event
+	//event := Event.Event{Type: "OrderPlaced", Data: "Order123"}
+	//if err := Event.EmitEvent(ch, q.Name, event); err != nil {
+	//	log.Fatalf("Failed to emit event: %s", err)
+	//}
+
+	//forever := make(chan bool)
+	//<-forever
 
 	// Create Router for HTTP Server
 	router := SetupRouter(s.RESTHandler)
@@ -54,6 +80,8 @@ func (s *server) Start() {
 
 // GracefulShutdown listen over the quitSignal to graceful shutdown the app
 func (s *server) GracefulShutdown(quitSignal <-chan os.Signal, done chan<- bool) {
+	defer s.Done()
+
 	const op = "app.gacefulshutdown"
 	// Wait for OS signals
 	<-quitSignal

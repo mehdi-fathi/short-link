@@ -15,6 +15,7 @@ import (
 	"short-link/internal/Db"
 	"short-link/internal/Db/Repository"
 	"short-link/internal/Queue"
+	"short-link/pkg/logger"
 	"strings"
 	"testing"
 
@@ -55,6 +56,8 @@ func initTestDB(cfg *Config.Config) (*Db.Db, error) {
 	if errDb != nil {
 		log.Fatalf("failed to start the server: %v", errDb)
 	}
+
+	logger.CreateLogger(cfg.Logger)
 
 	return Db, nil
 }
@@ -124,7 +127,7 @@ func runTest(t *testing.T, testFunc func(t *testing.T, handler *Handler, router 
 	if err != nil {
 		t.Fatalf("initTest failed: %v", err)
 	}
-	defer teardownTestDB(dbLayer.Sql)
+	//defer teardownTestDB(dbLayer.Sql)
 
 	testFunc(t, handler, router, dbLayer)
 }

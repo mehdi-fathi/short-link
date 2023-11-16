@@ -40,7 +40,7 @@ func (db *Repository) FindByShortKey(shortKey string) (*repository_interface.Lin
 
 	var linkTable repository_interface.Link
 
-	err = row.Scan(&linkTable.ID, &linkTable.Link, &linkTable.ShortKey, &linkTable.Visit, &linkTable.UpdatedAt)
+	err = row.Scan(&linkTable.ID, &linkTable.Link, &linkTable.ShortKey, &linkTable.Visit, &linkTable.UpdatedAt, &linkTable.Status)
 
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, nil
@@ -61,7 +61,7 @@ func (db *Repository) GetAll() (map[int]*repository_interface.Link, error) {
 	for i := 0; rows.Next(); i++ {
 		var linkTable repository_interface.Link
 
-		err = rows.Scan(&linkTable.ID, &linkTable.Link, &linkTable.ShortKey, &linkTable.Visit, &linkTable.UpdatedAt)
+		err = rows.Scan(&linkTable.ID, &linkTable.Link, &linkTable.ShortKey, &linkTable.Visit, &linkTable.UpdatedAt, &linkTable.Status)
 
 		users[i] = &linkTable
 

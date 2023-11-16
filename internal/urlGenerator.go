@@ -6,6 +6,7 @@ import (
 	cache_interface "short-link/internal/Cache/Interface"
 	Config2 "short-link/internal/Config"
 	"short-link/internal/Db/Repository/interface"
+	"short-link/internal/Event"
 	"short-link/internal/Queue"
 	service_interface "short-link/internal/interface"
 	"short-link/pkg/logger"
@@ -95,7 +96,12 @@ func (service *Service) SetUrl(link string) string {
 
 	_, err := service.LinkRepo.Create(link, shortKey)
 
-	service.Queue.Publish()
+	// Emit an event
+	event := Event.Event{Type: "OrderPlaced", Data: "Order123"}
+
+	ch, err := service.Queue.Connection.Channel()
+
+	service.Queue.Publish(ch, "test", event)
 
 	if err != nil {
 		return ""

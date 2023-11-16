@@ -7,6 +7,7 @@ type Link struct {
 	ShortKey  string
 	Visit     int
 	UpdatedAt string
+	Status    string
 }
 
 type RepositoryInterface interface {

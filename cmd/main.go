@@ -63,11 +63,13 @@ func main() {
 	quiteSignal := make(chan os.Signal, 1)
 	signal.Notify(quiteSignal, syscall.SIGINT, syscall.SIGTERM)
 
+	// Use a WaitGroup to wait for goroutines to finish
+	server.Add(1)
 	// Graceful shutdown goroutine
 	go server.GracefulShutdown(quiteSignal, done)
 
 	// Start server in blocking mode
-	server.Start()
+	server.Start(ctx)
 
 	if err != nil {
 		log.Fatal(errors.Wrap(err, "server error"))
