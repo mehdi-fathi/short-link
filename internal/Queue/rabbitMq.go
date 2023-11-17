@@ -99,6 +99,8 @@ func CreateQueue(cfg *Config.Config) *Queue {
 // ConsumeEvents listens for messages on a RabbitMQ queue and processes them
 func (qu *Queue) ConsumeEvents(ctx context.Context, ch *amqp.Channel, queueName string) {
 
+	logger.CreateLogInfo(" [*] Waiting for events")
+
 	ch, err := qu.Connection.Channel()
 	if err != nil {
 		log.Fatalf("Failed to open a channel: %s", err)
@@ -117,18 +119,6 @@ func (qu *Queue) ConsumeEvents(ctx context.Context, ch *amqp.Channel, queueName 
 	if err != nil {
 		log.Fatalf("Failed to register a consumer: %s", err)
 	}
-
-	//forever := make(chan bool)
-
-	//for d := range msgs {
-	//	var event Event.Event
-	//	if err := json.Unmarshal(d.Body, &event); err != nil {
-	//		logger.CreateLogError(fmt.Sprintf("Error decoding event: %s", err))
-	//		continue
-	//	}
-	//	logger.CreateLogInfo(fmt.Sprintf("Received event: %s\n", event.Type))
-	//	// Process event here
-	//}
 
 	for {
 		select {
@@ -170,7 +160,6 @@ func (qu *Queue) ConsumeEvents(ctx context.Context, ch *amqp.Channel, queueName 
 		}
 	}
 
-	logger.CreateLogInfo(" [*] Waiting for events. To exit press CTRL+C")
 	//<-forever
 }
 
