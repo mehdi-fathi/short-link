@@ -102,6 +102,7 @@
             <th>Url</th>
             <th>Visit</th>
             <th>Short Link</th>
+            <th>Status</th>
             <th>Updated At</th>
         </tr>
         {{ range $k, $v := .data}}
@@ -110,6 +111,7 @@
             <td>{{ $v.Link }}</td>
             <td>{{ $v.Visit }}</td>
             <td><a href="http://localhost:8080/short/{{ $v.ShortKey }}">http://localhost:8080/short/{{ $v.ShortKey }}</a></td>
+            <td>{{ $v.Status }}</td>
             <td>{{ $v.UpdatedAt }}</td>
         </tr>
         {{ end }}

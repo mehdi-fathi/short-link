@@ -10,6 +10,7 @@ import (
 	"short-link/internal/Queue"
 	service_interface "short-link/internal/interface"
 	"short-link/pkg/logger"
+	"short-link/pkg/url"
 	"strconv"
 	"time"
 )
@@ -90,16 +91,48 @@ func (service *Service) UpdateStats() int {
 	return 1
 }
 
+func (service *Service) UpdateStatus(status string, shortKey string) {
+
+	service.LinkRepo.UpdateStatus(status, shortKey)
+
+}
+
+func (service *Service) checkPendingLinks() int {
+
+	all, _ := service.LinkRepo.GetByStatus("pending")
+
+	var status string
+	for _, data := range all {
+		status = "approve"
+		logger.CreateLogInfo(data.Link)
+
+		if !url.CheckURL(data.Link) {
+			logger.CreateLogInfo(fmt.Sprintf("Not approved ShortKey :%v", data.ShortKey))
+			status = "reject"
+		}
+
+		service.LinkRepo.UpdateStatus(status, data.ShortKey)
+
+	}
+	return 1
+}
+
 func (service *Service) SetUrl(link string) string {
 
 	shortKey := GenerateShortKey(service.Shortener.Config.HASHCODE)
 
 	_, err := service.LinkRepo.Create(link, shortKey)
 
+	var data = make(map[string]string)
+
+	data["link"] = link
+
 	// Emit an event
-	event := Event.Event{Type: "OrderPlaced", Data: "Order123"}
+	event := Event.Event{Type: "OrderPlaced", Data: data}
 
 	ch, err := service.Queue.Connection.Channel()
+
+	//service.checkPendingLinks()
 
 	service.Queue.Publish(ch, "test", event)
 

@@ -41,6 +41,8 @@ func CreateDependencies(cfg *Config.Config) out {
 
 	var ser = internal.CreateService(cfg, repo, client, queue)
 
+	queue.Service = ser
+
 	handler := rest.CreateHandler(ser)
 
 	return out{

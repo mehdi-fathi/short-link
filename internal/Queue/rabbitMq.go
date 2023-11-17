@@ -7,14 +7,18 @@ import (
 	"github.com/streadway/amqp"
 	"log"
 	"short-link/internal/Config"
+	repository_interface "short-link/internal/Db/Repository/interface"
 	"short-link/internal/Event"
+	service_interface "short-link/internal/interface"
 	"short-link/pkg/logger"
+	"short-link/pkg/url"
 	"time"
 )
 
 type Queue struct {
 	Connection *amqp.Connection
 	cfg        *Config.Config
+	Service    service_interface.ServiceInterface
 }
 
 func CreateConnection(cfg *Config.Config) *amqp.Connection {
@@ -86,6 +90,7 @@ func CreateQueue(cfg *Config.Config) *Queue {
 	queue := &Queue{
 		Connection: CreateConnection(cfg),
 		cfg:        cfg,
+		Service:    nil,
 	}
 
 	return queue
@@ -155,7 +160,7 @@ func (qu *Queue) ConsumeEvents(ctx context.Context, ch *amqp.Channel, queueName 
 
 			// Process the event with its own context
 			// Replace `ProcessEvent` with actual event processing logic
-			if err := ProcessEvent(procCtx, event); err != nil {
+			if err := qu.ProcessEvent(procCtx, event); err != nil {
 				logger.CreateLogError(fmt.Sprintf("Failed to process event: %s, error: %v", event.Type, err))
 				msg.Nack(false, true) // negative acknowledgment, requeue the message
 			} else {
@@ -168,15 +173,26 @@ func (qu *Queue) ConsumeEvents(ctx context.Context, ch *amqp.Channel, queueName 
 	logger.CreateLogInfo(" [*] Waiting for events. To exit press CTRL+C")
 	//<-forever
 }
-//todo make some event listener
+
+// todo make some event listener
 // ProcessEvent simulates event processing.
-func ProcessEvent(ctx context.Context, event Event.Event) error {
+func (qu *Queue) ProcessEvent(ctx context.Context, event Event.Event) error {
 	// Simulate work
 	select {
 	case <-time.After(1 * time.Second):
-		time.Sleep(5 * time.Second)
+		//time.Sleep(5 * time.Second)
 
-		logger.CreateLogInfo(fmt.Sprintf("Event processed Done: %s", event.Type))
+		data := event.Data.(map[string]interface{})
+
+		status := repository_interface.LINK_STATUS_APPROVE
+		if !url.CheckURL(data["link"].(string)) {
+			logger.CreateLogInfo(fmt.Sprintf("Rejected link :%s", data["link"].(string)))
+			status = repository_interface.LINK_STATUS_REJECT
+		}
+
+		qu.Service.UpdateStatus(status, data["link"].(string))
+
+		logger.CreateLogInfo(fmt.Sprintf("Event processed Done: %s with status: %s", event.Type, status))
 		return nil
 	case <-ctx.Done():
 		logger.CreateLogInfo(" Cancel queue")

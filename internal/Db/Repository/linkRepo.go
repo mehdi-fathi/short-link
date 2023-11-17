@@ -52,25 +52,50 @@ func (db *Repository) FindByShortKey(shortKey string) (*repository_interface.Lin
 
 func (db *Repository) GetAll() (map[int]*repository_interface.Link, error) {
 
-	q := `SELECT * FROM links ;`
+	q := `SELECT * FROM links order by id desc ;`
 	rows, _ := db.Sql.Query(q)
 	var err error
 
-	var users = make(map[int]*repository_interface.Link)
+	var links = make(map[int]*repository_interface.Link)
 
 	for i := 0; rows.Next(); i++ {
 		var linkTable repository_interface.Link
 
 		err = rows.Scan(&linkTable.ID, &linkTable.Link, &linkTable.ShortKey, &linkTable.Visit, &linkTable.UpdatedAt, &linkTable.Status)
 
-		users[i] = &linkTable
+		links[i] = &linkTable
 
 	}
 
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, nil
 	}
-	return users, err
+	return links, err
+
+}
+
+func (db *Repository) GetByStatus(status string) (map[int]*repository_interface.Link, error) {
+
+	q := `SELECT * FROM links where status = $1 limit 100;`
+	rows, _ := db.Sql.Query(q, status)
+
+	var err error
+
+	var links = make(map[int]*repository_interface.Link)
+
+	for i := 0; rows.Next(); i++ {
+		var linkTable repository_interface.Link
+
+		err = rows.Scan(&linkTable.ID, &linkTable.Link, &linkTable.ShortKey, &linkTable.Visit, &linkTable.UpdatedAt, &linkTable.Status)
+
+		links[i] = &linkTable
+
+	}
+
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, nil
+	}
+	return links, err
 
 }
 
@@ -93,6 +118,23 @@ func (db *Repository) UpdateVisit(visit int, shortKey string) (int, error) {
 
 	q := `update links set visit = $1,updated_at=now() where short_key = $2;`
 	row := db.Sql.QueryRow(q, visit, shortKey)
+
+	var id int
+
+	row.Scan(&id)
+
+	var err error
+
+	return id, err
+
+}
+
+func (db *Repository) UpdateStatus(status string, link string) (int, error) {
+
+	q := `update links set status = $1,updated_at=now()
+		  where link = $2;`
+
+	row := db.Sql.QueryRow(q, status, link)
 
 	var id int
 

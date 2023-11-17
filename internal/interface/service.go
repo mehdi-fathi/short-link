@@ -8,4 +8,5 @@ type ServiceInterface interface {
 	SetUrl(link string) string
 	//GetAllUrl() map[string]string
 	GetAllUrlV2() (map[int]*repository_interface.Link, error)
+	UpdateStatus(status string, shortKey string)
 }
