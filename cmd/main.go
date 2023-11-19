@@ -53,10 +53,10 @@ func main() {
 	ctx := context.Background()
 	ctx, cancel := context.WithCancel(ctx)
 
-	// Create New Server
+	// Create New server
 	server := NewServer(startTime)
 
-	// Initialize the Server Dependencies
+	// Initialize the server Dependencies
 	err = server.Initialize(cfg)
 
 	done := make(chan bool, 1)

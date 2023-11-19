@@ -10,11 +10,10 @@ type Link struct {
 	Status    string
 }
 
-const  (
+const (
 	LINK_STATUS_APPROVE = "approve"
-	LINK_STATUS_REJECT = "reject"
+	LINK_STATUS_REJECT  = "reject"
 	LINK_STATUS_PENDING = "pending"
-
 )
 
 type RepositoryInterface interface {
@@ -22,6 +21,7 @@ type RepositoryInterface interface {
 	FindByShortKey(shortKey string) (*Link, error)
 	Create(link string, shortKey string) (int, error)
 	GetAll() (map[int]*Link, error)
+	GetChunk(start int, limit int) (map[int]*Link, error)
 	UpdateVisit(visit int, shortKey string) (int, error)
 	UpdateStatus(status string, link string) (int, error)
 	GetByStatus(status string) (map[int]*Link, error)

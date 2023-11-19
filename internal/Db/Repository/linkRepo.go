@@ -74,6 +74,33 @@ func (db *Repository) GetAll() (map[int]*repository_interface.Link, error) {
 
 }
 
+func (db *Repository) GetChunk(start int, limit int) (map[int]*repository_interface.Link, error) {
+
+	q := `SELECT * FROM links
+		  order by id desc
+		  limit $2 OFFSET $1 ;`
+
+	rows, _ := db.Sql.Query(q, start, limit)
+	var err error
+
+	var links = make(map[int]*repository_interface.Link)
+
+	for i := 0; rows.Next(); i++ {
+		var linkTable repository_interface.Link
+
+		err = rows.Scan(&linkTable.ID, &linkTable.Link, &linkTable.ShortKey, &linkTable.Visit, &linkTable.UpdatedAt, &linkTable.Status)
+
+		links[i] = &linkTable
+
+	}
+
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, nil
+	}
+	return links, err
+
+}
+
 func (db *Repository) GetByStatus(status string) (map[int]*repository_interface.Link, error) {
 
 	q := `SELECT * FROM links where status = $1 limit 100;`

@@ -69,12 +69,12 @@ func (s *server) Start(ctx context.Context) {
 	//forever := make(chan bool)
 	//<-forever
 
-	// Create Router for HTTP Server
+	// Create Router for HTTP server
 	router := SetupRouter(s.RESTHandler)
 
-	// Start GRPC Server in go-routine
+	// Start GRPC server in go-routine
 	//go s.GRPCHandler.Start(ctx, s.Config.GRPCPort)
-	// Start REST Server in Blocking mode
+	// Start REST server in Blocking mode
 	s.RESTHandler.Start(router, 8080)
 }
 

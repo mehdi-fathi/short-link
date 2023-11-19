@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"context"
 	"fmt"
 	"math/rand"
 	cache_interface "short-link/internal/Cache/Interface"
@@ -12,6 +13,7 @@ import (
 	"short-link/pkg/logger"
 	"short-link/pkg/url"
 	"strconv"
+	"sync"
 	"time"
 )
 
@@ -66,28 +68,90 @@ func (service *Service) GetUrl(shortKey string) *repository_interface.Link {
 	return link
 }
 
-func (service *Service) UpdateStats() int {
+func (service *Service) UpdateStats(s *sync.WaitGroup, ctx context.Context) int {
 
-	all, _ := service.LinkRepo.GetAll()
+	var all map[int]*repository_interface.Link
 
-	for _, data := range all {
+	limit := 10
 
-		hget, _ := service.Cache.Get(data.ShortKey)
+	start := 0
 
-		visitCache, _ := strconv.Atoi(hget)
+	var counter int = 1
 
-		if visitCache > data.Visit {
-			service.LinkRepo.UpdateVisit(visitCache, data.ShortKey)
-			logger.CreateLogInfo(fmt.Sprintf("Updated %s : visit :%v", data.ShortKey, visitCache))
+	for (all[0] != nil && counter > 1) || counter == 1 {
+
+		if counter > 1 {
+			start = counter * limit
 		}
 
-		//var linkTable repository_interface.Link
-		//
-		//err = rows.Scan(&linkTable.ID, &linkTable.Link, &linkTable.ShortKey)
-		//
-		//users[i] = &linkTable
+		all, _ = service.LinkRepo.GetChunk(start, limit)
 
+		if all[0] != nil {
+
+			s.Add(1)
+
+			go func(start int, all map[int]*repository_interface.Link) {
+				defer s.Done()
+
+				logger.CreateLogInfo(fmt.Sprintf("Run Go routine %d", start))
+
+				for _, data := range all {
+
+					hget, _ := service.Cache.Get(data.ShortKey)
+
+					//logger.CreateLogInfo(fmt.Sprintf("Run %s ", data.ShortKey))
+
+					visitCache, _ := strconv.Atoi(hget)
+
+					if visitCache > data.Visit {
+						service.LinkRepo.UpdateVisit(visitCache, data.ShortKey)
+						logger.CreateLogInfo(fmt.Sprintf("Updated %s : visit :%v", data.ShortKey, visitCache))
+					}
+
+					status := "approve"
+					//logger.CreateLogInfo(data.Link)
+
+					if !url.CheckURL(data.Link) {
+						logger.CreateLogInfo(fmt.Sprintf("Not approved ShortKey :%v", data.ShortKey))
+						status = "reject"
+					}
+
+					service.LinkRepo.UpdateStatus(status, data.Link)
+
+				}
+				logger.CreateLogInfo(fmt.Sprintf("Finish Go routine  %d", start))
+
+			}(start, all)
+
+		}
+
+		counter++
 	}
+
+	// Listen for the context cancellation signal to stop the cron scheduler
+	<-ctx.Done()
+	logger.CreateLogInfo("[ * ] Received shutdown signal, stopping updating stats...")
+	//
+	////todo we can make a goroutine version for this
+	//
+	//for _, data := range all {
+	//
+	//	hget, _ := service.Cache.Get(data.ShortKey)
+	//
+	//	visitCache, _ := strconv.Atoi(hget)
+	//
+	//	if visitCache > data.Visit {
+	//		service.LinkRepo.UpdateVisit(visitCache, data.ShortKey)
+	//		logger.CreateLogInfo(fmt.Sprintf("Updated %s : visit :%v", data.ShortKey, visitCache))
+	//	}
+	//
+	//	//var linkTable repository_interface.Link
+	//	//
+	//	//err = rows.Scan(&linkTable.ID, &linkTable.Link, &linkTable.ShortKey)
+	//	//
+	//	//users[i] = &linkTable
+	//
+	//}
 	return 1
 }
 

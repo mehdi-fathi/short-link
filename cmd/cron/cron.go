@@ -6,6 +6,7 @@ import (
 	"github.com/go-co-op/gocron"
 	service_interface "short-link/internal/interface"
 	"short-link/pkg/logger"
+	"sync"
 	"time"
 )
 
@@ -19,15 +20,15 @@ func StartCron(ctx context.Context, cron *gocron.Scheduler, service service_inte
 	cron.Every(10).Seconds().Tag("test").Do(func() {
 
 		// Create a new context with a timeout for the processing
-		procCtx, cancelProc := context.WithTimeout(ctx, 10*time.Second)
+		procCtx, cancelProc := context.WithTimeout(ctx, 55*time.Second)
 
 		defer cancelProc()
 
 		logger.CreateLogInfo("Updating stat links...")
 
 		// Process the event with its own context
-		// Replace `ProcessEvent` with actual event processing logic
-		if err := ProcessEvent(service, procCtx); err != nil {
+		// Replace `ProcessCron` with actual event processing logic
+		if err := ProcessCron(service, procCtx); err != nil {
 			logger.CreateLogError(fmt.Sprintf("Failed to process cron:"))
 		} else {
 			logger.CreateLogInfo(fmt.Sprintf("Cron processed successfully"))
@@ -50,13 +51,16 @@ func StartCron(ctx context.Context, cron *gocron.Scheduler, service service_inte
 
 }
 
-// ProcessEvent simulates event processing.
-func ProcessEvent(service service_interface.ServiceInterface, ctx context.Context) error {
+func ProcessCron(service service_interface.ServiceInterface, ctx context.Context) error {
+
+	var cronWaitGroup sync.WaitGroup
+
 	// Simulate work
 	select {
 	case <-time.After(1 * time.Second):
-		service.UpdateStats()
-		time.Sleep(5 * time.Second)
+		service.UpdateStats(&cronWaitGroup, ctx)
+		//time.Sleep(5 * time.Second)
+		cronWaitGroup.Wait()
 		logger.CreateLogInfo(fmt.Sprintf("Cron done"))
 		return nil
 	case <-ctx.Done():
