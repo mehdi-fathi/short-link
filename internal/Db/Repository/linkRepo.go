@@ -74,13 +74,14 @@ func (db *Repository) GetAll() (map[int]*repository_interface.Link, error) {
 
 }
 
-func (db *Repository) GetChunk(start int, limit int) (map[int]*repository_interface.Link, error) {
+func (db *Repository) GetChunk(start int, limit int, status string) (map[int]*repository_interface.Link, error) {
 
 	q := `SELECT * FROM links
+		  where status = $3
 		  order by id desc
 		  limit $2 OFFSET $1 ;`
 
-	rows, _ := db.Sql.Query(q, start, limit)
+	rows, _ := db.Sql.Query(q, start, limit, status)
 	var err error
 
 	var links = make(map[int]*repository_interface.Link)

@@ -84,7 +84,7 @@ func (service *Service) UpdateStats(s *sync.WaitGroup, ctx context.Context) int 
 			start = counter * limit
 		}
 
-		all, _ = service.LinkRepo.GetChunk(start, limit)
+		all, _ = service.LinkRepo.GetChunk(start, limit, "approve")
 
 		if all[0] != nil {
 
