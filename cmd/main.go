@@ -69,7 +69,7 @@ func main() {
 	go server.GracefulShutdown(quiteSignal, done)
 
 	// Start server in blocking mode
-	server.Start(ctx)
+	server.Start(ctx, cfg)
 
 	if err != nil {
 		log.Fatal(errors.Wrap(err, "server error"))

@@ -1,6 +1,7 @@
 package url
 
 import (
+	"log"
 	"net/http"
 	"strings"
 )
@@ -13,6 +14,9 @@ func CheckURL(url string) bool {
 	if err != nil {
 		return false // Treat any error as a failed check
 	}
+
+	log.Println(resp.StatusCode)
+
 	defer resp.Body.Close()
 
 	// Return true if the status code is not 404, false otherwise

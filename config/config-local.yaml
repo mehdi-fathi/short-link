@@ -19,6 +19,7 @@ LOGGER:
   GRAYLOG_SERVER:
   GRAYLOG_STREAM: short-link
 QueueRabbit:
+  MAIN_QUEUE_NAME: testing
   HOST: localhost
   PORT: 5672
   USER: guest

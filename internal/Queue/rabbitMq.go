@@ -54,12 +54,12 @@ func (qu *Queue) Publish(ch *amqp.Channel, queueName string, event Event.Event) 
 
 	// declaring queue with its properties over the the channel opened
 	queue, err := channel.QueueDeclare(
-		"testing", // name
-		false,     // durable
-		false,     // auto delete
-		false,     // exclusive
-		false,     // no wait
-		nil,       // args
+		qu.cfg.QueueRabbit.MainQueueName, // name
+		false,                            // durable
+		false,                            // auto delete
+		false,                            // exclusive
+		false,                            // no wait
+		nil,                              // args
 	)
 	if err != nil {
 		panic(err.(interface{}))
@@ -69,10 +69,10 @@ func (qu *Queue) Publish(ch *amqp.Channel, queueName string, event Event.Event) 
 
 	// publishing a message
 	err = channel.Publish(
-		"",        // exchange
-		"testing", // key
-		false,     // mandatory
-		false,     // immediate
+		"",                               // exchange
+		qu.cfg.QueueRabbit.MainQueueName, // key
+		false,                            // mandatory
+		false,                            // immediate
 		amqp.Publishing{
 			ContentType: "text/plain",
 			Body:        body,

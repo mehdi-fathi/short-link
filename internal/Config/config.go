@@ -33,10 +33,11 @@ type DB struct {
 }
 
 type QueueRabbit struct {
-	Host     string `yaml:"HOST" envconfig:"HOST"`
-	Port     int    `yaml:"PORT" envconfig:"PORT"`
-	User     string `yaml:"USER" `
-	Password string `yaml:"PASSWORD" envconfig:"PASSWORD"`
+	MainQueueName string `yaml:"MAIN_QUEUE_NAME" envconfig:"MAIN_QUEUE_NAME"`
+	Host          string `yaml:"HOST" envconfig:"HOST"`
+	Port          int    `yaml:"PORT" envconfig:"PORT"`
+	User          string `yaml:"USER" `
+	Password      string `yaml:"PASSWORD" envconfig:"PASSWORD"`
 }
 
 type Redis struct {

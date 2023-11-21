@@ -39,7 +39,7 @@ func (s *server) Initialize(cfg *Config.Config) error {
 var cronjob *gocron.Scheduler
 
 // Start starts the application in blocking mode
-func (s *server) Start(ctx context.Context) {
+func (s *server) Start(ctx context.Context, cfg *Config.Config) {
 	const op = "app.start"
 
 	// Use a WaitGroup to wait for goroutines to finish
@@ -57,7 +57,7 @@ func (s *server) Start(ctx context.Context) {
 		defer s.Done()
 		ch, _ := queueMain.Connection.Channel()
 		// Start the consumer
-		queueMain.ConsumeEvents(ctx, ch, "testing")
+		queueMain.ConsumeEvents(ctx, ch, cfg.QueueRabbit.MainQueueName)
 	}()
 
 	// Emit an event

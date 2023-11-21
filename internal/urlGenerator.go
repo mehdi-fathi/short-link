@@ -3,6 +3,7 @@ package internal
 import (
 	"context"
 	"fmt"
+	"log"
 	"math/rand"
 	cache_interface "short-link/internal/Cache/Interface"
 	Config2 "short-link/internal/Config"
@@ -86,11 +87,15 @@ func (service *Service) UpdateStats(s *sync.WaitGroup, ctx context.Context) int 
 
 		all, _ = service.LinkRepo.GetChunk(start, limit, "approve")
 
+		log.Println(all)
+
+
 		if all[0] != nil {
 
 			s.Add(1)
 
 			go func(start int, all map[int]*repository_interface.Link) {
+
 				defer s.Done()
 
 				logger.CreateLogInfo(fmt.Sprintf("Run Go routine %d", start))
@@ -109,7 +114,8 @@ func (service *Service) UpdateStats(s *sync.WaitGroup, ctx context.Context) int 
 					}
 
 					status := "approve"
-					//logger.CreateLogInfo(data.Link)
+					logger.CreateLogInfo("data.Link")
+					logger.CreateLogInfo(data.Link)
 
 					if !url.CheckURL(data.Link) {
 						logger.CreateLogInfo(fmt.Sprintf("Not approved ShortKey :%v", data.ShortKey))
