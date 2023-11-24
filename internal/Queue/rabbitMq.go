@@ -33,7 +33,7 @@ func CreateConnection(cfg *Config.Config) *amqp.Connection {
 	connection, err := amqp.Dial(connString)
 
 	if err != nil {
-		logger.CreateLogError(fmt.Sprintf("failed to connect to database: %v", err))
+		logger.CreateLogError(fmt.Sprintf("failed to connect to RabbitMQ: %v", err))
 		panic(err.(interface{}))
 	}
 
@@ -55,7 +55,7 @@ func (qu *Queue) Publish(ch *amqp.Channel, queueName string, event Event.Event) 
 	// declaring queue with its properties over the the channel opened
 	queue, err := channel.QueueDeclare(
 		qu.cfg.QueueRabbit.MainQueueName, // name
-		false,                            // durable
+		true,                             // durable
 		false,                            // auto delete
 		false,                            // exclusive
 		false,                            // no wait

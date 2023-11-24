@@ -3,7 +3,6 @@ package internal
 import (
 	"context"
 	"fmt"
-	"log"
 	"math/rand"
 	cache_interface "short-link/internal/Cache/Interface"
 	Config2 "short-link/internal/Config"
@@ -78,6 +77,9 @@ func (service *Service) UpdateStats(s *sync.WaitGroup, ctx context.Context) int 
 
 	start := 0
 
+	// Setting up the main context
+	//ctx1 := context.Background()
+
 	var counter int = 1
 
 	for (all[0] != nil && counter > 1) || counter == 1 {
@@ -88,8 +90,6 @@ func (service *Service) UpdateStats(s *sync.WaitGroup, ctx context.Context) int 
 
 		all, _ = service.LinkRepo.GetChunk(start, limit, "approve")
 
-		log.Println(all)
-
 		if all[0] != nil {
 
 			s.Add(1)
@@ -98,7 +98,12 @@ func (service *Service) UpdateStats(s *sync.WaitGroup, ctx context.Context) int 
 
 				defer s.Done()
 
-				logger.CreateLogInfo(fmt.Sprintf("Run Go routine %d", start))
+				// Create a new context with a timeout for the processing
+				_, cancelProc := context.WithTimeout(ctx, 5*time.Second)
+
+				defer cancelProc()
+
+				//logger.CreateLogInfo(fmt.Sprintf("Run Go routine %d", start))
 
 				for _, data := range all {
 
@@ -114,8 +119,6 @@ func (service *Service) UpdateStats(s *sync.WaitGroup, ctx context.Context) int 
 					}
 
 					status := "approve"
-					logger.CreateLogInfo("data.Link")
-					logger.CreateLogInfo(data.Link)
 
 					if !url.CheckURL(data.Link) {
 						logger.CreateLogInfo(fmt.Sprintf("Not approved ShortKey :%v", data.ShortKey))
@@ -125,7 +128,7 @@ func (service *Service) UpdateStats(s *sync.WaitGroup, ctx context.Context) int 
 					service.LinkRepo.UpdateStatus(status, data.Link)
 
 				}
-				logger.CreateLogInfo(fmt.Sprintf("Finish Go routine  %d", start))
+				//logger.CreateLogInfo(fmt.Sprintf("Finish Go routine  %d", start))
 
 			}(start, all)
 
@@ -136,7 +139,7 @@ func (service *Service) UpdateStats(s *sync.WaitGroup, ctx context.Context) int 
 
 	// Listen for the context cancellation signal to stop the cron scheduler
 	<-ctx.Done()
-	logger.CreateLogInfo("[ * ] Received shutdown signal, stopping updating stats...")
+	logger.CreateLogInfo("[ * ] Received shutdown signal, UpdateStats...")
 	//
 	////todo we can make a goroutine version for this
 	//

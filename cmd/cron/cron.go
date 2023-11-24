@@ -19,16 +19,11 @@ func StartCron(ctx context.Context, cron *gocron.Scheduler, service service_inte
 	// 4
 	cron.Every(10).Seconds().Tag("test").Do(func() {
 
-		// Create a new context with a timeout for the processing
-		procCtx, cancelProc := context.WithTimeout(ctx, 55*time.Second)
-
-		defer cancelProc()
-
-		logger.CreateLogInfo("Updating stat links...")
+		logger.CreateLogInfo("[*] Cron start...")
 
 		// Process the event with its own context
 		// Replace `ProcessCron` with actual event processing logic
-		if err := ProcessCron(service, procCtx); err != nil {
+		if err := ProcessCron(service, ctx); err != nil {
 			logger.CreateLogError(fmt.Sprintf("Failed to process cron:"))
 		} else {
 			logger.CreateLogInfo(fmt.Sprintf("Cron processed successfully"))
@@ -58,10 +53,11 @@ func ProcessCron(service service_interface.ServiceInterface, ctx context.Context
 	// Simulate work
 	select {
 	case <-time.After(1 * time.Second):
+
 		service.UpdateStats(&cronWaitGroup, ctx)
 		//time.Sleep(5 * time.Second)
 		cronWaitGroup.Wait()
-		logger.CreateLogInfo(fmt.Sprintf("Cron done"))
+		logger.CreateLogInfo(fmt.Sprintf("[*] Cron done"))
 		return nil
 	case <-ctx.Done():
 		logger.CreateLogInfo(" Cancel Cron")

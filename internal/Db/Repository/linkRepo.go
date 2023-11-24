@@ -7,7 +7,6 @@ import (
 	"short-link/internal/Db"
 	"short-link/internal/Db/Model"
 	repository_interface "short-link/internal/Db/Repository/interface"
-	"short-link/internal/Db/serialization"
 )
 
 // Db holds database connection to Postgres
@@ -64,8 +63,6 @@ func (db *Repository) GetAll() (map[int]*Model.Link, error) {
 		var linkTable Model.Link
 
 		err = rows.Scan(&linkTable.ID, &linkTable.Link, &linkTable.ShortKey, &linkTable.Visit, &linkTable.UpdatedAt, &linkTable.Status)
-
-		serialization.DeserializeLink(&linkTable)
 
 		links[i] = &linkTable
 

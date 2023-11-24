@@ -3,6 +3,7 @@ package rest
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"short-link/internal/Db/serialization"
 )
 
 func (h *Handler) HandleShorten(c *gin.Context) {
@@ -48,6 +49,8 @@ func (h *Handler) HandleList(c *gin.Context) {
 	//allUrl := h.LinkService.GetAllUrl()
 
 	all, _ := h.LinkService.GetAllUrlV2()
+
+	serialization.DeserializeAllLink(all)
 
 	c.HTML(http.StatusOK, "list.html", gin.H{
 		"data": all,

@@ -5,17 +5,40 @@ import (
 	"time"
 )
 
-func DeserializeLink(user *Model.Link) {
+func DeserializeLink(link *Model.Link) {
 	// Example transformation: parsing a timestamp string to time.Time
-	// Assuming user has a LastLogin field which is a string timestamp in the database
-	if user.UpdatedAt != "" {
-		parsedTime, err := time.Parse(time.RFC3339, user.UpdatedAt)
+	// Assuming link has a LastLogin field which is a string timestamp in the database
+	if link.UpdatedAt != "" {
+		parsedTime, err := time.Parse(time.RFC3339, link.UpdatedAt)
 		if err == nil {
-			user.UpdatedAt = parsedTime.Format(`2006-02-01 15:04:05`) // Assuming ParsedLastLogin is a time.Time field
+			link.UpdatedAt = parsedTime.Format(`2006-02-01 15:04:05`) // Assuming ParsedLastLogin is a time.Time field
 		}
 	}
 
 	// Add other transformations as needed
+}
+
+func DeserializeAllLink(link map[int]*Model.Link) {
+	// Example transformation: parsing a timestamp string to time.Time
+	// Assuming link has a LastLogin field which is a string timestamp in the database
+
+	for _, data := range link {
+
+		if data.UpdatedAt != "" {
+			parsedTime, err := time.Parse(time.RFC3339, data.UpdatedAt)
+			if err == nil {
+				data.UpdatedAt = parsedTime.Format(`2006-02-01 15:04:05`) // Assuming ParsedLastLogin is a time.Time field
+			}
+		}
+	}
+
+	// Add other transformations as needed
+}
+
+func isMap(i interface{}) (bool, map[interface{}]interface{}) {
+	// The type of val will be map[interface{}]interface{} if i is a map
+	val, ok := i.(map[interface{}]interface{})
+	return ok, val
 }
 
 //
