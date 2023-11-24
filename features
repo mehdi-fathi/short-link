@@ -17,3 +17,4 @@
 17- shutdown gracefully event and cron
 18 - make some event listeners and use them on queue
 19 - make a cron for process all links again to ensure all those are valid otherwise those will be rejected
+20 - make serilize layer for db

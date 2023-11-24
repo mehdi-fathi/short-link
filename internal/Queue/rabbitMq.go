@@ -7,7 +7,7 @@ import (
 	"github.com/streadway/amqp"
 	"log"
 	"short-link/internal/Config"
-	repository_interface "short-link/internal/Db/Repository/interface"
+	"short-link/internal/Db/Model"
 	"short-link/internal/Event"
 	service_interface "short-link/internal/interface"
 	"short-link/pkg/logger"
@@ -173,10 +173,10 @@ func (qu *Queue) ProcessEvent(ctx context.Context, event Event.Event) error {
 
 		data := event.Data.(map[string]interface{})
 
-		status := repository_interface.LINK_STATUS_APPROVE
+		status := Model.LINK_STATUS_APPROVE
 		if !url.CheckURL(data["link"].(string)) {
 			logger.CreateLogInfo(fmt.Sprintf("Rejected link :%s", data["link"].(string)))
-			status = repository_interface.LINK_STATUS_REJECT
+			status = Model.Link_STATUS_REJECT
 		}
 
 		qu.Service.UpdateStatus(status, data["link"].(string))

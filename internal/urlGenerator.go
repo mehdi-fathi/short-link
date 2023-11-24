@@ -7,6 +7,7 @@ import (
 	"math/rand"
 	cache_interface "short-link/internal/Cache/Interface"
 	Config2 "short-link/internal/Config"
+	"short-link/internal/Db/Model"
 	"short-link/internal/Db/Repository/interface"
 	"short-link/internal/Event"
 	"short-link/internal/Queue"
@@ -58,7 +59,7 @@ func CreateService(
 	}
 }
 
-func (service *Service) GetUrl(shortKey string) *repository_interface.Link {
+func (service *Service) GetUrl(shortKey string) *Model.Link {
 
 	link, _ := service.LinkRepo.FindByShortKey(shortKey)
 
@@ -71,7 +72,7 @@ func (service *Service) GetUrl(shortKey string) *repository_interface.Link {
 
 func (service *Service) UpdateStats(s *sync.WaitGroup, ctx context.Context) int {
 
-	var all map[int]*repository_interface.Link
+	var all map[int]*Model.Link
 
 	limit := 10
 
@@ -89,12 +90,11 @@ func (service *Service) UpdateStats(s *sync.WaitGroup, ctx context.Context) int 
 
 		log.Println(all)
 
-
 		if all[0] != nil {
 
 			s.Add(1)
 
-			go func(start int, all map[int]*repository_interface.Link) {
+			go func(start int, all map[int]*Model.Link) {
 
 				defer s.Done()
 
@@ -151,7 +151,7 @@ func (service *Service) UpdateStats(s *sync.WaitGroup, ctx context.Context) int 
 	//		logger.CreateLogInfo(fmt.Sprintf("Updated %s : visit :%v", data.ShortKey, visitCache))
 	//	}
 	//
-	//	//var linkTable repository_interface.Link
+	//	//var linkTable Model.Link
 	//	//
 	//	//err = rows.Scan(&linkTable.ID, &linkTable.Link, &linkTable.ShortKey)
 	//	//
@@ -218,7 +218,7 @@ func (service *Service) SetUrl(link string) string {
 //	return service.LinkRepo.GetAll()
 //}
 
-func (service *Service) GetAllUrlV2() (map[int]*repository_interface.Link, error) {
+func (service *Service) GetAllUrlV2() (map[int]*Model.Link, error) {
 	//return service.Shortener.Urls
 	return service.LinkRepo.GetAll()
 }
