@@ -56,3 +56,10 @@ func (h *Handler) HandleList(c *gin.Context) {
 		"data": all,
 	})
 }
+
+func (h *Handler) HandleListJson(c *gin.Context) {
+
+	all, _ := h.LinkService.GetAllLinkApi()
+
+	c.JSON(200, all)
+}

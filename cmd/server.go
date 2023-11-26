@@ -60,22 +60,13 @@ func (s *server) Start(ctx context.Context, cfg *Config.Config) {
 		queueMain.ConsumeEvents(ctx, ch, cfg.QueueRabbit.MainQueueName)
 	}()
 
-	// Emit an event
-	//event := Event.Event{Type: "OrderPlaced", Data: "Order123"}
-	//if err := Event.EmitEvent(ch, q.Name, event); err != nil {
-	//	log.Fatalf("Failed to emit event: %s", err)
-	//}
-
-	//forever := make(chan bool)
-	//<-forever
-
 	// Create Router for HTTP server
 	router := SetupRouter(s.RESTHandler)
 
 	// Start GRPC server in go-routine
 	//go s.GRPCHandler.Start(ctx, s.Config.GRPCPort)
 	// Start REST server in Blocking mode
-	s.RESTHandler.Start(router, 8080)
+	s.RESTHandler.Start(router, cfg.HTTPPort)
 }
 
 // GracefulShutdown listen over the quitSignal to graceful shutdown the app

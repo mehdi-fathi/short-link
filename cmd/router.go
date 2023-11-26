@@ -22,5 +22,11 @@ func SetupRouter(handler *rest.Handler) *gin.Engine {
 	router.GET("/short/:url", handler.HandleRedirect)
 	router.GET("/list/all", handler.HandleList)
 
+	v1 := router.Group("/v1")
+	{
+		v1.GET("/list/all", handler.HandleListJson)
+
+	}
+
 	return router
 }

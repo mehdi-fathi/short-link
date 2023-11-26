@@ -13,4 +13,5 @@ type ServiceInterface interface {
 	//GetAllUrl() map[string]string
 	GetAllUrlV2() (map[int]*Model.Link, error)
 	UpdateStatus(status string, shortKey string)
+	GetAllLinkApi() ([]interface{}, error)
 }

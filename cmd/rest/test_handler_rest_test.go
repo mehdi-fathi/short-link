@@ -11,6 +11,7 @@ import (
 	"net/url"
 	"short-link/internal"
 	"short-link/internal/Cache"
+	"short-link/internal/Cache/MemCache"
 	"short-link/internal/Config"
 	"short-link/internal/Db"
 	"short-link/internal/Db/Repository"
@@ -70,14 +71,16 @@ func setupRouterAndHandler(cfg *Config.Config, db *Db.Db) (*Handler, *gin.Engine
 	//	Service: internal.CreateService(cfg),
 	//}
 
-	client := Cache.CreateCache(cfg)
+	cache := Cache.CreateCache(cfg)
 
 	queue := Queue.CreateQueue(cfg)
+
+	memCache := MemCache.CreateMemCache(cfg)
 
 	//service := tt.initService()
 	//var configServer ConfigModel
 
-	var ser = internal.CreateService(cfg, repo, client, queue)
+	var ser = internal.CreateService(cfg, repo, cache, memCache, queue)
 	handler := CreateHandler(ser)
 	//handler := CreateHandler(service,bookstore.CreateService(nil))
 	gin.SetMode(gin.TestMode)

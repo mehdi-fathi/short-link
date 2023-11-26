@@ -26,6 +26,7 @@ type Service struct {
 	Shortener *UrlShortener
 	LinkRepo  repository_interface.RepositoryInterface
 	Cache     cache_interface.CacheInterface
+	MemCache  cache_interface.MemCacheInterface
 	Queue     *Queue.Queue
 }
 
@@ -42,8 +43,11 @@ func GenerateShortKey(hashCode string) string {
 
 // CreateService creates an instance of membership interface with the necessary dependencies
 func CreateService(
-	cfg *Config2.Config, linkRepo repository_interface.RepositoryInterface,
-	cache cache_interface.CacheInterface, queue *Queue.Queue,
+	cfg *Config2.Config,
+	linkRepo repository_interface.RepositoryInterface,
+	cache cache_interface.CacheInterface,
+	memCache cache_interface.MemCacheInterface,
+	queue *Queue.Queue,
 ) service_interface.ServiceInterface {
 
 	shortenerUrl := &UrlShortener{
@@ -54,6 +58,7 @@ func CreateService(
 		Shortener: shortenerUrl,
 		LinkRepo:  linkRepo,
 		Cache:     cache,
+		MemCache:  memCache,
 		Queue:     queue,
 	}
 }
@@ -140,27 +145,7 @@ func (service *Service) UpdateStats(s *sync.WaitGroup, ctx context.Context) int 
 	// Listen for the context cancellation signal to stop the cron scheduler
 	<-ctx.Done()
 	logger.CreateLogInfo("[ * ] Received shutdown signal, UpdateStats...")
-	//
-	////todo we can make a goroutine version for this
-	//
-	//for _, data := range all {
-	//
-	//	hget, _ := service.Cache.Get(data.ShortKey)
-	//
-	//	visitCache, _ := strconv.Atoi(hget)
-	//
-	//	if visitCache > data.Visit {
-	//		service.LinkRepo.UpdateVisit(visitCache, data.ShortKey)
-	//		logger.CreateLogInfo(fmt.Sprintf("Updated %s : visit :%v", data.ShortKey, visitCache))
-	//	}
-	//
-	//	//var linkTable Model.Link
-	//	//
-	//	//err = rows.Scan(&linkTable.ID, &linkTable.Link, &linkTable.ShortKey)
-	//	//
-	//	//users[i] = &linkTable
-	//
-	//}
+
 	return 1
 }
 
@@ -223,5 +208,37 @@ func (service *Service) SetUrl(link string) string {
 
 func (service *Service) GetAllUrlV2() (map[int]*Model.Link, error) {
 	//return service.Shortener.Urls
-	return service.LinkRepo.GetAll()
+	data, err := service.LinkRepo.GetAll()
+
+	// Convert to a slice of interfaces
+	var myInterfaceSlice []interface{}
+	for _, item := range data {
+		myInterfaceSlice = append(myInterfaceSlice, item)
+	}
+
+	service.MemCache.SetSlice("list", myInterfaceSlice, 5*time.Minute)
+
+	return data, err
+}
+
+func (service *Service) GetAllLinkApi() ([]interface{}, error) {
+	//return service.Shortener.Urls
+	data, err := service.LinkRepo.GetAll()
+
+	// Convert to a slice of interfaces
+	var myInterfaceSlice []interface{}
+	for _, item := range data {
+		myInterfaceSlice = append(myInterfaceSlice, item)
+	}
+
+	var dataMem []interface{}
+
+	//todo use serilizer here and make full url in seprated field in serilizer
+
+	// Try to get data from cache
+	if dataMem, found := service.MemCache.GetSlice("list"); found {
+		return dataMem, nil
+	}
+
+	return dataMem, err
 }

@@ -60,7 +60,7 @@ func DefaultLogger(cfg Config) {
 	}
 }
 
-func CreateLogInfo(text string) {
+func CreateLogInfo(text interface{}) {
 
 	StandardLoggerVar.Info(text)
 }

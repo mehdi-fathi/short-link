@@ -24,27 +24,7 @@ func main() {
 
 	startTime := time.Now()
 
-	// Default Config file based on the environment variable
-	defaultConfigFile := "config/config-local.yaml"
-	if env := os.Getenv("APP_MODE"); env != "" {
-		defaultConfigFile = fmt.Sprintf("config/config-%s.yaml", env)
-	}
-
-	// Load Master Config File
-	var configFile string
-	flag.StringVar(&configFile, "config", defaultConfigFile, "The environment configuration file of application")
-	flag.Usage = usage
-	flag.Parse()
-
-	// Loading the config file
-	cfg, err := Config.LoadConfig(configFile)
-	if err != nil {
-		log.Println(errors.Wrapf(err, "failed to load config: %s", "CreateService"))
-	}
-
-	loggerInstance := logger.CreateLogger(cfg.Logger)
-
-	logger.CreateLogInfo("[OK] Logger Configured")
+	cfg, err := loggerHandle()
 
 	//loggerInstance := logrus.Logger{}
 	//loggerInstance.Info("[OK] Logger Configured")
@@ -80,13 +60,39 @@ func main() {
 
 	// Kill other background jobs
 	cancel()
-	loggerInstance.Info("Waiting for background jobs to finish their works...")
+	logger.CreateLogInfo("Waiting for background jobs to finish their works...")
 
 	// Wait for all other background jobs to finish their works
 	server.Wait()
 
-	loggerInstance.Info("Master App Shutdown successfully, see you next time ;-)")
+	logger.CreateLogInfo("Master App Shutdown successfully, see you next time ;-)")
 
+}
+
+func loggerHandle() (*Config.Config, error) {
+	// Default Config file based on the environment variable
+	defaultConfigFile := "config/config-local.yaml"
+	if env := os.Getenv("APP_MODE"); env != "" {
+		defaultConfigFile = fmt.Sprintf("config/config-%s.yaml", env)
+	}
+
+	// Load Master Config File
+	var configFile string
+	flag.StringVar(&configFile, "config", defaultConfigFile, "The environment configuration file of application")
+	flag.Usage = usage
+	flag.Parse()
+
+	// Loading the config file
+	cfg, err := Config.LoadConfig(configFile)
+	if err != nil {
+		log.Println(errors.Wrapf(err, "failed to load config: %s", "CreateService"))
+	}
+
+	loggerInstance := logger.CreateLogger(cfg.Logger)
+
+	loggerInstance.Info("[OK] Logger Configured")
+
+	return cfg, err
 }
 
 func usage() {

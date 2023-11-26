@@ -5,6 +5,7 @@ import (
 	"short-link/cmd/rest"
 	"short-link/internal"
 	"short-link/internal/Cache"
+	"short-link/internal/Cache/MemCache"
 	"short-link/internal/Config"
 	"short-link/internal/Db"
 	"short-link/internal/Db/Repository"
@@ -29,17 +30,15 @@ func CreateDependencies(cfg *Config.Config) out {
 
 	repo := Repository.CreateRepository(cfg, dbLayer)
 
-	//httpHandler := &Handler{
-	//	Service: internal.CreateService(cfg),
-	//}
+	cache := Cache.CreateCache(cfg)
 
-	client := Cache.CreateCache(cfg)
+	memCache := MemCache.CreateMemCache(cfg)
 
 	queue := Queue.CreateQueue(cfg)
 
 	queueMain = queue
 
-	var ser = internal.CreateService(cfg, repo, client, queue)
+	var ser = internal.CreateService(cfg, repo, cache, memCache, queue)
 
 	queue.Service = ser
 
