@@ -12,7 +12,7 @@ I try to take advantage of substantial concept Golang, engineering and well-stru
 - **Efficient Storage**: Utilize PostgreSQL for storing URL data.
 - **Performance**: Leverage Redis for enhanced caching and retrieval speed.
 ``
-## Tech Features``
+## Tech Features````
 
 - Shutdown gracefully
 - Memory Cache
@@ -20,6 +20,7 @@ I try to take advantage of substantial concept Golang, engineering and well-stru
 - Use redis for saving count visits
 - Event-Driven-Design: We used queue with go routines to validate all links right after create a new one. 
 - Hexagonal Architecture
+- Integration tests
 
 ## Installation Instructions
 
