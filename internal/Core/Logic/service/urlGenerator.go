@@ -1,4 +1,4 @@
-package internal
+package service
 
 import (
 	"context"
@@ -6,11 +6,11 @@ import (
 	"math/rand"
 	cache_interface "short-link/internal/Cache/Interface"
 	Config2 "short-link/internal/Config"
-	"short-link/internal/Db/Model"
-	"short-link/internal/Db/Repository/interface"
+	"short-link/internal/Core/Domin"
+	"short-link/internal/Core/Logic/Db/Repository/interface"
+	"short-link/internal/Core/Ports"
 	"short-link/internal/Event"
 	"short-link/internal/Queue"
-	service_interface "short-link/internal/interface"
 	"short-link/pkg/logger"
 	"short-link/pkg/url"
 	"strconv"
@@ -48,7 +48,7 @@ func CreateService(
 	cache cache_interface.CacheInterface,
 	memCache cache_interface.MemCacheInterface,
 	queue *Queue.Queue,
-) service_interface.ServiceInterface {
+) Ports.ServiceInterface {
 
 	shortenerUrl := &UrlShortener{
 		Config: cfg,
@@ -63,7 +63,7 @@ func CreateService(
 	}
 }
 
-func (service *Service) GetUrl(shortKey string) *Model.Link {
+func (service *Service) GetUrl(shortKey string) *Domin.Link {
 
 	link, _ := service.LinkRepo.FindByShortKey(shortKey)
 
@@ -76,7 +76,7 @@ func (service *Service) GetUrl(shortKey string) *Model.Link {
 
 func (service *Service) UpdateStats(s *sync.WaitGroup, ctx context.Context) int {
 
-	var all map[int]*Model.Link
+	var all map[int]*Domin.Link
 
 	limit := 10
 
@@ -99,7 +99,7 @@ func (service *Service) UpdateStats(s *sync.WaitGroup, ctx context.Context) int 
 
 			s.Add(1)
 
-			go func(start int, all map[int]*Model.Link) {
+			go func(start int, all map[int]*Domin.Link) {
 
 				defer s.Done()
 
@@ -206,7 +206,7 @@ func (service *Service) SetUrl(link string) string {
 //	return service.LinkRepo.GetAll()
 //}
 
-func (service *Service) GetAllUrlV2() (map[int]*Model.Link, error) {
+func (service *Service) GetAllUrlV2() (map[int]*Domin.Link, error) {
 	//return service.Shortener.Urls
 	data, err := service.LinkRepo.GetAll()
 

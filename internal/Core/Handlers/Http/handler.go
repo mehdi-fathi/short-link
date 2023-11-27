@@ -1,4 +1,4 @@
-package rest
+package Http
 
 import (
 	"context"
@@ -6,7 +6,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
 	"net/http"
-	service_interface "short-link/internal/interface"
+	"short-link/internal/Core/Handlers/Http/rest"
+	"short-link/internal/Core/Handlers/Http/web"
+	service_interface "short-link/internal/Core/Ports"
 	"short-link/pkg/logger"
 	"time"
 )
@@ -23,8 +25,20 @@ type Handler struct {
 }
 
 // CreateHandler Creates a new instance of REST handler
-func CreateHandler(linkService service_interface.ServiceInterface) *Handler {
-	return &Handler{
+func CreateHandler(linkService service_interface.ServiceInterface) *rest.HandlerRest {
+	return &rest.HandlerRest{
+		LinkService: linkService,
+	}
+}
+
+// CreateHandler Creates a new instance of REST handler
+func CreateHandlerMain() *Handler {
+	return &Handler{}
+}
+
+// CreateHandler Creates a new instance of REST handler
+func CreateHandlerWeb(linkService service_interface.ServiceInterface) *web.HandlerWeb {
+	return &web.HandlerWeb{
 		LinkService: linkService,
 	}
 }

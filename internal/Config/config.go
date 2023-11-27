@@ -78,7 +78,7 @@ func readFile(cfg *Config, filePath string) error {
 }
 
 func LoadTestConfig() (*Config, error) {
-	defaultConfigFile := "../../config/config-test.yaml"
+	defaultConfigFile := "../../../../../../config/config-test.yaml"
 	if env := os.Getenv("APP_MODE"); env != "" {
 		defaultConfigFile = fmt.Sprintf("../../config/config-%s.yaml", env)
 	}

@@ -1,4 +1,4 @@
-package rest
+package test
 
 import (
 	"database/sql"
@@ -9,12 +9,14 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
-	"short-link/internal"
 	"short-link/internal/Cache"
 	"short-link/internal/Cache/MemCache"
 	"short-link/internal/Config"
-	"short-link/internal/Db"
-	"short-link/internal/Db/Repository"
+	"short-link/internal/Core/Handlers/Http"
+	"short-link/internal/Core/Handlers/Http/web"
+	"short-link/internal/Core/Logic/Db"
+	"short-link/internal/Core/Logic/Db/Repository"
+	"short-link/internal/Core/Logic/service"
 	"short-link/internal/Queue"
 	"short-link/pkg/logger"
 	"strings"
@@ -25,19 +27,19 @@ import (
 )
 
 // test_utils.go
-func initTest() (*Handler, *gin.Engine, *Db.Db, error) {
+func initTest() (*web.HandlerWeb, *Http.Handler, *gin.Engine, *Db.Db, error) {
 	cfg, err := Config.LoadTestConfig()
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, nil, nil, nil, err
 	}
 
 	db, err := initTestDB(cfg)
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, nil, nil, nil, err
 	}
 
-	handler, router := setupRouterAndHandler(cfg, db)
-	return handler, router, db, nil
+	handlerWeb, handlerMain, router := setupRouterAndHandler(cfg, db)
+	return handlerWeb, handlerMain, router, db, nil
 }
 
 func initTestDB(cfg *Config.Config) (*Db.Db, error) {
@@ -63,7 +65,7 @@ func initTestDB(cfg *Config.Config) (*Db.Db, error) {
 	return Db, nil
 }
 
-func setupRouterAndHandler(cfg *Config.Config, db *Db.Db) (*Handler, *gin.Engine) {
+func setupRouterAndHandler(cfg *Config.Config, db *Db.Db) (*web.HandlerWeb, *Http.Handler, *gin.Engine) {
 
 	repo := Repository.CreateRepository(cfg, db)
 
@@ -80,21 +82,22 @@ func setupRouterAndHandler(cfg *Config.Config, db *Db.Db) (*Handler, *gin.Engine
 	//service := tt.initService()
 	//var configServer ConfigModel
 
-	var ser = internal.CreateService(cfg, repo, cache, memCache, queue)
-	handler := CreateHandler(ser)
+	var ser = service.CreateService(cfg, repo, cache, memCache, queue)
+	handlerWeb := Http.CreateHandlerWeb(ser)
+	handler := Http.CreateHandlerMain()
 	//handler := CreateHandler(service,bookstore.CreateService(nil))
 	gin.SetMode(gin.TestMode)
 	gin.DefaultWriter = ioutil.Discard
 	router := gin.Default()
-	router.LoadHTMLGlob("../../tmp/*")
+	router.LoadHTMLGlob("../../../../../../tmp/*")
 
-	return handler, router
+	return handlerWeb, handler, router
 }
 
 // TestHandleShorten tests the POST /shorten endpoint
 func TestHandleShorten(t *testing.T) {
 
-	runTest(t, func(t *testing.T, handler *Handler, router *gin.Engine, dbLayer *Db.Db) {
+	runTest(t, func(t *testing.T, handler *web.HandlerWeb, handlerMain *Http.Handler, router *gin.Engine, dbLayer *Db.Db) {
 
 		log.Println("router", router)
 		router.POST("/make", handler.HandleShorten)
@@ -124,20 +127,20 @@ func TestHandleShorten(t *testing.T) {
 
 }
 
-func runTest(t *testing.T, testFunc func(t *testing.T, handler *Handler, router *gin.Engine, dbLayer *Db.Db)) {
-	handler, router, dbLayer, err := initTest()
+func runTest(t *testing.T, testFunc func(t *testing.T, handler *web.HandlerWeb, handlerMain *Http.Handler, router *gin.Engine, dbLayer *Db.Db)) {
+	handler, handlerMain, router, dbLayer, err := initTest()
 
 	if err != nil {
 		t.Fatalf("initTest failed: %v", err)
 	}
 	//defer teardownTestDB(dbLayer.Sql)
 
-	testFunc(t, handler, router, dbLayer)
+	testFunc(t, handler, handlerMain, router, dbLayer)
 }
 
 func TestHandleRedirectNotFound(t *testing.T) {
 
-	runTest(t, func(t *testing.T, handler *Handler, router *gin.Engine, dbLayer *Db.Db) {
+	runTest(t, func(t *testing.T, handler *web.HandlerWeb, handlerMain *Http.Handler, router *gin.Engine, dbLayer *Db.Db) {
 
 		router.GET("/short/:url", handler.HandleRedirect)
 
@@ -162,7 +165,7 @@ func TestHandleRedirectNotFound(t *testing.T) {
 
 func TestHandleRedirectSuccess(t *testing.T) {
 
-	runTest(t, func(t *testing.T, handler *Handler, router *gin.Engine, dbLayer *Db.Db) {
+	runTest(t, func(t *testing.T, handler *web.HandlerWeb, handlerMain *Http.Handler, router *gin.Engine, dbLayer *Db.Db) {
 
 		shortLink := handler.LinkService.SetUrl("https://www.google.com")
 
@@ -189,7 +192,7 @@ func TestHandleRedirectSuccess(t *testing.T) {
 
 func TestHandleListAll(t *testing.T) {
 
-	runTest(t, func(t *testing.T, handler *Handler, router *gin.Engine, dbLayer *Db.Db) {
+	runTest(t, func(t *testing.T, handler *web.HandlerWeb, handlerMain *Http.Handler, router *gin.Engine, dbLayer *Db.Db) {
 
 		handler.LinkService.SetUrl("https://www.google.com")
 

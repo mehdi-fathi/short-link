@@ -1,21 +1,24 @@
-package main
+package Http
 
 import (
 	"log"
-	"short-link/cmd/rest"
-	"short-link/internal"
 	"short-link/internal/Cache"
 	"short-link/internal/Cache/MemCache"
 	"short-link/internal/Config"
-	"short-link/internal/Db"
-	"short-link/internal/Db/Repository"
+	"short-link/internal/Core/Handlers/Http/rest"
+	"short-link/internal/Core/Handlers/Http/web"
+	"short-link/internal/Core/Logic/Db"
+	"short-link/internal/Core/Logic/Db/Repository"
+	"short-link/internal/Core/Logic/service"
 	"short-link/internal/Queue"
 )
 
 var queueMain *Queue.Queue
 
 type out struct {
-	Handler *rest.Handler
+	Handler     *Handler
+	HandlerRest *rest.HandlerRest
+	HandlerWeb  *web.HandlerWeb
 }
 
 func CreateDependencies(cfg *Config.Config) out {
@@ -38,14 +41,20 @@ func CreateDependencies(cfg *Config.Config) out {
 
 	queueMain = queue
 
-	var ser = internal.CreateService(cfg, repo, cache, memCache, queue)
+	var ser = service.CreateService(cfg, repo, cache, memCache, queue)
 
 	queue.Service = ser
 
-	handler := rest.CreateHandler(ser)
+	HandlerRest := CreateHandler(ser)
+	HandlerMain := CreateHandlerMain()
+	handlerWeb := CreateHandlerWeb(ser)
+
+	log.Println("run")
 
 	return out{
-		handler,
+		HandlerMain,
+		HandlerRest,
+		handlerWeb,
 	}
 
 }

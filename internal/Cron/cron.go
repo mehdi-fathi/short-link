@@ -1,10 +1,10 @@
-package cron
+package Cron
 
 import (
 	"context"
 	"fmt"
 	"github.com/go-co-op/gocron"
-	service_interface "short-link/internal/interface"
+	service_interface "short-link/internal/Core/Ports"
 	"short-link/pkg/logger"
 	"sync"
 	"time"
@@ -22,7 +22,7 @@ func StartCron(ctx context.Context, cron *gocron.Scheduler, service service_inte
 		logger.CreateLogInfo("[*] Cron start...")
 
 		// Process the event with its own context
-		// Replace `ProcessCron` with actual event processing logic
+		// Replace `ProcessCron` with actual event processing Logic
 		if err := ProcessCron(service, ctx); err != nil {
 			logger.CreateLogError(fmt.Sprintf("Failed to process cron:"))
 		} else {

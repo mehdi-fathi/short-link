@@ -7,9 +7,9 @@ import (
 	"github.com/streadway/amqp"
 	"log"
 	"short-link/internal/Config"
-	"short-link/internal/Db/Model"
+	"short-link/internal/Core/Domin"
+	service_interface "short-link/internal/Core/Ports"
 	"short-link/internal/Event"
-	service_interface "short-link/internal/interface"
 	"short-link/pkg/logger"
 	"short-link/pkg/url"
 	"time"
@@ -149,7 +149,7 @@ func (qu *Queue) ConsumeEvents(ctx context.Context, ch *amqp.Channel, queueName 
 			defer cancelProc()
 
 			// Process the event with its own context
-			// Replace `ProcessEvent` with actual event processing logic
+			// Replace `ProcessEvent` with actual event processing Logic
 			if err := qu.ProcessEvent(procCtx, event); err != nil {
 				logger.CreateLogError(fmt.Sprintf("Failed to process event: %s, error: %v", event.Type, err))
 				msg.Nack(false, true) // negative acknowledgment, requeue the message
@@ -173,10 +173,10 @@ func (qu *Queue) ProcessEvent(ctx context.Context, event Event.Event) error {
 
 		data := event.Data.(map[string]interface{})
 
-		status := Model.LINK_STATUS_APPROVE
+		status := Domin.LINK_STATUS_APPROVE
 		if !url.CheckURL(data["link"].(string)) {
 			logger.CreateLogInfo(fmt.Sprintf("Rejected link :%s", data["link"].(string)))
-			status = Model.Link_STATUS_REJECT
+			status = Domin.Link_STATUS_REJECT
 		}
 
 		qu.Service.UpdateStatus(status, data["link"].(string))

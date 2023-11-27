@@ -4,9 +4,9 @@ import (
 	"database/sql"
 	"errors"
 	"short-link/internal/Config"
-	"short-link/internal/Db"
-	"short-link/internal/Db/Model"
-	repository_interface "short-link/internal/Db/Repository/interface"
+	"short-link/internal/Core/Domin"
+	"short-link/internal/Core/Logic/Db"
+	"short-link/internal/Core/Logic/Db/Repository/interface"
 )
 
 // Db holds database connection to Postgres
@@ -15,13 +15,13 @@ type Repository struct {
 	Config *Config.Config
 }
 
-func (db *Repository) FindById(idIn int) (*Model.Link, error) {
+func (db *Repository) FindById(idIn int) (*Domin.Link, error) {
 
 	q := `SELECT * FROM links WHERE id=$1;`
 	row := db.Sql.QueryRow(q, idIn)
 	var err error
 
-	var linkTable Model.Link
+	var linkTable Domin.Link
 
 	err = row.Scan(&linkTable.ID, &linkTable.Link)
 
@@ -32,14 +32,14 @@ func (db *Repository) FindById(idIn int) (*Model.Link, error) {
 
 }
 
-func (db *Repository) FindByShortKey(shortKey string) (*Model.Link, error) {
+func (db *Repository) FindByShortKey(shortKey string) (*Domin.Link, error) {
 
 	q := `SELECT * FROM links WHERE short_key=$1;`
 	row := db.Sql.QueryRow(q, shortKey)
 
 	var err error
 
-	var linkTable Model.Link
+	var linkTable Domin.Link
 
 	err = row.Scan(&linkTable.ID, &linkTable.Link, &linkTable.ShortKey, &linkTable.Visit, &linkTable.UpdatedAt, &linkTable.Status)
 
@@ -51,16 +51,16 @@ func (db *Repository) FindByShortKey(shortKey string) (*Model.Link, error) {
 
 }
 
-func (db *Repository) GetAll() (map[int]*Model.Link, error) {
+func (db *Repository) GetAll() (map[int]*Domin.Link, error) {
 
 	q := `SELECT * FROM links order by id desc ;`
 	rows, _ := db.Sql.Query(q)
 	var err error
 
-	var links = make(map[int]*Model.Link)
+	var links = make(map[int]*Domin.Link)
 
 	for i := 0; rows.Next(); i++ {
-		var linkTable Model.Link
+		var linkTable Domin.Link
 
 		err = rows.Scan(&linkTable.ID, &linkTable.Link, &linkTable.ShortKey, &linkTable.Visit, &linkTable.UpdatedAt, &linkTable.Status)
 
@@ -75,7 +75,7 @@ func (db *Repository) GetAll() (map[int]*Model.Link, error) {
 
 }
 
-func (db *Repository) GetChunk(start int, limit int, status string) (map[int]*Model.Link, error) {
+func (db *Repository) GetChunk(start int, limit int, status string) (map[int]*Domin.Link, error) {
 
 	q := `SELECT * FROM links
 		  where status = $3
@@ -85,10 +85,10 @@ func (db *Repository) GetChunk(start int, limit int, status string) (map[int]*Mo
 	rows, _ := db.Sql.Query(q, start, limit, status)
 	var err error
 
-	var links = make(map[int]*Model.Link)
+	var links = make(map[int]*Domin.Link)
 
 	for i := 0; rows.Next(); i++ {
-		var linkTable Model.Link
+		var linkTable Domin.Link
 
 		err = rows.Scan(&linkTable.ID, &linkTable.Link, &linkTable.ShortKey, &linkTable.Visit, &linkTable.UpdatedAt, &linkTable.Status)
 
@@ -103,17 +103,17 @@ func (db *Repository) GetChunk(start int, limit int, status string) (map[int]*Mo
 
 }
 
-func (db *Repository) GetByStatus(status string) (map[int]*Model.Link, error) {
+func (db *Repository) GetByStatus(status string) (map[int]*Domin.Link, error) {
 
 	q := `SELECT * FROM links where status = $1 limit 100;`
 	rows, _ := db.Sql.Query(q, status)
 
 	var err error
 
-	var links = make(map[int]*Model.Link)
+	var links = make(map[int]*Domin.Link)
 
 	for i := 0; rows.Next(); i++ {
-		var linkTable Model.Link
+		var linkTable Domin.Link
 
 		err = rows.Scan(&linkTable.ID, &linkTable.Link, &linkTable.ShortKey, &linkTable.Visit, &linkTable.UpdatedAt, &linkTable.Status)
 

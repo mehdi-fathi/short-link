@@ -1,12 +1,13 @@
-package main
+package Http
 
 import (
 	"context"
 	"github.com/go-co-op/gocron"
 	"os"
-	"short-link/cmd/cron"
-	"short-link/cmd/rest"
 	"short-link/internal/Config"
+	"short-link/internal/Core/Handlers/Http/rest"
+	"short-link/internal/Core/Handlers/Http/web"
+	"short-link/internal/Cron"
 	"sync"
 	"time"
 )
@@ -14,8 +15,12 @@ import (
 type server struct {
 	sync.WaitGroup
 	StartTime   time.Time
-	RESTHandler *rest.Handler
+	Handler     *Handler
+	RESTHandler *rest.HandlerRest
+	WebHandler  *web.HandlerWeb
 }
+
+var cronjob *gocron.Scheduler
 
 // NewServer Create a new instance of server application
 func NewServer(startTime time.Time) *server {
@@ -29,14 +34,14 @@ func (s *server) Initialize(cfg *Config.Config) error {
 
 	dependencies := CreateDependencies(cfg)
 
-	s.RESTHandler = dependencies.Handler
+	s.Handler = dependencies.Handler
+	s.RESTHandler = dependencies.HandlerRest
+	s.WebHandler = dependencies.HandlerWeb
 
 	cronjob = gocron.NewScheduler(time.UTC)
 
 	return nil
 }
-
-var cronjob *gocron.Scheduler
 
 // Start starts the application in blocking mode
 func (s *server) Start(ctx context.Context, cfg *Config.Config) {
@@ -47,7 +52,7 @@ func (s *server) Start(ctx context.Context, cfg *Config.Config) {
 
 	go func() {
 		defer s.Done()
-		cron.StartCron(ctx, cronjob, s.RESTHandler.LinkService)
+		Cron.StartCron(ctx, cronjob, s.RESTHandler.LinkService)
 	}()
 
 	// Use a WaitGroup to wait for goroutines to finish
@@ -61,12 +66,12 @@ func (s *server) Start(ctx context.Context, cfg *Config.Config) {
 	}()
 
 	// Create Router for HTTP server
-	router := SetupRouter(s.RESTHandler)
+	router := SetupRouter(s.RESTHandler, s.WebHandler)
 
 	// Start GRPC server in go-routine
 	//go s.GRPCHandler.Start(ctx, s.Config.GRPCPort)
 	// Start REST server in Blocking mode
-	s.RESTHandler.Start(router, cfg.HTTPPort)
+	s.Handler.Start(router, cfg.HTTPPort)
 }
 
 // GracefulShutdown listen over the quitSignal to graceful shutdown the app
@@ -78,7 +83,7 @@ func (s *server) GracefulShutdown(quitSignal <-chan os.Signal, done chan<- bool)
 	<-quitSignal
 
 	// Kill the API Endpoints first
-	s.RESTHandler.Stop()
+	s.Handler.Stop()
 	//s.GRPCHandler.Stop()
 
 	cronjob.StopBlockingChan()

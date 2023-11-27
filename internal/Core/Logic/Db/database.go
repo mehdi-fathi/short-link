@@ -126,11 +126,11 @@ func migrateTest(db Config.DB) {
 		db.Dbname)
 
 	// Apply migrations
-	if err := downMigrations(connStringMigrate, "file://../../database/migration"); err != nil {
+	if err := downMigrations(connStringMigrate, "file://../../../../../../database/migration"); err != nil {
 		panic(err.(interface{}))
 	}
 	// Apply migrations
-	if err := applyMigrations(connStringMigrate, "file://../../database/migration"); err != nil {
+	if err := applyMigrations(connStringMigrate, "file://../../../../../../database/migration"); err != nil {
 		panic(err.(interface{}))
 	}
 }

@@ -1,12 +1,20 @@
-package rest
+package web
 
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"short-link/internal/Db/serialization"
+	_ "short-link/internal/Core/Handlers/Http/rest"
+	"short-link/internal/Core/Logic/Db/serialization"
+	service_interface "short-link/internal/Core/Ports"
+	"short-link/pkg/logger"
 )
 
-func (h *Handler) HandleShorten(c *gin.Context) {
+type HandlerWeb struct {
+	loggerInstance *logger.StandardLogger
+	LinkService    service_interface.ServiceInterface
+}
+
+func (h *HandlerWeb) HandleShorten(c *gin.Context) {
 
 	//if r.Method != http.MethodPost {
 	//	http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
@@ -28,7 +36,7 @@ func (h *Handler) HandleShorten(c *gin.Context) {
 
 }
 
-func (h *Handler) HandleRedirect(c *gin.Context) {
+func (h *HandlerWeb) HandleRedirect(c *gin.Context) {
 
 	shortKey := c.Param("url")
 
@@ -44,7 +52,7 @@ func (h *Handler) HandleRedirect(c *gin.Context) {
 
 }
 
-func (h *Handler) HandleList(c *gin.Context) {
+func (h *HandlerWeb) HandleList(c *gin.Context) {
 
 	//allUrl := h.LinkService.GetAllUrl()
 
@@ -55,11 +63,4 @@ func (h *Handler) HandleList(c *gin.Context) {
 	c.HTML(http.StatusOK, "list.html", gin.H{
 		"data": all,
 	})
-}
-
-func (h *Handler) HandleListJson(c *gin.Context) {
-
-	all, _ := h.LinkService.GetAllLinkApi()
-
-	c.JSON(200, all)
 }

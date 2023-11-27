@@ -1,11 +1,11 @@
 package serialization
 
 import (
-	"short-link/internal/Db/Model"
+	"short-link/internal/Core/Domin"
 	"time"
 )
 
-func DeserializeLink(link *Model.Link) {
+func DeserializeLink(link *Domin.Link) {
 	// Example transformation: parsing a timestamp string to time.Time
 	// Assuming link has a LastLogin field which is a string timestamp in the database
 	if link.UpdatedAt != "" {
@@ -18,7 +18,7 @@ func DeserializeLink(link *Model.Link) {
 	// Add other transformations as needed
 }
 
-func DeserializeAllLink(link map[int]*Model.Link) {
+func DeserializeAllLink(link map[int]*Domin.Link) {
 	// Example transformation: parsing a timestamp string to time.Time
 	// Assuming link has a LastLogin field which is a string timestamp in the database
 

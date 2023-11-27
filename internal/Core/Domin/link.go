@@ -1,4 +1,4 @@
-package Model
+package Domin
 
 // Character is one character from the database.
 type Link struct {

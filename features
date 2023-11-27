@@ -20,4 +20,6 @@
 20 - make serilize layer for db
 21 - cache in memory for lists
 22 - implement prometous and monitoring requests
-23 - 
+23 - implement hexagonal structure
+24 - fix absolute path
+25 - not allowed redirect if link is rejected

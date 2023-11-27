@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/signal"
 	"short-link/internal/Config"
+	"short-link/internal/Core/Handlers/Http"
 	"short-link/pkg/logger"
 	"syscall"
 	"time"
@@ -34,7 +35,7 @@ func main() {
 	ctx, cancel := context.WithCancel(ctx)
 
 	// Create New server
-	server := NewServer(startTime)
+	server := Http.NewServer(startTime)
 
 	// Initialize the server Dependencies
 	err = server.Initialize(cfg)

@@ -1,12 +1,13 @@
-package main
+package Http
 
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"short-link/cmd/rest"
+	"short-link/internal/Core/Handlers/Http/rest"
+	"short-link/internal/Core/Handlers/Http/web"
 )
 
-func SetupRouter(handler *rest.Handler) *gin.Engine {
+func SetupRouter(handler *rest.HandlerRest, handlerWeb *web.HandlerWeb) *gin.Engine {
 
 	router := gin.Default()
 
@@ -18,9 +19,9 @@ func SetupRouter(handler *rest.Handler) *gin.Engine {
 		})
 	})
 
-	router.POST("/make", handler.HandleShorten)
-	router.GET("/short/:url", handler.HandleRedirect)
-	router.GET("/list/all", handler.HandleList)
+	router.POST("/make", handlerWeb.HandleShorten)
+	router.GET("/short/:url", handlerWeb.HandleRedirect)
+	router.GET("/list/all", handlerWeb.HandleList)
 
 	v1 := router.Group("/v1")
 	{

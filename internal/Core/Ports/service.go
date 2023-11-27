@@ -1,17 +1,17 @@
-package service_interface
+package Ports
 
 import (
 	"context"
-	"short-link/internal/Db/Model"
+	"short-link/internal/Core/Domin"
 	"sync"
 )
 
 type ServiceInterface interface {
-	GetUrl(shortKey string) *Model.Link
+	GetUrl(shortKey string) *Domin.Link
 	UpdateStats(s *sync.WaitGroup, ctx context.Context) int
 	SetUrl(link string) string
 	//GetAllUrl() map[string]string
-	GetAllUrlV2() (map[int]*Model.Link, error)
+	GetAllUrlV2() (map[int]*Domin.Link, error)
 	UpdateStatus(status string, shortKey string)
 	GetAllLinkApi() ([]interface{}, error)
 }
