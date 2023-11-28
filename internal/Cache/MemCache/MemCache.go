@@ -1,8 +1,8 @@
 package MemCache
 
 import (
-	cache_interface "short-link/internal/Cache/Interface"
 	"short-link/internal/Config"
+	cache_interface "short-link/internal/Core/Ports"
 	"sync"
 	"time"
 )

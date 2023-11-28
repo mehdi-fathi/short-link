@@ -1,4 +1,4 @@
-package cache_interface
+package Ports
 
 type CacheInterface interface {
 	Ping() (string, error)

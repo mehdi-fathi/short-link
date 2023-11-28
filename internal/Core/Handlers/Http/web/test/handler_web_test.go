@@ -16,7 +16,7 @@ import (
 	"short-link/internal/Core/Handlers/Http/web"
 	"short-link/internal/Core/Logic/Db"
 	"short-link/internal/Core/Logic/Db/Repository"
-	"short-link/internal/Core/Logic/service"
+	"short-link/internal/Core/Logic/Service"
 	"short-link/internal/Queue"
 	"short-link/pkg/logger"
 	"strings"
@@ -79,13 +79,13 @@ func setupRouterAndHandler(cfg *Config.Config, db *Db.Db) (*web.HandlerWeb, *Htt
 
 	memCache := MemCache.CreateMemCache(cfg)
 
-	//service := tt.initService()
+	//Service := tt.initService()
 	//var configServer ConfigModel
 
-	var ser = service.CreateService(cfg, repo, cache, memCache, queue)
+	var ser = Service.CreateService(cfg, repo, cache, memCache, queue)
 	handlerWeb := Http.CreateHandlerWeb(ser)
 	handler := Http.CreateHandlerMain()
-	//handler := CreateHandler(service,bookstore.CreateService(nil))
+	//handler := CreateHandler(Service,bookstore.CreateService(nil))
 	gin.SetMode(gin.TestMode)
 	gin.DefaultWriter = ioutil.Discard
 	router := gin.Default()

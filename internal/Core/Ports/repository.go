@@ -1,4 +1,4 @@
-package repository_interface
+package Ports
 
 import (
 	"short-link/internal/Core/Domin"

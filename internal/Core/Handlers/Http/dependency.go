@@ -9,7 +9,7 @@ import (
 	"short-link/internal/Core/Handlers/Http/web"
 	"short-link/internal/Core/Logic/Db"
 	"short-link/internal/Core/Logic/Db/Repository"
-	"short-link/internal/Core/Logic/service"
+	"short-link/internal/Core/Logic/Service"
 	"short-link/internal/Queue"
 )
 
@@ -41,7 +41,7 @@ func CreateDependencies(cfg *Config.Config) out {
 
 	queueMain = queue
 
-	var ser = service.CreateService(cfg, repo, cache, memCache, queue)
+	var ser = Service.CreateService(cfg, repo, cache, memCache, queue)
 
 	queue.Service = ser
 

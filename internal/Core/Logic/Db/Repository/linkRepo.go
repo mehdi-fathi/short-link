@@ -6,7 +6,7 @@ import (
 	"short-link/internal/Config"
 	"short-link/internal/Core/Domin"
 	"short-link/internal/Core/Logic/Db"
-	"short-link/internal/Core/Logic/Db/Repository/interface"
+	"short-link/internal/Core/Ports"
 )
 
 // Db holds database connection to Postgres
@@ -176,7 +176,7 @@ func (db *Repository) UpdateStatus(status string, link string) (int, error) {
 }
 
 // CreateService creates an instance of membership interface with the necessary dependencies
-func CreateRepository(cfg *Config.Config, dbLayer *Db.Db) repository_interface.RepositoryInterface {
+func CreateRepository(cfg *Config.Config, dbLayer *Db.Db) Ports.RepositoryInterface {
 
 	Repo := &Repository{dbLayer, cfg}
 

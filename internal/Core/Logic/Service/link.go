@@ -1,13 +1,11 @@
-package service
+package Service
 
 import (
 	"context"
 	"fmt"
 	"math/rand"
-	cache_interface "short-link/internal/Cache/Interface"
 	Config2 "short-link/internal/Config"
 	"short-link/internal/Core/Domin"
-	"short-link/internal/Core/Logic/Db/Repository/interface"
 	"short-link/internal/Core/Ports"
 	"short-link/internal/Event"
 	"short-link/internal/Queue"
@@ -24,10 +22,10 @@ type UrlShortener struct {
 
 type Service struct {
 	Shortener *UrlShortener
-	LinkRepo  repository_interface.RepositoryInterface
-	Cache     cache_interface.CacheInterface
-	MemCache  cache_interface.MemCacheInterface
-	Queue     *Queue.Queue
+	LinkRepo Ports.RepositoryInterface
+	Cache    Ports.CacheInterface
+	MemCache Ports.MemCacheInterface
+	Queue    *Queue.Queue
 }
 
 func GenerateShortKey(hashCode string) string {
@@ -44,9 +42,9 @@ func GenerateShortKey(hashCode string) string {
 // CreateService creates an instance of membership interface with the necessary dependencies
 func CreateService(
 	cfg *Config2.Config,
-	linkRepo repository_interface.RepositoryInterface,
-	cache cache_interface.CacheInterface,
-	memCache cache_interface.MemCacheInterface,
+	linkRepo Ports.RepositoryInterface,
+	cache Ports.CacheInterface,
+	memCache Ports.MemCacheInterface,
 	queue *Queue.Queue,
 ) Ports.ServiceInterface {
 
@@ -190,7 +188,7 @@ func (service *Service) SetUrl(link string) string {
 
 	ch, err := service.Queue.Connection.Channel()
 
-	//service.checkPendingLinks()
+	//Service.checkPendingLinks()
 
 	service.Queue.Publish(ch, "test", event)
 
@@ -201,13 +199,13 @@ func (service *Service) SetUrl(link string) string {
 	return shortKey
 }
 
-//func (service *Service) GetAllUrl() map[string]string {
-//	//return service.Shortener.Urls
-//	return service.LinkRepo.GetAll()
+//func (Service *Service) GetAllUrl() map[string]string {
+//	//return Service.Shortener.Urls
+//	return Service.LinkRepo.GetAll()
 //}
 
 func (service *Service) GetAllUrlV2() (map[int]*Domin.Link, error) {
-	//return service.Shortener.Urls
+	//return Service.Shortener.Urls
 	data, err := service.LinkRepo.GetAll()
 
 	// Convert to a slice of interfaces
@@ -222,7 +220,7 @@ func (service *Service) GetAllUrlV2() (map[int]*Domin.Link, error) {
 }
 
 func (service *Service) GetAllLinkApi() ([]interface{}, error) {
-	//return service.Shortener.Urls
+	//return Service.Shortener.Urls
 	data, err := service.LinkRepo.GetAll()
 
 	// Convert to a slice of interfaces

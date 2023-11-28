@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"github.com/go-redis/redis/v8"
-	cache_interface "short-link/internal/Cache/Interface"
 	"short-link/internal/Config"
+	cache_interface "short-link/internal/Core/Ports"
 )
 
 // Db holds database connection to Postgres
