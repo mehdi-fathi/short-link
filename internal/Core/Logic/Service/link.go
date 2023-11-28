@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"math/rand"
-	Config2 "short-link/internal/Config"
+	"short-link/internal/Config"
 	"short-link/internal/Core/Domin"
 	"short-link/internal/Core/Ports"
 	"short-link/internal/Event"
@@ -17,15 +17,15 @@ import (
 )
 
 type UrlShortener struct {
-	Config *Config2.Config
+	Config *Config.Config
 }
 
 type Service struct {
 	Shortener *UrlShortener
-	LinkRepo Ports.RepositoryInterface
-	Cache    Ports.CacheInterface
-	MemCache Ports.MemCacheInterface
-	Queue    *Queue.Queue
+	LinkRepo  Ports.RepositoryInterface
+	Cache     Ports.CacheInterface
+	MemCache  Ports.MemCacheInterface
+	Queue     *Queue.Queue
 }
 
 func GenerateShortKey(hashCode string) string {
@@ -41,7 +41,7 @@ func GenerateShortKey(hashCode string) string {
 
 // CreateService creates an instance of membership interface with the necessary dependencies
 func CreateService(
-	cfg *Config2.Config,
+	cfg *Config.Config,
 	linkRepo Ports.RepositoryInterface,
 	cache Ports.CacheInterface,
 	memCache Ports.MemCacheInterface,
