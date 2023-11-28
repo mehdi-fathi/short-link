@@ -92,8 +92,7 @@
     <h1>List Links</h1>
 
     <div class="nav-buttons">
-        <a href="http://localhost:8080/index">Generate Link</a>
-        <a href="http://localhost:8080/list/all">List Link</a>
+        <a href="{{ .url }}/index">Generate Link</a>
     </div>
 
     <table border="1">
@@ -108,9 +107,9 @@
         {{ range $k, $v := .data}}
         <tr>
             <td>{{ $v.ID }}</td>
-            <td>{{ $v.Link }}</td>
+            <td>{{ $v.Link.Link }}</td>
             <td>{{ $v.Visit }}</td>
-            <td><a href="http://localhost:8080/short/{{ $v.ShortKey }}">http://localhost:8080/short/{{ $v.ShortKey }}</a></td>
+            <td><a href="{{ $v.UrlShort }}">{{ $v.UrlShort }}</a></td>
             <td>{{ $v.Status }}</td>
             <td>{{ $v.UpdatedAt }}</td>
         </tr>

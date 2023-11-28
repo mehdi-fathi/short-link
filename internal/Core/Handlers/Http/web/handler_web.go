@@ -3,6 +3,7 @@ package web
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"short-link/internal/Config"
 	_ "short-link/internal/Core/Handlers/Http/rest"
 	"short-link/internal/Core/Logic/Db/serialization"
 	service_interface "short-link/internal/Core/Ports"
@@ -32,7 +33,7 @@ func (h *HandlerWeb) HandleShorten(c *gin.Context) {
 	// Generate a unique shortened key for the original URL
 	h.LinkService.SetUrl(link)
 
-	c.Redirect(http.StatusMovedPermanently, "http://localhost:8080/list/all")
+	c.Redirect(http.StatusMovedPermanently, Config.GetBaseUrl()+"/list/all")
 
 }
 
@@ -56,11 +57,12 @@ func (h *HandlerWeb) HandleList(c *gin.Context) {
 
 	//allUrl := h.LinkService.GetAllUrl()
 
-	all, _ := h.LinkService.GetAllUrlV2()
+	linksDb, _ := h.LinkService.GetAllUrlV2()
 
-	serialization.DeserializeAllLink(all)
+	dataLinkSerialized := serialization.DeserializeAllLink(linksDb)
 
 	c.HTML(http.StatusOK, "list.html", gin.H{
-		"data": all,
+		"data": dataLinkSerialized,
+		"url":  Config.GetBaseUrl(),
 	})
 }

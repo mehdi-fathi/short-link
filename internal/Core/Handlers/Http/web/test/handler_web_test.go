@@ -33,6 +33,8 @@ func initTest() (*web.HandlerWeb, *Http.Handler, *gin.Engine, *Db.Db, error) {
 		return nil, nil, nil, nil, err
 	}
 
+	log.Println(cfg)
+
 	db, err := initTestDB(cfg)
 	if err != nil {
 		return nil, nil, nil, nil, err

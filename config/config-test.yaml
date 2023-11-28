@@ -1,4 +1,5 @@
 HTTP_PORT: 8000
+HTTP_PORTOCOL: http
 REFERER_HOST: localhost
 APP_MOD: local
 REDIS:
@@ -6,7 +7,7 @@ REDIS:
   PORT: 6379
   USE_AUTH: false
   PASSWORD:
-HASHCODE : abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
+HASHCODE: abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
 DB:
   HOST: localhost
   PORT: 5432
@@ -19,6 +20,7 @@ LOGGER:
   GRAYLOG_SERVER:
   GRAYLOG_STREAM: short-link
 QueueRabbit:
+  MAIN_QUEUE_NAME: sync
   HOST: localhost
   PORT: 5672
   USER: guest

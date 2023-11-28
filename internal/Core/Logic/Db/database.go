@@ -72,11 +72,11 @@ func CreateDb(cfg *Config.Config) *Db {
 func (db *Db) ConnectDBTest() (*Db, error) {
 
 	connString := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname = %s sslmode=disable",
-		"localhost",
-		5432,
-		"default",
-		"secret",
-		"slink_test")
+		db.Config.DB.Host,
+		db.Config.DB.Port,
+		db.Config.DB.User,
+		db.Config.DB.Password,
+		db.Config.DB.Dbname)
 
 	var err error
 

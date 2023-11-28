@@ -3,6 +3,7 @@ package Http
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"short-link/internal/Config"
 	"short-link/internal/Core/Handlers/Http/rest"
 	"short-link/internal/Core/Handlers/Http/web"
 )
@@ -16,6 +17,7 @@ func SetupRouter(handler *rest.HandlerRest, handlerWeb *web.HandlerWeb) *gin.Eng
 	router.GET("/index", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "index.html", gin.H{
 			"title": "Main website",
+			"url":   Config.GetBaseUrl(),
 		})
 	})
 

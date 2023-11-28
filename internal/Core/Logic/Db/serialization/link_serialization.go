@@ -1,37 +1,50 @@
 package serialization
 
 import (
+	"short-link/internal/Config"
 	"short-link/internal/Core/Domin"
 	"time"
 )
 
-func DeserializeLink(link *Domin.Link) {
+// Character is one character from the database.
+type LinkSerialized struct {
+	*Domin.Link
+	UrlShort string
+}
+
+func DeserializeLink(link *Domin.Link) *LinkSerialized {
+
+	var dataLinkSerialized LinkSerialized
+
 	// Example transformation: parsing a timestamp string to time.Time
 	// Assuming link has a LastLogin field which is a string timestamp in the database
 	if link.UpdatedAt != "" {
 		parsedTime, err := time.Parse(time.RFC3339, link.UpdatedAt)
+		dataLinkSerialized.Link = link
 		if err == nil {
-			link.UpdatedAt = parsedTime.Format(`2006-02-01 15:04:05`) // Assuming ParsedLastLogin is a time.Time field
+			dataLinkSerialized.UpdatedAt = parsedTime.Format(`2006-02-01 15:04:05`) // Assuming ParsedLastLogin is a time.Time field
 		}
 	}
 
+	if link.ShortKey != "" {
+		dataLinkSerialized.UrlShort = Config.GetBaseUrl() + "/short/" + link.ShortKey
+	}
+
+	return &dataLinkSerialized
 	// Add other transformations as needed
 }
 
-func DeserializeAllLink(link map[int]*Domin.Link) {
+func DeserializeAllLink(link map[int]*Domin.Link) map[int]*LinkSerialized {
 	// Example transformation: parsing a timestamp string to time.Time
 	// Assuming link has a LastLogin field which is a string timestamp in the database
+	var dataLinkSerialized = make(map[int]*LinkSerialized)
 
-	for _, data := range link {
+	for key, data := range link {
 
-		if data.UpdatedAt != "" {
-			parsedTime, err := time.Parse(time.RFC3339, data.UpdatedAt)
-			if err == nil {
-				data.UpdatedAt = parsedTime.Format(`2006-02-01 15:04:05`) // Assuming ParsedLastLogin is a time.Time field
-			}
-		}
+		dataLinkSerialized[key] = DeserializeLink(data)
 	}
 
+	return dataLinkSerialized
 	// Add other transformations as needed
 }
 

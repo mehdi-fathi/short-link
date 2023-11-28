@@ -13,15 +13,16 @@ var ErrInvalidYamlFile = errors.New("invalid yaml file")
 
 // Config holds the app master configuration
 type Config struct {
-	HTTPPort    int           `yaml:"HTTP_PORT" envconfig:"HTTP_PORT"`
-	GRPCPort    int           `yaml:"GRPC_PORT" envconfig:"GRPC_PORT"`
-	RefererHost string        `yaml:"REFERER_HOST" envconfig:"REFERER_HOST"`
-	AppMod      string        `yaml:"APP_MOD" envconfig:"APP_MOD"`
-	HASHCODE    string        `yaml:"HASHCODE" envconfig:"HASHCODE"`
-	DB          DB            `yaml:"DB"`
-	QueueRabbit QueueRabbit   `yaml:"QueueRabbit"`
-	Logger      logger.Config `yaml:"LOGGER"`
-	Redis       Redis         `yaml:"REDIS"`
+	HTTPPort     int           `yaml:"HTTP_PORT" envconfig:"HTTP_PORT"`
+	GRPCPort     int           `yaml:"GRPC_PORT" envconfig:"GRPC_PORT"`
+	RefererHost  string        `yaml:"REFERER_HOST" envconfig:"REFERER_HOST"`
+	HttpProtocol string        `yaml:"HTTP_PORTOCOL" envconfig:"HTTP_PORTOCOL"`
+	AppMod       string        `yaml:"APP_MOD" envconfig:"APP_MOD"`
+	HASHCODE     string        `yaml:"HASHCODE" envconfig:"HASHCODE"`
+	DB           DB            `yaml:"DB"`
+	QueueRabbit  QueueRabbit   `yaml:"QueueRabbit"`
+	Logger       logger.Config `yaml:"LOGGER"`
+	Redis        Redis         `yaml:"REDIS"`
 }
 
 type DB struct {
@@ -47,6 +48,8 @@ type Redis struct {
 	PASSWORD string `yaml:"PASSWORD" envconfig:"PASSWORD"`
 }
 
+var ConfigHandy *Config
+
 // LoadConfig loads configs form provided yaml file or overrides it with env variables
 func LoadConfig(filePath string) (*Config, error) {
 	cfg := Config{}
@@ -60,6 +63,9 @@ func LoadConfig(filePath string) (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	ConfigHandy = &cfg
+
 	return &cfg, nil
 }
 
@@ -87,4 +93,14 @@ func LoadTestConfig() (*Config, error) {
 
 func readEnv(cfg *Config) error {
 	return envconfig.Process("", cfg)
+}
+
+func GetBaseUrl() string {
+	url := fmt.Sprintf("%s://%s", ConfigHandy.HttpProtocol, ConfigHandy.RefererHost)
+
+	if ConfigHandy.HTTPPort > 0 {
+		url = fmt.Sprintf("%s:%d", url, ConfigHandy.HTTPPort)
+	}
+
+	return url
 }
