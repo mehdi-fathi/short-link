@@ -16,7 +16,7 @@ type Config struct {
 	HTTPPort     int           `yaml:"HTTP_PORT" envconfig:"HTTP_PORT"`
 	GRPCPort     int           `yaml:"GRPC_PORT" envconfig:"GRPC_PORT"`
 	RefererHost  string        `yaml:"REFERER_HOST" envconfig:"REFERER_HOST"`
-	HttpProtocol string        `yaml:"HTTP_PORTOCOL" envconfig:"HTTP_PORTOCOL"`
+	HttpProtocol string        `yaml:"HTTP_PROTOCOL" envconfig:"HTTP_PROTOCOL"`
 	AppMod       string        `yaml:"APP_MOD" envconfig:"APP_MOD"`
 	HASHCODE     string        `yaml:"HASHCODE" envconfig:"HASHCODE"`
 	DB           DB            `yaml:"DB"`
@@ -26,6 +26,7 @@ type Config struct {
 }
 
 type DB struct {
+	Driver   string `yaml:"DRIVER" envconfig:"DRIVER"`
 	Host     string `yaml:"HOST" envconfig:"HOST"`
 	Port     int    `yaml:"PORT" envconfig:"PORT"`
 	User     string `yaml:"USER" `

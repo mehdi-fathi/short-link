@@ -32,7 +32,7 @@ func (db *Db) ConnectDB() (*Db, error) {
 
 	var err error
 
-	db.Sql, err = sql.Open("postgres", connString)
+	db.Sql, err = sql.Open(db.Config.DB.Driver, connString)
 
 	if err != nil {
 		logger.CreateLogError(fmt.Sprintf("failed to connect to database: %v", err))
@@ -81,7 +81,7 @@ func (db *Db) ConnectDBTest() (*Db, error) {
 	var err error
 
 	// Create a test database (pseudo-code)
-	db.Sql, err = sql.Open("postgres", connString)
+	db.Sql, err = sql.Open(db.Config.DB.Driver, connString)
 	if err != nil {
 		logger.CreateLogError(err.Error())
 		return nil, err

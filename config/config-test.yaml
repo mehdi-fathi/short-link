@@ -1,5 +1,5 @@
 HTTP_PORT: 8000
-HTTP_PORTOCOL: http
+HTTP_PROTOCOL: http
 REFERER_HOST: localhost
 APP_MOD: local
 REDIS:
@@ -9,6 +9,7 @@ REDIS:
   PASSWORD:
 HASHCODE: abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
 DB:
+  DRIVER: postgres
   HOST: localhost
   PORT: 5432
   USER: default
