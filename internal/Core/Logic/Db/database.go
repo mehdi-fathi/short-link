@@ -97,7 +97,7 @@ func (db *Db) ConnectDBTest() (*Db, error) {
 		rows.Scan(&ver)
 	}
 
-	migrateTest(db.Config.DB)
+	migrateTest(db.Config)
 
 	return db, nil
 }
@@ -116,21 +116,21 @@ func applyMigrations(dbURL string, migrationsPath string) error {
 	return nil
 }
 
-func migrateTest(db Config.DB) {
+func migrateTest(db *Config.Config) {
 
 	connStringMigrate := fmt.Sprintf("postgresql://%s:%s@%s:%d/%s?sslmode=disable",
-		db.User,
-		db.Password,
-		db.Host,
-		db.Port,
-		db.Dbname)
+		db.DB.User,
+		db.DB.Password,
+		db.DB.Host,
+		db.DB.Port,
+		db.DB.Dbname)
 
 	// Apply migrations
-	if err := downMigrations(connStringMigrate, "file://../../../../../../database/migration"); err != nil {
+	if err := downMigrations(connStringMigrate, "file://"+db.AppPath+"database/migration"); err != nil {
 		panic(err.(interface{}))
 	}
 	// Apply migrations
-	if err := applyMigrations(connStringMigrate, "file://../../../../../../database/migration"); err != nil {
+	if err := applyMigrations(connStringMigrate, "file://"+db.AppPath+"database/migration"); err != nil {
 		panic(err.(interface{}))
 	}
 }

@@ -179,7 +179,7 @@ func (qu *Queue) ProcessEvent(ctx context.Context, event Event.Event) error {
 			status = Domin.Link_STATUS_REJECT
 		}
 
-		qu.Service.UpdateStatus(status, data["link"].(string))
+		qu.Service.UpdateStatusByLink(status, data["link"].(string))
 
 		logger.CreateLogInfo(fmt.Sprintf("Event processed Done: %s with status: %s", event.Type, status))
 		return nil

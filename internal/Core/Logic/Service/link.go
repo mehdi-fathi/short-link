@@ -147,9 +147,9 @@ func (service *Service) UpdateStats(s *sync.WaitGroup, ctx context.Context) int 
 	return 1
 }
 
-func (service *Service) UpdateStatus(status string, shortKey string) {
+func (service *Service) UpdateStatusByLink(status string, link string) {
 
-	service.LinkRepo.UpdateStatus(status, shortKey)
+	service.LinkRepo.UpdateStatus(status, link)
 
 }
 

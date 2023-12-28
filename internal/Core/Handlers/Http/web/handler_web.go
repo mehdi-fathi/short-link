@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"short-link/internal/Config"
+	"short-link/internal/Core/Domin"
 	_ "short-link/internal/Core/Handlers/Http/rest"
 	"short-link/internal/Core/Logic/Db/serialization"
 	service_interface "short-link/internal/Core/Ports"
@@ -44,7 +45,7 @@ func (h *HandlerWeb) HandleRedirect(c *gin.Context) {
 	// Retrieve the original URL from the `urls` map using the shortened key
 	originalURL := h.LinkService.GetUrl(shortKey)
 
-	if originalURL != nil {
+	if originalURL != nil && originalURL.Status == Domin.LINK_STATUS_APPROVE {
 		// Redirect the user to the original URL
 		c.Redirect(http.StatusMovedPermanently, originalURL.Link)
 	}

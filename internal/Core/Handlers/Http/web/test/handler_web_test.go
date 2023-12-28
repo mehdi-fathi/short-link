@@ -12,6 +12,7 @@ import (
 	"short-link/internal/Cache"
 	"short-link/internal/Cache/MemCache"
 	"short-link/internal/Config"
+	"short-link/internal/Core/Domin"
 	"short-link/internal/Core/Handlers/Http"
 	"short-link/internal/Core/Handlers/Http/web"
 	"short-link/internal/Core/Logic/Db"
@@ -91,7 +92,8 @@ func setupRouterAndHandler(cfg *Config.Config, db *Db.Db) (*web.HandlerWeb, *Htt
 	gin.SetMode(gin.TestMode)
 	gin.DefaultWriter = ioutil.Discard
 	router := gin.Default()
-	router.LoadHTMLGlob("../../../../../../tmp/*")
+	log.Println(cfg.AppPath)
+	router.LoadHTMLGlob(cfg.AppPath + "tmp/*")
 
 	return handlerWeb, handler, router
 }
@@ -170,6 +172,10 @@ func TestHandleRedirectSuccess(t *testing.T) {
 	runTest(t, func(t *testing.T, handler *web.HandlerWeb, handlerMain *Http.Handler, router *gin.Engine, dbLayer *Db.Db) {
 
 		shortLink := handler.LinkService.SetUrl("https://www.google.com")
+
+		status := Domin.LINK_STATUS_APPROVE
+
+		handler.LinkService.UpdateStatusByLink(status, "https://www.google.com")
 
 		router.GET("/short/:url", handler.HandleRedirect)
 

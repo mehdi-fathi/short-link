@@ -26,3 +26,4 @@ QueueRabbit:
   PORT: 5672
   USER: guest
   PASSWORD: guest
+APP_PATH: /Users/mehdi/Sites/short-link/
