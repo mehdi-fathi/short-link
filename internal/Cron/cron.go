@@ -16,17 +16,16 @@ var wait = make(chan interface{})
 
 func StartCron(ctx context.Context, cron *gocron.Scheduler, service service_interface.ServiceInterface) {
 
-	// 4
-	cron.Every(10).Seconds().Tag("test").Do(func() {
+	cron.Every(10).Seconds().Tag("cron").Do(func() {
 
 		logger.CreateLogInfo("[*] Cron start...")
 
 		// Process the event with its own context
 		// Replace `ProcessCron` with actual event processing Logic
 		if err := ProcessCron(service, ctx); err != nil {
-			logger.CreateLogError(fmt.Sprintf("Failed to process cron:"))
+			logger.CreateLogError(fmt.Sprintf("[*] Cron Failed to process cron"))
 		} else {
-			logger.CreateLogInfo(fmt.Sprintf("Cron processed successfully"))
+			logger.CreateLogInfo(fmt.Sprintf("[*] Cron processed successfully"))
 		}
 
 	})
@@ -39,7 +38,7 @@ func StartCron(ctx context.Context, cron *gocron.Scheduler, service service_inte
 
 	// Listen for the context cancellation signal to stop the cron scheduler
 	<-ctx.Done()
-	logger.CreateLogInfo("Received shutdown signal, stopping cron scheduler...")
+	logger.CreateLogInfo("[*] Cron -- Received shutdown signal, stopping cron scheduler...")
 	cron.Stop() // Stop the scheduler
 
 	//cron.StopBlockingChan()
@@ -55,13 +54,11 @@ func ProcessCron(service service_interface.ServiceInterface, ctx context.Context
 	case <-time.After(1 * time.Second):
 
 		service.UpdateStats(&cronWaitGroup, ctx)
-		//time.Sleep(5 * time.Second)
+		//time.Sleep(15 * time.Second)
 		cronWaitGroup.Wait()
-		logger.CreateLogInfo(fmt.Sprintf("[*] Cron done"))
 		return nil
 	case <-ctx.Done():
-		logger.CreateLogInfo(" Cancel Cron")
-
+		logger.CreateLogInfo(fmt.Sprintf("[*] Cron Shutdown"))
 		return ctx.Err()
 	}
 }

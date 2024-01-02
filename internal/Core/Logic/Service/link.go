@@ -140,9 +140,11 @@ func (service *Service) UpdateStats(s *sync.WaitGroup, ctx context.Context) int 
 		counter++
 	}
 
+	logger.CreateLogInfo(fmt.Sprintf("[*] Cron end"))
+
 	// Listen for the context cancellation signal to stop the cron scheduler
 	<-ctx.Done()
-	logger.CreateLogInfo("[ * ] Received shutdown signal, UpdateStats...")
+	logger.CreateLogInfo("[*] Cron Received shutdown signal")
 
 	return 1
 }
@@ -184,13 +186,13 @@ func (service *Service) SetUrl(link string) string {
 	data["link"] = link
 
 	// Emit an event
-	event := Event.Event{Type: "OrderPlaced", Data: data}
+	event := Event.Event{Type: "SetUrl", Data: data}
 
 	ch, err := service.Queue.Connection.Channel()
 
 	//Service.checkPendingLinks()
 
-	service.Queue.Publish(ch, "test", event)
+	service.Queue.Publish(ch, service.Shortener.Config.QueueRabbit.MainQueueName, event)
 
 	if err != nil {
 		return ""
