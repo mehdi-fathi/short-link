@@ -50,10 +50,7 @@ func initTestDB(cfg *Config.Config) (*Db.Db, error) {
 	// connect to DB first
 	var errDb error
 
-	Db := &Db.Db{
-		Sql:    new(sql.DB),
-		Config: cfg,
-	}
+	Db := Db.CreateDb(cfg)
 
 	Db, err := Db.ConnectDBTest()
 	if err != nil {

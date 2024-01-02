@@ -99,7 +99,7 @@ func CreateQueue(cfg *Config.Config) *Queue {
 // ConsumeEvents listens for messages on a RabbitMQ queue and processes them
 func (qu *Queue) ConsumeEvents(ctx context.Context, ch *amqp.Channel, queueName string) {
 
-	logger.CreateLogInfo(" [*] Waiting for events")
+	logger.CreateLogInfo(" [*] Queue is Waiting for  events")
 
 	ch, err := qu.Connection.Channel()
 	if err != nil {
@@ -123,15 +123,15 @@ func (qu *Queue) ConsumeEvents(ctx context.Context, ch *amqp.Channel, queueName 
 	for {
 		select {
 		case <-ctx.Done(): // if cancel() is called
-			logger.CreateLogInfo("Consumer received shutdown signal")
+			logger.CreateLogInfo(" [*] Queue Consumer received shutdown signal")
 			return
 		case msg, ok := <-msgs:
 			if !ok {
-				logger.CreateLogInfo("Channel closed, consumer exiting")
+				logger.CreateLogInfo(" [*] Queue Channel closed, consumer exiting")
 				return
 			}
 
-			logger.CreateLogInfo("Received a message")
+			logger.CreateLogInfo(" [*] Queue Received a message")
 
 			var event Event.Event
 			if err := json.Unmarshal(msg.Body, &event); err != nil {
@@ -140,7 +140,7 @@ func (qu *Queue) ConsumeEvents(ctx context.Context, ch *amqp.Channel, queueName 
 				continue
 			}
 			if len(msg.Body) == 0 {
-				logger.CreateLogInfo("Received an empty message, skipping...")
+				logger.CreateLogInfo(" [*] Queue Received an empty message, skipping...")
 				msg.Nack(false, true) // negative acknowledgment, requeue the message
 				continue
 			}
@@ -151,10 +151,10 @@ func (qu *Queue) ConsumeEvents(ctx context.Context, ch *amqp.Channel, queueName 
 			// Process the event with its own context
 			// Replace `ProcessEvent` with actual event processing Logic
 			if err := qu.ProcessEvent(procCtx, event); err != nil {
-				logger.CreateLogError(fmt.Sprintf("Failed to process event: %s, error: %v", event.Type, err))
+				logger.CreateLogError(fmt.Sprintf("[*] Queue Failed to process event: %s, error: %v", event.Type, err))
 				msg.Nack(false, true) // negative acknowledgment, requeue the message
 			} else {
-				logger.CreateLogInfo(fmt.Sprintf("Event processed successfully: %s", event.Type))
+				logger.CreateLogInfo(fmt.Sprintf("[*] Queue Event processed successfully: %s", event.Type))
 				msg.Ack(false) // Acknowledge the message after successful processing
 			}
 		}
@@ -175,16 +175,16 @@ func (qu *Queue) ProcessEvent(ctx context.Context, event Event.Event) error {
 
 		status := Domin.LINK_STATUS_APPROVE
 		if !url.CheckURL(data["link"].(string)) {
-			logger.CreateLogInfo(fmt.Sprintf("Rejected link :%s", data["link"].(string)))
+			logger.CreateLogInfo(fmt.Sprintf("[*] Queue Rejected link :%s", data["link"].(string)))
 			status = Domin.Link_STATUS_REJECT
 		}
 
 		qu.Service.UpdateStatusByLink(status, data["link"].(string))
 
-		logger.CreateLogInfo(fmt.Sprintf("Event processed Done: %s with status: %s", event.Type, status))
+		logger.CreateLogInfo(fmt.Sprintf("[*] Queue Event processed Done: %s with status: %s", event.Type, status))
 		return nil
 	case <-ctx.Done():
-		logger.CreateLogInfo(" Cancel queue")
+		logger.CreateLogInfo("[*] Queue shutdown")
 
 		return ctx.Err()
 	}

@@ -22,8 +22,8 @@ type Config struct {
 	DB           DB            `yaml:"DB"`
 	QueueRabbit  QueueRabbit   `yaml:"QueueRabbit"`
 	Logger       logger.Config `yaml:"LOGGER"`
-	Redis   Redis  `yaml:"REDIS"`
-	AppPath string `yaml:"APP_PATH"`
+	Redis        Redis         `yaml:"REDIS"`
+	AppPath      string        `yaml:"APP_PATH"`
 }
 
 type DB struct {
