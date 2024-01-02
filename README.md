@@ -11,7 +11,7 @@ I try to take advantage of substantial concept Golang, engineering and well-stru
 - **Analytics**: Track the usage of shortened URLs.
 - **Efficient Storage**: Utilize PostgreSQL for storing URL data.
 - **Performance**: Leverage Redis for enhanced caching and retrieval speed.
-``
+
 ## Tech Features
 
 - Shutdown gracefully
