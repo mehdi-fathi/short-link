@@ -34,14 +34,18 @@ func (db *Repository) FindById(idIn int) (*Domin.Link, error) {
 
 func (db *Repository) FindByShortKey(shortKey string) (*Domin.Link, error) {
 
-	q := `SELECT * FROM links WHERE short_key=$1;`
+	q := `SELECT *
+		  FROM links
+		  WHERE short_key=$1;`
+
 	row := db.Sql.QueryRow(q, shortKey)
 
 	var err error
 
 	var linkTable Domin.Link
 
-	err = row.Scan(&linkTable.ID, &linkTable.Link, &linkTable.ShortKey, &linkTable.Visit, &linkTable.UpdatedAt, &linkTable.Status)
+	//err = row.Scan(&linkTable.ID, &linkTable.Link, &linkTable.ShortKey, &linkTable.Visit, &linkTable.UpdatedAt, &linkTable.Status, &linkTable.CreatedAt)
+	err = db.FillLinkRow(row, &linkTable)
 
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, nil
@@ -51,9 +55,20 @@ func (db *Repository) FindByShortKey(shortKey string) (*Domin.Link, error) {
 
 }
 
+func (db *Repository) FillLinkRow(row *sql.Row, linkTable *Domin.Link) error {
+	return row.Scan(&linkTable.ID, &linkTable.Link, &linkTable.ShortKey, &linkTable.Visit, &linkTable.UpdatedAt, &linkTable.Status, &linkTable.CreatedAt)
+}
+
+func (db *Repository) FillLinkRows(rows *sql.Rows, linkTable Domin.Link) error {
+	return rows.Scan(&linkTable.ID, &linkTable.Link, &linkTable.ShortKey, &linkTable.Visit, &linkTable.UpdatedAt, &linkTable.Status, &linkTable.CreatedAt)
+}
+
 func (db *Repository) GetAll() (map[int]*Domin.Link, error) {
 
-	q := `SELECT * FROM links order by id desc ;`
+	q := `SELECT *
+		  FROM links
+		  order by id desc ;`
+
 	rows, _ := db.Sql.Query(q)
 	var err error
 
@@ -62,7 +77,7 @@ func (db *Repository) GetAll() (map[int]*Domin.Link, error) {
 	for i := 0; rows.Next(); i++ {
 		var linkTable Domin.Link
 
-		err = rows.Scan(&linkTable.ID, &linkTable.Link, &linkTable.ShortKey, &linkTable.Visit, &linkTable.UpdatedAt, &linkTable.Status)
+		err = db.FillLinkRows(rows, linkTable)
 
 		links[i] = &linkTable
 
@@ -90,7 +105,7 @@ func (db *Repository) GetChunk(start int, limit int, status string) (map[int]*Do
 	for i := 0; rows.Next(); i++ {
 		var linkTable Domin.Link
 
-		err = rows.Scan(&linkTable.ID, &linkTable.Link, &linkTable.ShortKey, &linkTable.Visit, &linkTable.UpdatedAt, &linkTable.Status)
+		err = db.FillLinkRows(rows, linkTable)
 
 		links[i] = &linkTable
 
@@ -105,7 +120,11 @@ func (db *Repository) GetChunk(start int, limit int, status string) (map[int]*Do
 
 func (db *Repository) GetByStatus(status string) (map[int]*Domin.Link, error) {
 
-	q := `SELECT * FROM links where status = $1 limit 100;`
+	q := `SELECT * 
+		  FROM links
+		  where status = $1
+		   limit 100;`
+
 	rows, _ := db.Sql.Query(q, status)
 
 	var err error
@@ -115,7 +134,7 @@ func (db *Repository) GetByStatus(status string) (map[int]*Domin.Link, error) {
 	for i := 0; rows.Next(); i++ {
 		var linkTable Domin.Link
 
-		err = rows.Scan(&linkTable.ID, &linkTable.Link, &linkTable.ShortKey, &linkTable.Visit, &linkTable.UpdatedAt, &linkTable.Status)
+		err = db.FillLinkRows(rows, linkTable)
 
 		links[i] = &linkTable
 
@@ -130,10 +149,10 @@ func (db *Repository) GetByStatus(status string) (map[int]*Domin.Link, error) {
 
 func (db *Repository) Create(link string, shortKey string) (int, error) {
 
+	var id int
+
 	q := `insert into links (link,short_key) values($1,$2) returning id;`
 	row := db.Sql.QueryRow(q, link, shortKey)
-
-	var id int
 
 	row.Scan(&id)
 

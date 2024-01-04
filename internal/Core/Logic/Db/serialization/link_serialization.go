@@ -26,6 +26,16 @@ func DeserializeLink(link *Domin.Link) *LinkSerialized {
 		}
 	}
 
+	// Example transformation: parsing a timestamp string to time.Time
+	// Assuming link has a LastLogin field which is a string timestamp in the database
+	if link.CreatedAt != "" {
+		parsedTime, err := time.Parse(time.RFC3339, link.CreatedAt)
+		dataLinkSerialized.Link = link
+		if err == nil {
+			dataLinkSerialized.CreatedAt = parsedTime.Format(`2006-02-01 15:04:05`) // Assuming ParsedLastLogin is a time.Time field
+		}
+	}
+
 	if link.ShortKey != "" {
 		dataLinkSerialized.UrlShort = Config.GetBaseUrl() + "/short/" + link.ShortKey
 	}

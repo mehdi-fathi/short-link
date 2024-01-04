@@ -8,6 +8,7 @@ type Link struct {
 	Visit     int
 	UpdatedAt string
 	Status    string
+	CreatedAt string
 }
 
 const (

@@ -103,6 +103,7 @@
             <th>Short Link</th>
             <th>Status</th>
             <th>Updated At</th>
+            <th>Created At</th>
         </tr>
         {{ range $k, $v := .data}}
         <tr>
@@ -112,6 +113,7 @@
             <td><a href="{{ $v.UrlShort }}">{{ $v.UrlShort }}</a></td>
             <td>{{ $v.Status }}</td>
             <td>{{ $v.UpdatedAt }}</td>
+            <td>{{ $v.CreatedAt }}</td>
         </tr>
         {{ end }}
     </table>
