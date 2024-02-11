@@ -18,17 +18,6 @@ type HandlerWeb struct {
 
 func (h *HandlerWeb) HandleShorten(c *gin.Context) {
 
-	//if r.Method != http.MethodPost {
-	//	http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
-	//	return
-	//}
-	//
-	//originalURL := r.FormValue("url")
-	//if originalURL == "" {
-	//	http.Error(w, "URL parameter is missing", http.StatusBadRequest)
-	//	return
-	//}
-
 	link := c.PostForm("link")
 
 	// Generate a unique shortened key for the original URL
@@ -55,8 +44,6 @@ func (h *HandlerWeb) HandleRedirect(c *gin.Context) {
 }
 
 func (h *HandlerWeb) HandleList(c *gin.Context) {
-
-	//allUrl := h.LinkService.GetAllUrl()
 
 	linksDb, _ := h.LinkService.GetAllUrlV2()
 

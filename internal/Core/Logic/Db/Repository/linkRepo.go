@@ -59,7 +59,7 @@ func (db *Repository) FillLinkRow(row *sql.Row, linkTable *Domin.Link) error {
 	return row.Scan(&linkTable.ID, &linkTable.Link, &linkTable.ShortKey, &linkTable.Visit, &linkTable.UpdatedAt, &linkTable.Status, &linkTable.CreatedAt)
 }
 
-func (db *Repository) FillLinkRows(rows *sql.Rows, linkTable Domin.Link) error {
+func (db *Repository) FillLinkRows(rows *sql.Rows, linkTable *Domin.Link) error {
 	return rows.Scan(&linkTable.ID, &linkTable.Link, &linkTable.ShortKey, &linkTable.Visit, &linkTable.UpdatedAt, &linkTable.Status, &linkTable.CreatedAt)
 }
 
@@ -77,7 +77,7 @@ func (db *Repository) GetAll() (map[int]*Domin.Link, error) {
 	for i := 0; rows.Next(); i++ {
 		var linkTable Domin.Link
 
-		err = db.FillLinkRows(rows, linkTable)
+		err = db.FillLinkRows(rows, &linkTable)
 
 		links[i] = &linkTable
 
@@ -105,7 +105,7 @@ func (db *Repository) GetChunk(start int, limit int, status string) (map[int]*Do
 	for i := 0; rows.Next(); i++ {
 		var linkTable Domin.Link
 
-		err = db.FillLinkRows(rows, linkTable)
+		err = db.FillLinkRows(rows, &linkTable)
 
 		links[i] = &linkTable
 
@@ -134,7 +134,7 @@ func (db *Repository) GetByStatus(status string) (map[int]*Domin.Link, error) {
 	for i := 0; rows.Next(); i++ {
 		var linkTable Domin.Link
 
-		err = db.FillLinkRows(rows, linkTable)
+		err = db.FillLinkRows(rows, &linkTable)
 
 		links[i] = &linkTable
 
