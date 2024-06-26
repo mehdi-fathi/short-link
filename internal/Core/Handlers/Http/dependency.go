@@ -41,15 +41,13 @@ func CreateDependencies(cfg *Config.Config) out {
 
 	queueMain = queue
 
-	var ser = Service.CreateService(cfg, repo, cache, memCache, queue)
+	var service = Service.CreateService(cfg, repo, cache, memCache, queue)
 
-	queue.Service = ser
+	queue.Service = service
 
-	HandlerRest := CreateHandler(ser)
+	HandlerRest := CreateHandler(service)
 	HandlerMain := CreateHandlerMain()
-	handlerWeb := CreateHandlerWeb(ser)
-
-	log.Println("run")
+	handlerWeb := CreateHandlerWeb(service)
 
 	return out{
 		HandlerMain,

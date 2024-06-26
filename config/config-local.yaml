@@ -10,10 +10,10 @@ REDIS:
 HASHCODE: abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
 DB:
   DRIVER: postgres
-  HOST: localhost
+  HOST: postgres
   PORT: 5432
-  USER: default
-  PASSWORD: secret
+  USER: postgres
+  PASSWORD: postgres
   DBNAME: slink
 LOGGER:
   LOG_LEVEL: TRACE
@@ -22,7 +22,7 @@ LOGGER:
   GRAYLOG_STREAM: short-link
 QueueRabbit:
   MAIN_QUEUE_NAME: sync
-  HOST: localhost
+  HOST: rabbitmq
   PORT: 5672
   USER: guest
   PASSWORD: guest

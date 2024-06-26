@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/pkg/errors"
 	"github.com/streadway/amqp"
 	"log"
 	"short-link/internal/Config"
@@ -14,6 +15,7 @@ import (
 	"short-link/pkg/url"
 	"time"
 )
+//todo make interface
 
 type Queue struct {
 	Connection *amqp.Connection
@@ -40,6 +42,22 @@ func CreateConnection(cfg *Config.Config) *amqp.Connection {
 	logger.CreateLogInfo("Successfully connected to RabbitMQ instance")
 
 	return connection
+}
+
+func declareQueue(ch *amqp.Channel) (amqp.Queue, error) {
+	queueName := "sync"
+	q, err := ch.QueueDeclare(
+		queueName, // name of the queue
+		true,      // durable
+		false,     // delete when unused
+		false,     // exclusive
+		false,     // no-wait
+		nil,       // arguments
+	)
+	if err != nil {
+		return q, errors.Wrap(err, "failed to declare queue")
+	}
+	return q, nil
 }
 
 func (qu *Queue) Publish(ch *amqp.Channel, queueName string, event Event.Event) {
@@ -101,11 +119,18 @@ func (qu *Queue) ConsumeEvents(ctx context.Context, ch *amqp.Channel, queueName 
 
 	logger.CreateLogInfo(" [*] Queue is Waiting for  events")
 
+
 	ch, err := qu.Connection.Channel()
 	if err != nil {
 		log.Fatalf("Failed to open a channel: %s", err)
 	}
 	defer ch.Close()
+
+	// Declare the queue
+	_, err = declareQueue(ch)
+	if err != nil {
+		log.Fatalf("Failed to declare a queue: %v", err)
+	}
 
 	msgs, err := ch.Consume(
 		queueName, // queue
