@@ -31,7 +31,8 @@ func CreateDependencies(cfg *Config.Config) out {
 		log.Fatalf("failed to start the server: %v", errDb)
 	}
 
-	repo := Repository.CreateRepository(cfg, dbLayer)
+	linkRepo := Repository.CreateLinkRepository(cfg, dbLayer)
+	shortKeyRepo := Repository.CreateShortKeyRepository(cfg, dbLayer)
 
 	cache := Cache.CreateCache(cfg)
 
@@ -41,7 +42,7 @@ func CreateDependencies(cfg *Config.Config) out {
 
 	queueMain = queue
 
-	var service = Service.CreateService(cfg, repo, cache, memCache, queue)
+	var service = Service.CreateService(cfg, linkRepo,shortKeyRepo, cache, memCache, queue)
 
 	queue.Service = service
 

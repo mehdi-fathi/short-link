@@ -21,12 +21,15 @@ type UrlShortener struct {
 }
 
 type Service struct {
-	Shortener *UrlShortener
-	LinkRepo  Ports.RepositoryInterface
-	Cache     Ports.CacheInterface
-	MemCache  Ports.MemCacheInterface
-	Queue     *Queue.Queue
+	Shortener    *UrlShortener
+	LinkRepo     Ports.LinkRepositoryInterface
+	ShortKeyRepo Ports.ShortkeyRepositoryInterface
+	Cache        Ports.CacheInterface
+	MemCache     Ports.MemCacheInterface
+	Queue        *Queue.Queue
 }
+
+const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
 
 func GenerateShortKey(hashCode string) string {
 	const keyLength = 6
@@ -39,10 +42,34 @@ func GenerateShortKey(hashCode string) string {
 	return string(shortKey)
 }
 
+func (service *Service) IntToBase62(num int) string {
+	if num == 0 {
+		return string(charset[0])
+	}
+
+	result := ""
+	base := len(charset)
+
+	for num > 0 {
+		result = string(charset[num%base]) + result
+		num = num / base
+
+	}
+
+	// Pad with 'A' to ensure a fixed length of 6 characters
+	for len(result) < 6 {
+		result = string(charset[0]) + result
+
+	}
+
+	return result
+}
+
 // CreateService creates an instance of membership interface with the necessary dependencies
 func CreateService(
 	cfg *Config.Config,
-	linkRepo Ports.RepositoryInterface,
+	linkRepo Ports.LinkRepositoryInterface,
+	shortKeyRepo Ports.ShortkeyRepositoryInterface,
 	cache Ports.CacheInterface,
 	memCache Ports.MemCacheInterface,
 	queue *Queue.Queue,
@@ -53,11 +80,12 @@ func CreateService(
 	}
 
 	return &Service{
-		Shortener: shortenerUrl,
-		LinkRepo:  linkRepo,
-		Cache:     cache,
-		MemCache:  memCache,
-		Queue:     queue,
+		Shortener:    shortenerUrl,
+		LinkRepo:     linkRepo,
+		ShortKeyRepo: shortKeyRepo,
+		Cache:        cache,
+		MemCache:     memCache,
+		Queue:        queue,
 	}
 }
 
@@ -177,7 +205,9 @@ func (service *Service) checkPendingLinks() int {
 
 func (service *Service) SetUrl(link string) string {
 
-	shortKey := GenerateShortKey(service.Shortener.Config.HASHCODE)
+	//shortKey := GenerateShortKey(service.Shortener.Config.HASHCODE)
+
+	shortKey := service.generateShortKeys(1, true)
 
 	_, err := service.LinkRepo.Create(link, shortKey)
 
@@ -216,9 +246,34 @@ func (service *Service) GetAllUrlV2() (map[int]*Domin.Link, error) {
 		myInterfaceSlice = append(myInterfaceSlice, item)
 	}
 
+	//service.generateShortKeys()
+
 	service.MemCache.SetSlice("list", myInterfaceSlice, 5*time.Minute)
 
 	return data, err
+}
+
+func (service *Service) generateShortKeys(count int, isActive bool) string {
+	ShortKey, _ := service.ShortKeyRepo.GetLast()
+
+	lastId := 1
+	if ShortKey != nil {
+		lastId = int(ShortKey.ID) + 1
+	}
+
+	var uid string
+
+	for i := lastId; i < lastId+count; i++ { // Generate first 100 unique IDs as an example
+		//log.Println(h.LinkService.IntToBase62(i))
+
+		uid = service.IntToBase62(int(i))
+
+		service.ShortKeyRepo.Create(int(i), uid, isActive)
+
+		//logger.CreateLogInfo(h.LinkService.IntToBase62(i))
+	}
+
+	return uid
 }
 
 func (service *Service) GetAllLinkApi() ([]interface{}, error) {
@@ -233,7 +288,7 @@ func (service *Service) GetAllLinkApi() ([]interface{}, error) {
 
 	var dataMem []interface{}
 
-	//todo use serilizer here and make full url in seprated field in serilizer
+	//todo use serializer here and make full url in seprated field in serilizer
 
 	// Try to get data from cache
 	if dataMem, found := service.MemCache.GetSlice("list"); found {

@@ -67,7 +67,7 @@ func initTestDB(cfg *Config.Config) (*Db.Db, error) {
 
 func setupRouterAndHandler(cfg *Config.Config, db *Db.Db) (*web.HandlerWeb, *Http.Handler, *gin.Engine) {
 
-	repo := Repository.CreateRepository(cfg, db)
+	repo := Repository.CreateLinkRepository(cfg, db)
 
 	//httpHandler := &Handler{
 	//	Service: internal.CreateService(cfg),

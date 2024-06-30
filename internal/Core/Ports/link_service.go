@@ -14,4 +14,5 @@ type ServiceInterface interface {
 	GetAllUrlV2() (map[int]*Domin.Link, error)
 	UpdateStatusByLink(status string, link string)
 	GetAllLinkApi() ([]interface{}, error)
+	IntToBase62(num int) string
 }

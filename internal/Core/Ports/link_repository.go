@@ -4,7 +4,7 @@ import (
 	"short-link/internal/Core/Domin"
 )
 
-type RepositoryInterface interface {
+type LinkRepositoryInterface interface {
 	FindById(idIn int) (*Domin.Link, error)
 	FindByShortKey(shortKey string) (*Domin.Link, error)
 	Create(link string, shortKey string) (int, error)

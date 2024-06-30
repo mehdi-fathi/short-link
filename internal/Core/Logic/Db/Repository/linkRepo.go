@@ -194,8 +194,7 @@ func (db *Repository) UpdateStatus(status string, link string) (int, error) {
 
 }
 
-// CreateService creates an instance of membership interface with the necessary dependencies
-func CreateRepository(cfg *Config.Config, dbLayer *Db.Db) Ports.RepositoryInterface {
+func CreateLinkRepository(cfg *Config.Config, dbLayer *Db.Db) Ports.LinkRepositoryInterface {
 
 	Repo := &Repository{dbLayer, cfg}
 
