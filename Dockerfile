@@ -4,7 +4,8 @@
 FROM golang:1.21
 
 # Install netcat
-RUN apt-get update && apt-get install -y netcat
+RUN apt-get update && apt-get install -y netcat-traditional
+
 
 # Set the working directory inside the container
 WORKDIR /app
@@ -26,9 +27,9 @@ RUN go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate
 
 
 # Build the Go application
-RUN go build -o main ./cmd/*.go
+#RUN go build -o main ./cmd/*.go
 
 
 # Command to run the application
-CMD ["/wait-for-it.sh", "rabbitmq", "5672", "/wait-for-it.sh", "db", "5432", "/bin/sh", "-c", "migrate -path ./migrations -database postgres://$DB_USER:$DB_PASSWORD@$DB_HOST:$DB_PORT/$DB_NAME?sslmode=disable up && ./main"]
+CMD ["/wait-for-it.sh", "rabbitmq", "5672", "/wait-for-it.sh", "db", "5432", "/bin/sh", "-c", "migrate -path ./migrations -database postgres://$DB_USER:$DB_PASSWORD@$DB_HOST:$DB_PORT/$DB_NAME?sslmode=disable up && ./cmd/main"]
 

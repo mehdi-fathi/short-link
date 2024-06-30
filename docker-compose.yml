@@ -4,6 +4,9 @@ services:
   app:
     image: golang:1.21
     build: .
+    working_dir: /app
+    volumes:
+      - .:/app
     ports:
       - "8080:8080"
     container_name: go_app
@@ -21,7 +24,7 @@ services:
       - REDIS_PORT=6379
       - RABBITMQ_HOST=rabbitmq
       - RABBITMQ_PORT=5672
-    command: [ "/wait-for-it.sh", "rabbitmq", "5672", "/wait-for-it.sh", "db", "5432", "./main" ]
+    command: [ "/wait-for-it.sh", "rabbitmq", "5672", "/wait-for-it.sh", "db", "5432", "go run ./cmd/main.go" ]
 
   rabbitmq:
     image: rabbitmq:3-management
