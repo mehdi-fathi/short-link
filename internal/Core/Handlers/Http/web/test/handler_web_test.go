@@ -67,7 +67,8 @@ func initTestDB(cfg *Config.Config) (*Db.Db, error) {
 
 func setupRouterAndHandler(cfg *Config.Config, db *Db.Db) (*web.HandlerWeb, *Http.Handler, *gin.Engine) {
 
-	repo := Repository.CreateLinkRepository(cfg, db)
+	repoLink := Repository.CreateLinkRepository(cfg, db)
+	repoShortKey := Repository.CreateShortKeyRepository(cfg, db)
 
 	//httpHandler := &Handler{
 	//	Service: internal.CreateService(cfg),
@@ -82,7 +83,7 @@ func setupRouterAndHandler(cfg *Config.Config, db *Db.Db) (*web.HandlerWeb, *Htt
 	//Service := tt.initService()
 	//var configServer ConfigModel
 
-	var ser = Service.CreateService(cfg, repo, cache, memCache, queue)
+	var ser = Service.CreateService(cfg, repoLink, repoShortKey, cache, memCache, queue)
 	handlerWeb := Http.CreateHandlerWeb(ser)
 	handler := Http.CreateHandlerMain()
 	//handler := CreateHandler(Service,bookstore.CreateService(nil))
