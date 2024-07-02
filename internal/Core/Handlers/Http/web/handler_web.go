@@ -1,6 +1,7 @@
 package web
 
 import (
+	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"short-link/internal/Config"
@@ -14,6 +15,21 @@ import (
 type HandlerWeb struct {
 	loggerInstance *logger.StandardLogger
 	LinkService    service_interface.ServiceInterface
+}
+
+func (h *HandlerWeb) HandleIndex(c *gin.Context) {
+
+	session := sessions.Default(c)
+	errorMsg := session.Get("error")
+	session.Delete("error")
+	session.Save()
+
+	c.HTML(http.StatusOK, "index.html", gin.H{
+		"title": "Main website",
+		"error": errorMsg,
+		"url":   Config.GetBaseUrl(),
+	})
+
 }
 
 func (h *HandlerWeb) HandleShorten(c *gin.Context) {
