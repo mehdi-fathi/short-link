@@ -4,6 +4,9 @@ ENTRY_BUILD_FILE=./cmd/.
 
 BINARY := short-link
 
+docker-up:
+	docker compose up
+
 doc:
 	godoc -index
 
