@@ -7,7 +7,7 @@ import (
 	"short-link/internal/Config"
 	"short-link/internal/Core/Domin"
 	_ "short-link/internal/Core/Handlers/Http/rest"
-	"short-link/internal/Core/Logic/Db/serialization"
+	"short-link/internal/Core/Logic/Db/Serialization"
 	service_interface "short-link/internal/Core/Ports"
 	"short-link/pkg/logger"
 )
@@ -63,7 +63,7 @@ func (h *HandlerWeb) HandleList(c *gin.Context) {
 
 	linksDb, _ := h.LinkService.GetAllUrlV2()
 
-	dataLinkSerialized := serialization.DeserializeAllLink(linksDb)
+	dataLinkSerialized := Serialization.DeserializeAllLink(linksDb)
 
 	c.HTML(http.StatusOK, "list.html", gin.H{
 		"data": dataLinkSerialized,

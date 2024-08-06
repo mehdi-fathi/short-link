@@ -1,4 +1,4 @@
-package serialization
+package Serialization
 
 import (
 	"short-link/internal/Config"

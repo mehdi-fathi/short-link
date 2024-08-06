@@ -23,7 +23,7 @@ type UrlShortener struct {
 type Service struct {
 	Shortener    *UrlShortener
 	LinkRepo     Ports.LinkRepositoryInterface
-	ShortKeyRepo Ports.ShortkeyRepositoryInterface
+	ShortKeyRepo Ports.ShortKeyRepositoryInterface
 	Cache        Ports.CacheInterface
 	MemCache     Ports.MemCacheInterface
 	Queue        *Queue.Queue
@@ -69,7 +69,7 @@ func (service *Service) IntToBase62(num int) string {
 func CreateService(
 	cfg *Config.Config,
 	linkRepo Ports.LinkRepositoryInterface,
-	shortKeyRepo Ports.ShortkeyRepositoryInterface,
+	shortKeyRepo Ports.ShortKeyRepositoryInterface,
 	cache Ports.CacheInterface,
 	memCache Ports.MemCacheInterface,
 	queue *Queue.Queue,

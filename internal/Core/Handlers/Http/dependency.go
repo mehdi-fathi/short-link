@@ -15,13 +15,13 @@ import (
 
 var queueMain *Queue.Queue
 
-type out struct {
+type dependencies struct {
 	Handler     *Handler
 	HandlerRest *rest.HandlerRest
 	HandlerWeb  *web.HandlerWeb
 }
 
-func CreateDependencies(cfg *Config.Config) out {
+func CreateDependencies(cfg *Config.Config) dependencies {
 
 	// connect to DB first
 	var errDb error
@@ -50,7 +50,7 @@ func CreateDependencies(cfg *Config.Config) out {
 	HandlerMain := CreateHandlerMain()
 	handlerWeb := CreateHandlerWeb(service)
 
-	return out{
+	return dependencies{
 		HandlerMain,
 		HandlerRest,
 		handlerWeb,

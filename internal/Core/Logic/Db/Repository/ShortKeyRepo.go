@@ -62,7 +62,7 @@ func (db *RepositoryShortKey) FillShortKeyRow(row *sql.Row, linkTable *Domin.Sho
 	return row.Scan(&linkTable.ID, &linkTable.Uid, &linkTable.IsActive)
 }
 
-func CreateShortKeyRepository(cfg *Config.Config, dbLayer *Db.Db) Ports.ShortkeyRepositoryInterface {
+func CreateShortKeyRepository(cfg *Config.Config, dbLayer *Db.Db) Ports.ShortKeyRepositoryInterface {
 
 	Repo := &RepositoryShortKey{Repository{dbLayer, cfg}}
 
