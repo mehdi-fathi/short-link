@@ -1,13 +1,13 @@
-package Http
+package Infrastructure
 
 import (
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	_ "short-link/internal/Config"
 	"short-link/internal/Core/Handlers/Http/rest"
 	"short-link/internal/Core/Handlers/Http/web"
-	"github.com/gin-contrib/sessions"
-	"github.com/gin-contrib/sessions/cookie"
 )
 
 

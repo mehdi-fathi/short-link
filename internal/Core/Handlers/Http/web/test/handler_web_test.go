@@ -13,11 +13,11 @@ import (
 	"short-link/internal/Cache/MemCache"
 	"short-link/internal/Config"
 	"short-link/internal/Core/Domin"
-	"short-link/internal/Core/Handlers/Http"
 	"short-link/internal/Core/Handlers/Http/web"
 	"short-link/internal/Core/Logic/Db"
 	"short-link/internal/Core/Logic/Db/Repository"
 	"short-link/internal/Core/Logic/Service"
+	"short-link/internal/Infrastructure"
 	"short-link/internal/Queue"
 	"short-link/pkg/logger"
 	"strings"
@@ -28,7 +28,7 @@ import (
 )
 
 // test_utils.go
-func initTest() (*web.HandlerWeb, *Http.Handler, *gin.Engine, *Db.Db, error) {
+func initTest() (*web.HandlerWeb, *Infrastructure.Handler, *gin.Engine, *Db.Db, error) {
 	cfg, err := Config.LoadTestConfig()
 	if err != nil {
 		return nil, nil, nil, nil, err
@@ -65,7 +65,7 @@ func initTestDB(cfg *Config.Config) (*Db.Db, error) {
 	return Db, nil
 }
 
-func setupRouterAndHandler(cfg *Config.Config, db *Db.Db) (*web.HandlerWeb, *Http.Handler, *gin.Engine) {
+func setupRouterAndHandler(cfg *Config.Config, db *Db.Db) (*web.HandlerWeb, *Infrastructure.Handler, *gin.Engine) {
 
 	repoLink := Repository.CreateLinkRepository(cfg, db)
 	repoShortKey := Repository.CreateShortKeyRepository(cfg, db)
@@ -84,8 +84,8 @@ func setupRouterAndHandler(cfg *Config.Config, db *Db.Db) (*web.HandlerWeb, *Htt
 	//var configServer ConfigModel
 
 	var ser = Service.CreateService(cfg, repoLink, repoShortKey, cache, memCache, queue)
-	handlerWeb := Http.CreateHandlerWeb(ser)
-	handler := Http.CreateHandlerMain()
+	handlerWeb := Infrastructure.CreateHandlerWeb(ser)
+	handler := Infrastructure.CreateHandlerMain()
 	//handler := CreateHandler(Service,bookstore.CreateService(nil))
 	gin.SetMode(gin.TestMode)
 	gin.DefaultWriter = ioutil.Discard
@@ -99,7 +99,7 @@ func setupRouterAndHandler(cfg *Config.Config, db *Db.Db) (*web.HandlerWeb, *Htt
 // TestHandleShorten tests the POST /shorten endpoint
 func TestHandleShorten(t *testing.T) {
 
-	runTest(t, func(t *testing.T, handler *web.HandlerWeb, handlerMain *Http.Handler, router *gin.Engine, dbLayer *Db.Db) {
+	runTest(t, func(t *testing.T, handler *web.HandlerWeb, handlerMain *Infrastructure.Handler, router *gin.Engine, dbLayer *Db.Db) {
 
 		log.Println("router", router)
 		router.POST("/make", handler.HandleShorten)
@@ -129,7 +129,7 @@ func TestHandleShorten(t *testing.T) {
 
 }
 
-func runTest(t *testing.T, testFunc func(t *testing.T, handler *web.HandlerWeb, handlerMain *Http.Handler, router *gin.Engine, dbLayer *Db.Db)) {
+func runTest(t *testing.T, testFunc func(t *testing.T, handler *web.HandlerWeb, handlerMain *Infrastructure.Handler, router *gin.Engine, dbLayer *Db.Db)) {
 	handler, handlerMain, router, dbLayer, err := initTest()
 
 	if err != nil {
@@ -142,7 +142,7 @@ func runTest(t *testing.T, testFunc func(t *testing.T, handler *web.HandlerWeb, 
 
 func TestHandleRedirectNotFound(t *testing.T) {
 
-	runTest(t, func(t *testing.T, handler *web.HandlerWeb, handlerMain *Http.Handler, router *gin.Engine, dbLayer *Db.Db) {
+	runTest(t, func(t *testing.T, handler *web.HandlerWeb, handlerMain *Infrastructure.Handler, router *gin.Engine, dbLayer *Db.Db) {
 
 		router.GET("/short/:url", handler.HandleRedirect)
 
@@ -167,7 +167,7 @@ func TestHandleRedirectNotFound(t *testing.T) {
 
 func TestHandleRedirectSuccess(t *testing.T) {
 
-	runTest(t, func(t *testing.T, handler *web.HandlerWeb, handlerMain *Http.Handler, router *gin.Engine, dbLayer *Db.Db) {
+	runTest(t, func(t *testing.T, handler *web.HandlerWeb, handlerMain *Infrastructure.Handler, router *gin.Engine, dbLayer *Db.Db) {
 
 		shortLink := handler.LinkService.SetUrl("https://www.google.com")
 
@@ -198,7 +198,7 @@ func TestHandleRedirectSuccess(t *testing.T) {
 
 func TestHandleListAll(t *testing.T) {
 
-	runTest(t, func(t *testing.T, handler *web.HandlerWeb, handlerMain *Http.Handler, router *gin.Engine, dbLayer *Db.Db) {
+	runTest(t, func(t *testing.T, handler *web.HandlerWeb, handlerMain *Infrastructure.Handler, router *gin.Engine, dbLayer *Db.Db) {
 
 		handler.LinkService.SetUrl("https://www.google.com")
 
