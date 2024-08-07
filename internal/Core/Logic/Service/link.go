@@ -90,9 +90,9 @@ func (service *Service) GetUrl(shortKey string) *Domin.Link {
 	return link
 }
 
-func (service *Service) UpdateStats(s *sync.WaitGroup, ctx context.Context) int {
+func (service *Service) UpdateStats(wg *sync.WaitGroup, ctx context.Context) int {
 
-	var all map[int]*Domin.Link
+	var bunchOfLinks map[int]*Domin.Link
 
 	limit := 10
 
@@ -103,55 +103,25 @@ func (service *Service) UpdateStats(s *sync.WaitGroup, ctx context.Context) int 
 
 	var counter int = 1
 
-	for (all[0] != nil && counter > 1) || counter == 1 {
+	for (bunchOfLinks[0] != nil && counter > 1) || counter == 1 {
 
 		if counter > 1 {
 			start = counter * limit
 		}
 
-		all, _ = service.LinkRepo.GetChunk(start, limit, "approve")
+		bunchOfLinks, _ = service.LinkRepo.GetChunk(start, limit, "approve")
 
-		if all[0] != nil {
+		if bunchOfLinks[0] != nil {
 
-			s.Add(1)
+			wg.Add(1)
 
-			go func(start int, all map[int]*Domin.Link) {
+			ch := make(chan *Domin.Link)
 
-				defer s.Done()
+			// Goroutine 1
+			go service.updateStatusWorker(wg, ctx, bunchOfLinks, ch)
 
-				// Create a new context with a timeout for the processing
-				_, cancelProc := context.WithTimeout(ctx, 5*time.Second)
-
-				defer cancelProc()
-
-				//logger.CreateLogInfo(fmt.Sprintf("Run Go routine %d", start))
-
-				for _, data := range all {
-
-					hget, _ := service.Cache.Get(data.ShortKey)
-
-					//logger.CreateLogInfo(fmt.Sprintf("Run %s ", data.ShortKey))
-
-					visitCache, _ := strconv.Atoi(hget)
-
-					if visitCache > data.Visit {
-						service.LinkRepo.UpdateVisit(visitCache, data.ShortKey)
-						logger.CreateLogInfo(fmt.Sprintf("Updated %s : visit :%v", data.ShortKey, visitCache))
-					}
-
-					status := "approve"
-
-					if !url.CheckURL(data.Link) {
-						logger.CreateLogInfo(fmt.Sprintf("Not approved ShortKey :%v", data.ShortKey))
-						status = "reject"
-					}
-
-					service.LinkRepo.UpdateStatus(status, data.Link)
-
-				}
-				//logger.CreateLogInfo(fmt.Sprintf("Finish Go routine  %d", start))
-
-			}(start, all)
+			// Goroutine 2
+			go service.updateStatWorker(wg, ch)
 
 		}
 
@@ -165,6 +135,56 @@ func (service *Service) UpdateStats(s *sync.WaitGroup, ctx context.Context) int 
 	logger.CreateLogInfo("[*] Cron Received shutdown signal")
 
 	return 1
+}
+
+func (service *Service) updateStatusWorker(wg *sync.WaitGroup, ctx context.Context, bunchOfLinks map[int]*Domin.Link, ch chan *Domin.Link) {
+
+	defer wg.Done()
+
+	// Create a new context with a timeout for the processing
+	_, cancelProc := context.WithTimeout(ctx, 5*time.Second)
+
+	defer cancelProc()
+
+	//logger.CreateLogInfo(fmt.Sprintf("Run Go routine %d", start))
+
+	for _, data := range bunchOfLinks {
+
+		status := Domin.LINK_STATUS_APPROVE
+
+		if !url.CheckURL(data.Link) {
+			logger.CreateLogInfo(fmt.Sprintf("Not approved ShortKey :%v", data.ShortKey))
+			status = Domin.Link_STATUS_REJECT
+		}
+
+		if data.Status != status {
+			service.LinkRepo.UpdateStatus(status, data.Link)
+		}
+
+		if data.Status == Domin.LINK_STATUS_APPROVE {
+			fmt.Println("Goroutine updateStatusWorker send data...")
+			ch <- data // Send data to the channel
+		}
+
+	}
+	//logger.CreateLogInfo(fmt.Sprintf("Finish Go routine  %d", start))
+
+}
+
+func (service *Service) updateStatWorker(wg *sync.WaitGroup, ch chan *Domin.Link) {
+	defer wg.Done()
+	fmt.Println("Goroutine updateStatWorker receiving data...")
+	data := <-ch // Receive data from the channel
+	fmt.Println("Goroutine updateStatWorker received data:", data)
+
+	hget, _ := service.Cache.Get(data.ShortKey)
+
+	visitCache, _ := strconv.Atoi(hget)
+
+	if visitCache > data.Visit {
+		service.LinkRepo.UpdateVisit(visitCache, data.ShortKey)
+		logger.CreateLogInfo(fmt.Sprintf("Updated %wg : visit :%v", data.ShortKey, visitCache))
+	}
 }
 
 func (service *Service) UpdateStatusByLink(status string, link string) {
