@@ -3,7 +3,8 @@ package Service
 import (
 	"context"
 	"fmt"
-	"math/rand"
+	"github.com/pkg/errors"
+	"log"
 	"short-link/internal/Config"
 	"short-link/internal/Core/Domin"
 	"short-link/internal/Core/Ports"
@@ -30,17 +31,6 @@ type Service struct {
 }
 
 const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
-
-func GenerateShortKey(hashCode string) string {
-	const keyLength = 6
-
-	rand.Seed(time.Now().UnixNano())
-	shortKey := make([]byte, keyLength)
-	for i := range shortKey {
-		shortKey[i] = hashCode[rand.Intn(len(hashCode))]
-	}
-	return string(shortKey)
-}
 
 func (service *Service) IntToBase62(num int) string {
 	if num == 0 {
@@ -205,30 +195,38 @@ func (service *Service) checkPendingLinks() int {
 
 func (service *Service) SetUrl(link string) string {
 
-	//shortKey := GenerateShortKey(service.Shortener.Config.HASHCODE)
+	shortKey := service.createLink(link)
 
-	shortKey := service.generateShortKeys(1, true)
+	service.publishQueue(link)
+
+	return shortKey
+}
+
+func (service *Service) createLink(link string) string {
+	shortKey := service.generateShortLink(1, true)
 
 	_, err := service.LinkRepo.Create(link, shortKey)
 
+	if err != nil {
+		log.Fatal(errors.Wrap(err, "DB has an error."))
+	}
+	return shortKey
+}
+
+func (service *Service) publishQueue(link string) {
 	var data = make(map[string]string)
 
 	data["link"] = link
 
-	// Emit an event
-	event := Event.Event{Type: "SetUrl", Data: data}
+	event := Event.Event{Type: Event.CreateLink, Data: data}
 
 	ch, err := service.Queue.Connection.Channel()
 
-	//Service.checkPendingLinks()
-
-	service.Queue.Publish(ch, service.Shortener.Config.QueueRabbit.MainQueueName, event)
-
 	if err != nil {
-		return ""
+		log.Fatal(errors.Wrap(err, "Queue has an error."))
 	}
 
-	return shortKey
+	service.Queue.Publish(ch, service.Shortener.Config.QueueRabbit.MainQueueName, event)
 }
 
 //func (Service *Service) GetAllUrl() map[string]string {
@@ -246,14 +244,14 @@ func (service *Service) GetAllUrlV2() (map[int]*Domin.Link, error) {
 		myInterfaceSlice = append(myInterfaceSlice, item)
 	}
 
-	//service.generateShortKeys()
+	//service.generateShortLink()
 
 	service.MemCache.SetSlice("list", myInterfaceSlice, 5*time.Minute)
 
 	return data, err
 }
 
-func (service *Service) generateShortKeys(count int, isActive bool) string {
+func (service *Service) generateShortLink(count int, isActive bool) string {
 	ShortKey, _ := service.ShortKeyRepo.GetLast()
 
 	lastId := 1
@@ -261,19 +259,19 @@ func (service *Service) generateShortKeys(count int, isActive bool) string {
 		lastId = int(ShortKey.ID) + 1
 	}
 
-	var uid string
+	var shortLink string
 
 	for i := lastId; i < lastId+count; i++ { // Generate first 100 unique IDs as an example
 		//log.Println(h.LinkService.IntToBase62(i))
 
-		uid = service.IntToBase62(int(i))
+		shortLink = service.IntToBase62(int(i))
 
-		service.ShortKeyRepo.Create(int(i), uid, isActive)
+		service.ShortKeyRepo.Create(int(i), shortLink, isActive)
 
 		//logger.CreateLogInfo(h.LinkService.IntToBase62(i))
 	}
 
-	return uid
+	return shortLink
 }
 
 func (service *Service) GetAllLinkApi() ([]interface{}, error) {
