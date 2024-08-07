@@ -17,7 +17,7 @@ func SetupRouter(handler *rest.HandlerRest, handlerWeb *web.HandlerWeb) *gin.Eng
 
 	// Setup the session store
 	store := cookie.NewStore([]byte("secret"))
-	router.Use(sessions.Sessions("mysession", store))
+	router.Use(sessions.Sessions("init_session", store))
 
 	router.LoadHTMLGlob("tmp/*")
 	//router.LoadHTMLFiles("templates/template1.html", "templates/template2.html")
