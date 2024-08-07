@@ -4,38 +4,12 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
-	"net/http"
 	_ "short-link/internal/Config"
 	"short-link/internal/Core/Handlers/Http/rest"
 	"short-link/internal/Core/Handlers/Http/web"
+	"short-link/internal/Core/Handlers/Validation/Link"
 )
 
-
-// Example struct for form data
-type RequestData struct {
-	Link  string `form:"link" binding:"required"`
-}
-
-// Validation middleware
-func ValidationMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		var requestData RequestData
-
-		// Bind incoming form data to requestData struct and validate
-		if err := c.ShouldBind(&requestData); err != nil {
-			// Set flash message
-			session := sessions.Default(c)
-			session.Set("error", err.Error())
-			session.Save()
-			c.Redirect(http.StatusFound, "/index")
-			c.Abort()
-			return
-		}
-
-		// Proceed if validation passes
-		c.Next()
-	}
-}
 
 func SetupRouter(handler *rest.HandlerRest, handlerWeb *web.HandlerWeb) *gin.Engine {
 
@@ -49,7 +23,7 @@ func SetupRouter(handler *rest.HandlerRest, handlerWeb *web.HandlerWeb) *gin.Eng
 	//router.LoadHTMLFiles("templates/template1.html", "templates/template2.html")
 	router.GET("/index", handlerWeb.HandleIndex)
 
-	router.POST("/make", ValidationMiddleware(), handlerWeb.HandleShorten)
+	router.POST("/make", Link.ValidationMiddleware(), handlerWeb.HandleShorten)
 	router.GET("/short/:url", handlerWeb.HandleRedirect)
 	router.GET("/list/all", handlerWeb.HandleList)
 
