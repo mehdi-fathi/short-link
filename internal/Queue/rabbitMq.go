@@ -204,7 +204,13 @@ func (qu *Queue) ProcessEvent(ctx context.Context, event Event.Event) error {
 			status = Domin.Link_STATUS_REJECT
 		}
 
-		qu.Service.UpdateStatusByLink(status, data["link"].(string))
+		if status == Domin.LINK_STATUS_APPROVE {
+			short_key := qu.Service.GenerateShortLink(1, true)
+
+			qu.Service.UpdateStatusShortKey(status, short_key, data["link"].(string))
+		} else {
+			qu.Service.UpdateStatusByLink(status, data["link"].(string))
+		}
 
 		logger.CreateLogInfo(fmt.Sprintf("[*] Queue Event processed Done: %s with status: %s", event.Type, status))
 		return nil

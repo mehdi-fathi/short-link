@@ -194,6 +194,26 @@ func (db *Repository) UpdateStatus(status string, link string) (int, error) {
 
 }
 
+func (db *Repository) UpdateStatusShortKey(status string, shortKey string, link string) (int, error) {
+
+	q := `update links set
+                 status = $1,
+                 short_key = $2,
+                 updated_at=now()
+		  where link = $3;`
+
+	row := db.Sql.QueryRow(q, status, shortKey, link)
+
+	var id int
+
+	row.Scan(&id)
+
+	var err error
+
+	return id, err
+
+}
+
 func CreateLinkRepository(cfg *Config.Config, dbLayer *Db.Db) Ports.LinkRepositoryInterface {
 
 	Repo := &Repository{dbLayer, cfg}

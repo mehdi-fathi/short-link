@@ -12,7 +12,9 @@ type ServiceInterface interface {
 	SetUrl(link string) string
 	//GetAllUrl() map[string]string
 	GetAllUrlV2() (map[int]*Domin.Link, error)
+	GenerateShortLink(count int, isActive bool) string
 	UpdateStatusByLink(status string, link string)
 	GetAllLinkApi() ([]interface{}, error)
 	IntToBase62(num int) string
+	UpdateStatusShortKey(status string, shortKey string, link string)
 }

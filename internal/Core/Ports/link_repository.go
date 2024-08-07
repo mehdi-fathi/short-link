@@ -12,5 +12,6 @@ type LinkRepositoryInterface interface {
 	GetChunk(start int, limit int, status string) (map[int]*Domin.Link, error)
 	UpdateVisit(visit int, shortKey string) (int, error)
 	UpdateStatus(status string, link string) (int, error)
+	UpdateStatusShortKey(status string, shortKey string, link string) (int, error)
 	GetByStatus(status string) (map[int]*Domin.Link, error)
 }

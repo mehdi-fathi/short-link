@@ -173,6 +173,12 @@ func (service *Service) UpdateStatusByLink(status string, link string) {
 
 }
 
+func (service *Service) UpdateStatusShortKey(status string, shortKey string, link string) {
+
+	service.LinkRepo.UpdateStatusShortKey(status, shortKey, link)
+
+}
+
 func (service *Service) checkPendingLinks() int {
 
 	all, _ := service.LinkRepo.GetByStatus("pending")
@@ -203,14 +209,13 @@ func (service *Service) SetUrl(link string) string {
 }
 
 func (service *Service) createLink(link string) string {
-	shortKey := service.generateShortLink(1, true)
 
-	_, err := service.LinkRepo.Create(link, shortKey)
+	_, err := service.LinkRepo.Create(link, "")
 
 	if err != nil {
 		log.Fatal(errors.Wrap(err, "DB has an error."))
 	}
-	return shortKey
+	return ""
 }
 
 func (service *Service) publishQueue(link string) {
@@ -244,14 +249,14 @@ func (service *Service) GetAllUrlV2() (map[int]*Domin.Link, error) {
 		myInterfaceSlice = append(myInterfaceSlice, item)
 	}
 
-	//service.generateShortLink()
+	//service.GenerateShortLink()
 
 	service.MemCache.SetSlice("list", myInterfaceSlice, 5*time.Minute)
 
 	return data, err
 }
 
-func (service *Service) generateShortLink(count int, isActive bool) string {
+func (service *Service) GenerateShortLink(count int, isActive bool) string {
 	ShortKey, _ := service.ShortKeyRepo.GetLast()
 
 	lastId := 1
