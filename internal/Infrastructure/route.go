@@ -23,7 +23,7 @@ func SetupRouter(handler *rest.HandlerRest, handlerWeb *web.HandlerWeb) *gin.Eng
 	//router.LoadHTMLFiles("templates/template1.html", "templates/template2.html")
 	router.GET("/index", handlerWeb.HandleIndex)
 
-	router.POST("/make", Link.ValidationMiddleware(), handlerWeb.HandleShorten)
+	router.POST("/make", Link.CreateShortLinkReq(), handlerWeb.HandleShorten)
 	router.GET("/short/:url", handlerWeb.HandleRedirect)
 	router.GET("/list/all", handlerWeb.HandleList)
 

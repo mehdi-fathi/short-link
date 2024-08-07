@@ -12,7 +12,7 @@ type From struct {
 }
 
 // Validation middleware
-func ValidationMiddleware() gin.HandlerFunc {
+func CreateShortLinkReq() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var formData From
 
