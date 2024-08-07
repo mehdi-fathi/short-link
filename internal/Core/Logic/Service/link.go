@@ -300,3 +300,20 @@ func (service *Service) GetAllLinkApi() ([]interface{}, error) {
 
 	return dataMem, err
 }
+
+func (service *Service) VerifyLinkIsValid(link string) string {
+	status := Domin.LINK_STATUS_APPROVE
+	if !url.CheckURL(link) {
+		logger.CreateLogInfo(fmt.Sprintf("[*] Queue Rejected link :%s", link))
+		status = Domin.Link_STATUS_REJECT
+	}
+
+	if status == Domin.LINK_STATUS_APPROVE {
+		short_key := service.GenerateShortLink(1, true)
+
+		service.UpdateStatusShortKey(status, short_key, link)
+	} else {
+		service.UpdateStatusByLink(status, link)
+	}
+	return status
+}

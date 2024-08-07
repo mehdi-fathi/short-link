@@ -8,11 +8,9 @@ import (
 	"github.com/streadway/amqp"
 	"log"
 	"short-link/internal/Config"
-	"short-link/internal/Core/Domin"
 	service_interface "short-link/internal/Core/Ports"
 	"short-link/internal/Event"
 	"short-link/pkg/logger"
-	"short-link/pkg/url"
 	"time"
 )
 
@@ -188,31 +186,19 @@ func (qu *Queue) ConsumeEvents(ctx context.Context, ch *amqp.Channel, queueName 
 	//<-forever
 }
 
-// todo make some event listener
 // ProcessEvent simulates event processing.
 func (qu *Queue) ProcessEvent(ctx context.Context, event Event.Event) error {
 	// Simulate work
 	select {
 	case <-time.After(1 * time.Second):
 		//time.Sleep(5 * time.Second)
-
 		data := event.Data.(map[string]interface{})
+		eventType := event.Type
 
-		status := Domin.LINK_STATUS_APPROVE
-		if !url.CheckURL(data["link"].(string)) {
-			logger.CreateLogInfo(fmt.Sprintf("[*] Queue Rejected link :%s", data["link"].(string)))
-			status = Domin.Link_STATUS_REJECT
+		if eventType == Event.CreateLink {
+			status := qu.Service.VerifyLinkIsValid(data["link"].(string))
+			logger.CreateLogInfo(fmt.Sprintf("[*] Queue Event processed Done: %s with status: %s", event.Type, status))
 		}
-
-		if status == Domin.LINK_STATUS_APPROVE {
-			short_key := qu.Service.GenerateShortLink(1, true)
-
-			qu.Service.UpdateStatusShortKey(status, short_key, data["link"].(string))
-		} else {
-			qu.Service.UpdateStatusByLink(status, data["link"].(string))
-		}
-
-		logger.CreateLogInfo(fmt.Sprintf("[*] Queue Event processed Done: %s with status: %s", event.Type, status))
 		return nil
 	case <-ctx.Done():
 		logger.CreateLogInfo("[*] Queue shutdown")

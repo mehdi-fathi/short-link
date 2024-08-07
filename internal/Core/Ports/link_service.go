@@ -17,4 +17,5 @@ type ServiceInterface interface {
 	GetAllLinkApi() ([]interface{}, error)
 	IntToBase62(num int) string
 	UpdateStatusShortKey(status string, shortKey string, link string)
+	VerifyLinkIsValid(link string) string
 }
