@@ -10,7 +10,6 @@ import (
 	"short-link/internal/Core/Handlers/Validation/Link"
 )
 
-
 func SetupRouter(handler *rest.HandlerRest, handlerWeb *web.HandlerWeb) *gin.Engine {
 
 	router := gin.Default()

@@ -15,6 +15,7 @@ import (
 	"short-link/pkg/url"
 	"time"
 )
+
 //todo make interface
 
 type Queue struct {
@@ -118,7 +119,6 @@ func CreateQueue(cfg *Config.Config) *Queue {
 func (qu *Queue) ConsumeEvents(ctx context.Context, ch *amqp.Channel, queueName string) {
 
 	logger.CreateLogInfo(" [*] Queue is Waiting for  events")
-
 
 	ch, err := qu.Connection.Channel()
 	if err != nil {

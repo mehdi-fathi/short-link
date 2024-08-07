@@ -8,7 +8,7 @@ import (
 
 // Example struct for form data
 type From struct {
-	Link  string `form:"link" binding:"required"`
+	Link string `form:"link" binding:"required"`
 }
 
 // Validation middleware
