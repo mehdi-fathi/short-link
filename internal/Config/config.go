@@ -1,10 +1,12 @@
 package Config
 
 import (
+	"flag"
 	"fmt"
 	"github.com/kelseyhightower/envconfig"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
+	"log"
 	"os"
 	"short-link/pkg/logger"
 )
@@ -105,4 +107,40 @@ func GetBaseUrl() string {
 	}
 
 	return url
+}
+
+func LoadConfigApp() *Config {
+	// Default Config file based on the environment variable
+	defaultConfigFile := "config/config-local.yaml"
+	if env := os.Getenv("APP_MODE"); env != "" {
+		defaultConfigFile = fmt.Sprintf("config/config-%s.yaml", env)
+	}
+
+	// Load Master Config File
+	var configFile string
+	flag.StringVar(&configFile, "config", defaultConfigFile, "The environment configuration file of application")
+	flag.Usage = usage
+	flag.Parse()
+
+	// Loading the config file
+	cfg, err := LoadConfig(configFile)
+	if err != nil {
+		log.Println(errors.Wrapf(err, "failed to load config: %s", "CreateService"))
+	}
+
+	if err != nil {
+		log.Fatal(errors.Wrap(err, "logger error"))
+	}
+
+	return cfg
+}
+
+func usage() {
+	usageStr := `
+Usage: server [options]
+Options:
+	-c,  --config   <config file name>   Path of yaml configuration file
+`
+	fmt.Printf("%s\n", usageStr)
+	os.Exit(0)
 }

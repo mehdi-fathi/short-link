@@ -4,7 +4,7 @@ ENTRY_BUILD_FILE=./cmd/.
 
 BINARY := short-link
 
-run:
+up:
 	docker compose up
 
 down:

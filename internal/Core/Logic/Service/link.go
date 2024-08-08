@@ -115,13 +115,14 @@ func (service *Service) UpdateStats(wg *sync.WaitGroup, ctx context.Context) int
 
 			wg.Add(1)
 
-			ch := make(chan *Domin.Link)
+			linkCh := make(chan *Domin.Link) // we consider as unbuffered for synchronize purpose.
+			//time.Sleep(20 * time.Second)
 
 			// Goroutine 1
-			go service.updateStatusWorker(wg, ctx, bunchOfLinks, ch)
+			go service.updateStatusWorker(wg, ctx, bunchOfLinks, linkCh)
 
 			// Goroutine 2
-			go service.updateStatWorker(wg, ch)
+			go service.updateStatWorker(wg, linkCh)
 
 		}
 
