@@ -27,6 +27,10 @@ func main() {
 
 	cfg, err := loggerHandle()
 
+	if err != nil {
+		log.Fatal(errors.Wrap(err, "logger error"))
+	}
+
 	//loggerInstance := logrus.Logger{}
 	//loggerInstance.Info("[OK] Logger Configured")
 
@@ -40,6 +44,10 @@ func main() {
 	// Initialize the server Dependencies
 	err = server.Initialize(cfg)
 
+	if err != nil {
+		log.Fatal(errors.Wrap(err, "server error"))
+	}
+
 	done := make(chan bool, 1)
 	quiteSignal := make(chan os.Signal, 1)
 	signal.Notify(quiteSignal, syscall.SIGINT, syscall.SIGTERM)
@@ -51,10 +59,6 @@ func main() {
 
 	// Start server in blocking mode
 	server.Start(ctx, cfg)
-
-	if err != nil {
-		log.Fatal(errors.Wrap(err, "server error"))
-	}
 
 	// Wait for graceful shutdown signal
 	<-done

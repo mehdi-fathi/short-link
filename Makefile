@@ -4,8 +4,11 @@ ENTRY_BUILD_FILE=./cmd/.
 
 BINARY := short-link
 
-docker-up:
+run:
 	docker compose up
+
+down:
+	./stop-gracefully.sh
 
 doc:
 	godoc -index
