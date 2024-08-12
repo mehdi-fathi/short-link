@@ -7,6 +7,9 @@ BINARY := short-link
 up:
 	docker compose up
 
+build-docker:
+	docker compose build
+
 down:
 	./stop-gracefully.sh
 
@@ -35,16 +38,16 @@ fmt:
 	go fmt ./...
 
 migration_create:
-	migrate create -ext sql -dir database/migration/ -seq init_mg
+	docker compose -f docker-compose.yml run --rm app migrate -path database/migration/ -database "postgresql://postgres:postgres@postgres_db:5432/slink?sslmode=disable" create -ext sql -dir database/migration/ -seq init_mg
 
 migration_up:
-	migrate -path database/migration/ -database "postgresql://postgres:postgres@postgres_db:5432/slink?sslmode=disable" -verbose up
+	docker compose -f docker-compose.yml run --rm app migrate -path database/migration/ -database "postgresql://postgres:postgres@postgres_db:5432/slink?sslmode=disable" -verbose up
 
 migration_down:
-	migrate -path database/migration/ -database "postgresql://default:secret@localhost:5432/slink?sslmode=disable" -verbose down 1
+	docker compose -f docker-compose.yml run --rm app migrate -path database/migration/ -database "postgresql://default:secret@localhost:5432/slink?sslmode=disable" -verbose down 1
 
 migration_fix:
-	migrate -path database/migration/ -database "postgresql://default:secret@localhost:5432/slink?sslmode=disable" force 1
+	docker compose -f docker-compose.yml run --rm app migrate -path database/migration/ -database "postgresql://default:secret@localhost:5432/slink?sslmode=disable" force 1
 
 migration_up_v2:
-	docker-compose -f docker-compose.yml run --rm app 	migrate -path database/migration/ -database "postgresql://postgres:postgres@postgres_db:5432/slink?sslmode=disable" -verbose up
+	docker compose -f docker-compose.yml run --rm app migrate -path database/migration/ -database "postgresql://postgres:postgres@postgres_db:5432/slink?sslmode=disable" -verbose up
