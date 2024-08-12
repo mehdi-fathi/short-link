@@ -30,7 +30,7 @@ I try to take advantage of substantial concept Golang, engineering and well-stru
 - Redis
 - RabbitMq
 
-### Steps to run ``
+### Steps to run
 
 1. **Clone the Repository**:
 2. `make build-docker` for first time.
