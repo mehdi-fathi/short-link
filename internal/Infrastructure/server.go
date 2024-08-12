@@ -135,9 +135,8 @@ func (s *server) startListenEvents(ctx context.Context) {
 
 	go func() {
 		defer s.Done()
-		ch, _ := queueMain.Connection.Channel()
 		// Start the consumer
-		queueMain.ConsumeEvents(ctx, ch, s.Config.QueueRabbit.MainQueueName)
+		queueMain.ConsumeEvents(ctx, s.Config.QueueRabbit.MainQueueName)
 	}()
 }
 

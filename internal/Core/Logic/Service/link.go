@@ -121,6 +121,7 @@ func (service *Service) UpdateStats(wg *sync.WaitGroup, ctx context.Context) int
 			// Goroutine 1
 			go service.updateStatusWorker(wg, ctx, bunchOfLinks, linkCh)
 
+			wg.Add(1)
 			// Goroutine 2
 			go service.updateStatWorker(wg, linkCh)
 
@@ -179,6 +180,8 @@ func (service *Service) updateStatWorker(wg *sync.WaitGroup, ch chan *Domin.Link
 	fmt.Println("Goroutine updateStatWorker received data:", data)
 
 	hget, _ := service.Cache.Get(data.ShortKey)
+
+	fmt.Println("Goroutine updateStatWorker hget:", hget)
 
 	visitCache, _ := strconv.Atoi(hget)
 
