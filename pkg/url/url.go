@@ -11,7 +11,7 @@ func CheckURL(url string) bool {
 	resp, err := http.Get(url)
 
 	if err != nil {
-		return false // Treat any error as a failed check
+		return false // Treat any errorMsg as a failed check
 	}
 
 	defer resp.Body.Close()

@@ -8,6 +8,7 @@ import (
 
 type ServiceInterface interface {
 	GetUrl(shortKey string) *Domin.Link
+	FindValidUrlByShortKey(shortKey string) *Domin.Link
 	UpdateStats(s *sync.WaitGroup, ctx context.Context) int
 	SetUrl(link string) string
 	//GetAllUrl() map[string]string

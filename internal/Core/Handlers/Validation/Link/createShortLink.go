@@ -12,7 +12,7 @@ type From struct {
 }
 
 // Validation middleware
-func CreateShortLinkReq() gin.HandlerFunc {
+func CreateShortLinkReqValidation() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var formData From
 
@@ -20,7 +20,7 @@ func CreateShortLinkReq() gin.HandlerFunc {
 		if err := c.ShouldBind(&formData); err != nil {
 			// Set flash message
 			session := sessions.Default(c)
-			session.Set("error", err.Error())
+			session.Set("error_msg", err.Error())
 			session.Save()
 			c.Redirect(http.StatusFound, "/index")
 			c.Abort()
