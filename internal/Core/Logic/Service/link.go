@@ -90,6 +90,18 @@ func (service *Service) GetUrl(shortKey string) *Domin.Link {
 	return link
 }
 
+func (service *Service) FindValidUrlByShortKey(shortKey string) *Domin.Link {
+
+	link := service.GetUrl(shortKey)
+
+	if link != nil && link.Status == Domin.LINK_STATUS_APPROVE {
+		// Redirect the user to the original URL
+		return link
+	}
+
+	return link
+}
+
 func (service *Service) UpdateStats(wg *sync.WaitGroup, ctx context.Context) int {
 
 	var bunchOfLinks map[int]*Domin.Link
@@ -237,7 +249,7 @@ func (service *Service) createLink(link string) string {
 	_, err := service.LinkRepo.Create(link, "")
 
 	if err != nil {
-		log.Fatal(errors.Wrap(err, "DB has an error."))
+		log.Fatal(errors.Wrap(err, "DB has an errorMsg."))
 	}
 	return ""
 }
@@ -252,7 +264,7 @@ func (service *Service) publishQueue(link string) {
 	ch, err := service.Queue.Connection.Channel()
 
 	if err != nil {
-		log.Fatal(errors.Wrap(err, "Queue has an error."))
+		log.Fatal(errors.Wrap(err, "Queue has an errorMsg."))
 	}
 
 	service.Queue.Publish(ch, service.Shortener.Config.QueueRabbit.MainQueueName, event)

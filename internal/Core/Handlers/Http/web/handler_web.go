@@ -1,14 +1,13 @@
 package web
 
 import (
-	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"short-link/internal/Config"
-	"short-link/internal/Core/Domin"
 	_ "short-link/internal/Core/Handlers/Http/rest"
 	"short-link/internal/Core/Logic/Db/Serialization"
 	service_interface "short-link/internal/Core/Ports"
+	"short-link/pkg/errorMsg"
 	"short-link/pkg/logger"
 )
 
@@ -19,10 +18,7 @@ type HandlerWeb struct {
 
 func (h *HandlerWeb) HandleIndex(c *gin.Context) {
 
-	session := sessions.Default(c)
-	errorMsg := session.Get("error")
-	session.Delete("error")
-	session.Save()
+	errorMsg := errorMsg.GetErrorMsg(c,"error_msg")
 
 	c.HTML(http.StatusOK, "index.html", gin.H{
 		"title": "Main website",
@@ -48,11 +44,11 @@ func (h *HandlerWeb) HandleRedirect(c *gin.Context) {
 	shortKey := c.Param("url")
 
 	// Retrieve the original URL from the `urls` map using the shortened key
-	originalURL := h.LinkService.GetUrl(shortKey)
+	link := h.LinkService.FindValidUrlByShortKey(shortKey)
 
-	if originalURL != nil && originalURL.Status == Domin.LINK_STATUS_APPROVE {
+	if link != nil {
 		// Redirect the user to the original URL
-		c.Redirect(http.StatusMovedPermanently, originalURL.Link)
+		c.Redirect(http.StatusMovedPermanently, link.Link)
 	}
 
 	c.HTML(http.StatusNotFound, "404.html", nil)
