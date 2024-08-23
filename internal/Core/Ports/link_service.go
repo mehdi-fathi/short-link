@@ -6,7 +6,7 @@ import (
 	"sync"
 )
 
-type ServiceInterface interface {
+type LinkServiceInterface interface {
 	GetUrl(shortKey string) *Domin.Link
 	FindValidUrlByShortKey(shortKey string) *Domin.Link
 	UpdateStats(s *sync.WaitGroup, ctx context.Context) int

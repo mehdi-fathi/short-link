@@ -19,7 +19,7 @@ import (
 type Queue struct {
 	Connection *amqp.Connection
 	cfg        *Config.Config
-	Service    service_interface.ServiceInterface
+	Service    service_interface.LinkServiceInterface
 }
 
 func CreateConnection(cfg *Config.Config) *amqp.Connection {

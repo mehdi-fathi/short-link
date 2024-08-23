@@ -8,7 +8,7 @@ import (
 
 type HandlerRest struct {
 	loggerInstance *logger.StandardLogger
-	LinkService    service_interface.ServiceInterface
+	LinkService    service_interface.LinkServiceInterface
 }
 
 func (h *HandlerRest) HandleListJson(c *gin.Context) {

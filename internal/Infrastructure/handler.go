@@ -21,11 +21,11 @@ type Handler struct {
 	}
 	loggerInstance *logger.StandardLogger
 	HTTPServer     *http.Server
-	LinkService    service_interface.ServiceInterface
+	LinkService    service_interface.LinkServiceInterface
 }
 
 // CreateHandler Creates a new instance of REST handler
-func CreateHandler(linkService service_interface.ServiceInterface) *rest.HandlerRest {
+func CreateHandler(linkService service_interface.LinkServiceInterface) *rest.HandlerRest {
 	return &rest.HandlerRest{
 		LinkService: linkService,
 	}
@@ -37,7 +37,7 @@ func CreateHandlerMain() *Handler {
 }
 
 // CreateHandler Creates a new instance of REST handler
-func CreateHandlerWeb(linkService service_interface.ServiceInterface) *web.HandlerWeb {
+func CreateHandlerWeb(linkService service_interface.LinkServiceInterface) *web.HandlerWeb {
 	return &web.HandlerWeb{
 		LinkService: linkService,
 	}

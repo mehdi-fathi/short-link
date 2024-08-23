@@ -14,7 +14,7 @@ var cron *gocron.Scheduler
 
 var wait = make(chan interface{})
 
-func StartCron(ctx context.Context, cron *gocron.Scheduler, service service_interface.ServiceInterface) {
+func StartCron(ctx context.Context, cron *gocron.Scheduler, service service_interface.LinkServiceInterface) {
 
 	cron.Every(10).Seconds().Tag("cron").Do(func() {
 
@@ -45,7 +45,7 @@ func StartCron(ctx context.Context, cron *gocron.Scheduler, service service_inte
 
 }
 
-func ProcessCron(service service_interface.ServiceInterface, ctx context.Context) error {
+func ProcessCron(service service_interface.LinkServiceInterface, ctx context.Context) error {
 
 	var cronWaitGroup sync.WaitGroup
 

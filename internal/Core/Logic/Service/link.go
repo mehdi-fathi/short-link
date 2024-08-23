@@ -63,7 +63,7 @@ func CreateService(
 	cache Ports.CacheInterface,
 	memCache Ports.MemCacheInterface,
 	queue *Queue.Queue,
-) Ports.ServiceInterface {
+) Ports.LinkServiceInterface {
 
 	shortenerUrl := &UrlShortener{
 		Config: cfg,

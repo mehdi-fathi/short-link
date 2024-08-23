@@ -13,7 +13,7 @@ import (
 
 type HandlerWeb struct {
 	loggerInstance *logger.StandardLogger
-	LinkService    service_interface.ServiceInterface
+	LinkService    service_interface.LinkServiceInterface
 }
 
 func (h *HandlerWeb) HandleIndex(c *gin.Context) {
