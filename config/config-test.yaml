@@ -12,8 +12,8 @@ DB:
   DRIVER: postgres
   HOST: localhost
   PORT: 5432
-  USER: default
-  PASSWORD: secret
+  USER: postgres
+  PASSWORD: postgres
   DBNAME: slink_test
 LOGGER:
   LOG_LEVEL: TRACE
