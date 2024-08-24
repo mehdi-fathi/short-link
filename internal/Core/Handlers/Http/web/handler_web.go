@@ -18,7 +18,7 @@ type HandlerWeb struct {
 
 func (h *HandlerWeb) HandleIndex(c *gin.Context) {
 
-	errorMsg := errorMsg.GetErrorMsg(c,"error_msg")
+	errorMsg := errorMsg.GetErrorMsg(c, "error_msg")
 
 	c.HTML(http.StatusOK, "index.html", gin.H{
 		"title": "Main website",

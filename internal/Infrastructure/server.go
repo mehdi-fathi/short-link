@@ -50,8 +50,9 @@ func (s *server) StartApp() error {
 
 func (s *server) injectServerDependencies() {
 
-	cfg := Config.LoadConfigApp()
+	//cfg := Config.LoadConfigApp()
 
+	cfg := Config.LoadConfigEnvApp()
 	initLogger(cfg)
 
 	dependencies := CreateDependencies(cfg)

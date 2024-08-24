@@ -2,7 +2,9 @@ package Config
 
 import (
 	"flag"
+	_ "flag"
 	"fmt"
+	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
@@ -32,7 +34,7 @@ type DB struct {
 	Driver   string `yaml:"DRIVER" envconfig:"DRIVER"`
 	Host     string `yaml:"HOST" envconfig:"HOST"`
 	Port     int    `yaml:"PORT" envconfig:"PORT"`
-	User     string `yaml:"USER" `
+	User     string `yaml:"USER" envconfig:"USER"`
 	Password string `yaml:"PASSWORD" envconfig:"PASSWORD"`
 	Dbname   string `yaml:"DBNAME" envconfig:"DBNAME"`
 }
@@ -107,6 +109,27 @@ func GetBaseUrl() string {
 	}
 
 	return url
+}
+
+func LoadConfigEnvApp() *Config {
+
+	// Load environment variables from .env file
+	env1 := []string{".env.local", ".env"}
+	err := godotenv.Load(env1...)
+	if err != nil {
+		log.Fatalf("Error loading .env file: %v", err)
+	}
+
+	var Config Config
+	// Process environment variables into struct
+	err = envconfig.Process("", &Config)
+	if err != nil {
+		log.Fatalf("Error processing env variables: %v", err)
+	}
+
+	ConfigHandy = &Config
+
+	return &Config
 }
 
 func LoadConfigApp() *Config {

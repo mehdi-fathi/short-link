@@ -10,7 +10,7 @@ REDIS:
 HASHCODE: abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
 DB:
   DRIVER: postgres
-  HOST: postgres
+  HOST: db
   PORT: 5432
   USER: postgres
   PASSWORD: postgres

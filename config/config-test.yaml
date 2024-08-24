@@ -14,7 +14,7 @@ DB:
   PORT: 5432
   USER: postgres
   PASSWORD: postgres
-  DBNAME: slink_test
+  NAME: slink_test
 LOGGER:
   LOG_LEVEL: TRACE
   GRAYLOG_ACTIVE: false
