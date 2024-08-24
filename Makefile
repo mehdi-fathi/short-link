@@ -1,17 +1,24 @@
 
+include .env
 
 ENTRY_BUILD_FILE=./cmd/.
 
 BINARY := short-link
 
+# Define variables
+DOCKER_COMPOSE = docker compose -f docker/docker-compose.yml --env-file .env
+DB_URL = postgresql://$(DB_USER):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=disable
+MIGRATION_PATH = -path database/migration/
+MIGRATE_CMD = run --rm app migrate $(MIGRATION_PATH) -database "$(DB_URL)"
+
 up:
-	docker compose up
+	$(DOCKER_COMPOSE) up
 
 build-docker:
-	docker compose build
+	$(DOCKER_COMPOSE) build
 
 down:
-	./stop-gracefully.sh
+	./docker/stop-gracefully.sh
 
 doc:
 	godoc -index
@@ -37,17 +44,21 @@ test_coverage:
 fmt:
 	go fmt ./...
 
+# Targets
 migration_create:
-	docker compose -f docker-compose.yml run --rm app migrate -path database/migration/ -database "postgresql://postgres:postgres@postgres_db:5432/slink?sslmode=disable" create -ext sql -dir database/migration/ -seq init_mg
+	$(DOCKER_COMPOSE) $(MIGRATE_CMD) create -ext sql -dir database/migration/ -seq init_mg
 
 migration_up:
-	docker compose -f docker-compose.yml run --rm app migrate -path database/migration/ -database "postgresql://postgres:postgres@postgres_db:5432/slink?sslmode=disable" -verbose up
+	$(DOCKER_COMPOSE) $(MIGRATE_CMD) -verbose up
 
 migration_down:
-	docker compose -f docker-compose.yml run --rm app migrate -path database/migration/ -database "postgresql://default:secret@localhost:5432/slink?sslmode=disable" -verbose down 1
+	$(DOCKER_COMPOSE) $(MIGRATE_CMD) -verbose down 1
 
 migration_fix:
-	docker compose -f docker-compose.yml run --rm app migrate -path database/migration/ -database "postgresql://default:secret@localhost:5432/slink?sslmode=disable" force 1
+	$(DOCKER_COMPOSE) $(MIGRATE_CMD) force 1
 
 migration_up_v2:
-	docker compose -f docker-compose.yml run --rm app migrate -path database/migration/ -database "postgresql://postgres:postgres@postgres_db:5432/slink?sslmode=disable" -verbose up
+	$(DOCKER_COMPOSE) $(MIGRATE_CMD) -verbose up
+
+create_test_db:
+	$(DOCKER_COMPOSE) exec db psql -U $(DB_USER) -c "CREATE DATABASE $(DB_TEST_NAME);"

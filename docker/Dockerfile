@@ -11,16 +11,16 @@ RUN apt-get update && apt-get install -y netcat-traditional
 WORKDIR /app
 
 # Copy go.mod and go.sum files
-COPY go.mod go.sum ./
+COPY ../go.mod go.sum ./
 
 # Download all dependencies. This is done early to take advantage of Docker's caching mechanism.
 RUN go mod download
 
 # Copy the source code into the container
-COPY . .
+COPY .. .
 
 # Copy the wait-for-it.sh script
-COPY wait-for-it.sh /wait-for-it.sh
+COPY ../wait-for-it.sh /wait-for-it.sh
 RUN chmod +x /wait-for-it.sh
 
 RUN go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest

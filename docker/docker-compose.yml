@@ -1,33 +1,24 @@
-version: '3.8'
+
+name: "short-link"
 
 services:
   app:
     image: golang:1.21
-    build: .
+    build: ..
     working_dir: /app
     volumes:
-      - .:/app
+      - ../:/app
     ports:
-      - "8080:8080"
+      - "${HTTP_PORT}:8080"
     container_name: go_app
     depends_on:
       - rabbitmq
       - db
       - redis
-    environment:
-      - DB_HOST=db
-      - DB_PORT=5432
-      - DB_USER=postgres
-      - DB_PASSWORD=postgres
-      - DB_NAME=postgres
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - RABBITMQ_HOST=rabbitmq
-      - RABBITMQ_PORT=5672
     stdin_open: true
     tty: true
     stop_signal: SIGINT # Specify the signal to be sent for graceful shutdown
-    stop_grace_period: 15s # Time to wait for graceful shutdown before killing the container
+    stop_grace_period: 3s # Time to wait for graceful shutdown before killing the container
     restart: no
     command: [ "/wait-for-it.sh", "rabbitmq", "5672", "/wait-for-it.sh", "db", "5432", "go run ./cmd/main.go" ]
 
@@ -35,7 +26,7 @@ services:
     image: rabbitmq:3-management
     container_name: rabbitmq
     ports:
-      - "5672:5672"
+      - "${QUEUERABBIT_PORT}:5672"
       - "15672:15672"
     environment:
       RABBITMQ_DEFAULT_USER: guest
@@ -44,11 +35,11 @@ services:
     image: postgres:13
     container_name: postgres_db
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: slink
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_DBNAME}
     ports:
-      - "5432:5432"
+      - "${DB_PORT}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
@@ -56,7 +47,7 @@ services:
     image: redis:6
     container_name: redis
     ports:
-      - "6379:6379"
+      - "${REDIS_PORT}:6379"
     volumes:
       - redis_data:/data
 
