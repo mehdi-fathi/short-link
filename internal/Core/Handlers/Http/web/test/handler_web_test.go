@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"os"
 	"short-link/internal/Cache"
 	"short-link/internal/Cache/MemCache"
 	"short-link/internal/Config"
@@ -29,12 +30,8 @@ import (
 
 // test_utils.go
 func initTest() (*web.HandlerWeb, *Infrastructure.Handler, *gin.Engine, *Db.Db, error) {
-	cfg, err := Config.LoadTestConfig()
-	if err != nil {
-		return nil, nil, nil, nil, err
-	}
-
-	log.Println(cfg)
+	os.Setenv("GO_ENV", "test")
+	cfg := Config.LoadConfigEnvApp()
 
 	db, err := initTestDB(cfg)
 	if err != nil {

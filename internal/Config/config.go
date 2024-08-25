@@ -27,7 +27,7 @@ type Config struct {
 	QueueRabbit  QueueRabbit
 	Graylog      logger.Graylog `envconfig:"LOGGER_GRAYLOG"`
 	Redis        Redis
-	AppPath      string
+	AppPath      string `envconfig:"APP_PATH"`
 }
 
 type DB struct {
@@ -89,14 +89,6 @@ func readFile(cfg *Config, filePath string) error {
 	return nil
 }
 
-func LoadTestConfig() (*Config, error) {
-	defaultConfigFile := "../../../../../../config/config-test.yaml"
-	if env := os.Getenv("APP_MODE"); env != "" {
-		defaultConfigFile = fmt.Sprintf("../../config/config-%s.yaml", env)
-	}
-	return LoadConfig(defaultConfigFile)
-}
-
 func readEnv(cfg *Config) error {
 	return envconfig.Process("", cfg)
 }
@@ -113,9 +105,25 @@ func GetBaseUrl() string {
 
 func LoadConfigEnvApp() *Config {
 
+	// Determine which .env file to load
+	env := os.Getenv("GO_ENV")
+	if env == "" {
+		env = "local"
+	}
+
 	// Load environment variables from .env file
-	env1 := []string{".env.local", ".env"}
-	err := godotenv.Load(env1...)
+	var err error
+	switch env {
+	case "production":
+		err = godotenv.Load(".env.production")
+	case "test":
+		err = godotenv.Load("../../../../../../.env.test")
+	case "local":
+		fallthrough
+	default:
+		err = godotenv.Load(".env.local")
+	}
+
 	if err != nil {
 		log.Fatalf("Error loading .env file: %v", err)
 	}
