@@ -58,13 +58,13 @@ func (h *Handler) Start(r *gin.Engine, defaultPort int) {
 		IdleTimeout:  time.Second * 60,
 	}
 
-	//h.Logger.Infof("[OK] Starting HTTP REST Server on %s ", addr)
+	//h.Graylog.Infof("[OK] Starting HTTP REST Server on %s ", addr)
 	err := h.HTTPServer.ListenAndServe()
 	if err != http.ErrServerClosed {
 		logger.CreateLogError(errors.WithMessage(err, op).Error())
 	}
 	//// Code Reach Here after HTTP Server Shutdown!
-	//h.Logger.Info("[OK] HTTP REST Server is shutting down!")
+	//h.Graylog.Info("[OK] HTTP REST Server is shutting down!")
 }
 
 // Stop handles the http server in graceful shutdown

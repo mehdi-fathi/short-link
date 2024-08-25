@@ -60,7 +60,7 @@ func initTestDB(cfg *Config.Config) (*Db.Db, error) {
 		log.Fatalf("failed to start the server: %v", errDb)
 	}
 
-	logger.CreateLogger(cfg.Logger)
+	logger.CreateLogger(cfg.Graylog)
 
 	return Db, nil
 }

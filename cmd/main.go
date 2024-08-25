@@ -17,8 +17,8 @@ func main() {
 
 	startTime := time.Now()
 
-	//loggerInstance := logrus.Logger{}
-	//loggerInstance.Info("[OK] Logger Configured")
+	//loggerInstance := logrus.Graylog{}
+	//loggerInstance.Info("[OK] Graylog Configured")
 
 	// Create New server
 	server := Infrastructure.NewServer(startTime)

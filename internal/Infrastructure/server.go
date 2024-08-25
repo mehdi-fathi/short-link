@@ -50,7 +50,7 @@ func (s *server) StartApp() error {
 
 func (s *server) injectServerDependencies() {
 
-	//cfg := Config.LoadConfigApp()
+	//cfg := Graylog.LoadConfigApp()
 
 	cfg := Config.LoadConfigEnvApp()
 	initLogger(cfg)
@@ -64,8 +64,8 @@ func (s *server) injectServerDependencies() {
 }
 
 func initLogger(cfg *Config.Config) {
-	loggerInstance := logger.CreateLogger(cfg.Logger)
-	loggerInstance.Info("[OK] Logger Configured")
+	loggerInstance := logger.CreateLogger(cfg.Graylog)
+	loggerInstance.Info("[OK] Graylog Configured")
 }
 
 func (s *server) shutdownListener() {
@@ -110,7 +110,7 @@ func (s *server) startHttp() {
 	router := SetupRouter(s.RESTHandler, s.WebHandler)
 
 	// Start GRPC server in go-routine
-	//go s.GRPCHandler.Start(ctx, s.Config.GRPCPort)
+	//go s.GRPCHandler.Start(ctx, s.Graylog.GRPCPort)
 	// Start REST server in Blocking mode
 	s.Handler.Start(router, s.Config.HTTPPort)
 
@@ -146,6 +146,7 @@ func (s *server) startCronJob(ctx context.Context) {
 
 	// Use a WaitGroup to wait for goroutines to finish
 	s.Add(1)
+	logger.CreateLogInfo("startCronJob ...")
 
 	go func() {
 		defer s.Done()

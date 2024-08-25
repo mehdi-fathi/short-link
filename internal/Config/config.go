@@ -17,41 +17,41 @@ var ErrInvalidYamlFile = errors.New("invalid yaml file")
 
 // Config holds the app master configuration
 type Config struct {
-	HTTPPort     int           `yaml:"HTTP_PORT" envconfig:"HTTP_PORT"`
-	GRPCPort     int           `yaml:"GRPC_PORT" envconfig:"GRPC_PORT"`
-	RefererHost  string        `yaml:"REFERER_HOST" envconfig:"REFERER_HOST"`
-	HttpProtocol string        `yaml:"HTTP_PROTOCOL" envconfig:"HTTP_PROTOCOL"`
-	AppMod       string        `yaml:"APP_MOD" envconfig:"APP_MOD"`
-	HASHCODE     string        `yaml:"HASHCODE" envconfig:"HASHCODE"`
-	DB           DB            `yaml:"DB"`
-	QueueRabbit  QueueRabbit   `yaml:"QueueRabbit"`
-	Logger       logger.Config `yaml:"LOGGER"`
-	Redis        Redis         `yaml:"REDIS"`
-	AppPath      string        `yaml:"APP_PATH"`
+	HTTPPort     int    `envconfig:"HTTP_PORT"`
+	GRPCPort     int    `envconfig:"GRPC_PORT"`
+	RefererHost  string `envconfig:"REFERER_HOST"`
+	HttpProtocol string `envconfig:"HTTP_PROTOCOL"`
+	AppMod       string `envconfig:"APP_MOD"`
+	HASHCODE     string `envconfig:"HASHCODE"`
+	DB           DB
+	QueueRabbit  QueueRabbit
+	Graylog      logger.Graylog `envconfig:"LOGGER_GRAYLOG"`
+	Redis        Redis
+	AppPath      string
 }
 
 type DB struct {
-	Driver   string `yaml:"DRIVER" envconfig:"DRIVER"`
-	Host     string `yaml:"HOST" envconfig:"HOST"`
-	Port     int    `yaml:"PORT" envconfig:"PORT"`
-	User     string `yaml:"USER" envconfig:"USER"`
-	Password string `yaml:"PASSWORD" envconfig:"PASSWORD"`
-	Dbname   string `yaml:"DBNAME" envconfig:"DBNAME"`
+	Driver   string `envconfig:"DRIVER"`
+	Host     string `envconfig:"HOST"`
+	Port     int    `envconfig:"PORT"`
+	User     string `envconfig:"USER"`
+	Password string `envconfig:"PASSWORD"`
+	Dbname   string `envconfig:"DBNAME"`
 }
 
 type QueueRabbit struct {
-	MainQueueName string `yaml:"MAIN_QUEUE_NAME" envconfig:"MAIN_QUEUE_NAME"`
-	Host          string `yaml:"HOST" envconfig:"HOST"`
-	Port          int    `yaml:"PORT" envconfig:"PORT"`
-	User          string `yaml:"USER" `
-	Password      string `yaml:"PASSWORD" envconfig:"PASSWORD"`
+	MainQueueName string `envconfig:"MAIN_QUEUE_NAME"`
+	Host          string `envconfig:"HOST"`
+	Port          int    `envconfig:"PORT"`
+	User          string
+	Password      string `envconfig:"PASSWORD"`
 }
 
 type Redis struct {
-	HOST     string `yaml:"HOST" envconfig:"HOST"`
-	PORT     int    `yaml:"PORT" envconfig:"PORT"`
-	USEAUTH  bool   `yaml:"USE_AUTH" envconfig:"USE_AUTH"`
-	PASSWORD string `yaml:"PASSWORD" envconfig:"PASSWORD"`
+	HOST     string `envconfig:"HOST"`
+	PORT     int    `envconfig:"PORT"`
+	USEAUTH  bool   `envconfig:"USE_AUTH"`
+	PASSWORD string `envconfig:"PASSWORD"`
 }
 
 var ConfigHandy *Config
@@ -133,13 +133,13 @@ func LoadConfigEnvApp() *Config {
 }
 
 func LoadConfigApp() *Config {
-	// Default Config file based on the environment variable
+	// Default Graylog file based on the environment variable
 	defaultConfigFile := "config/config-local.yaml"
 	if env := os.Getenv("APP_MODE"); env != "" {
 		defaultConfigFile = fmt.Sprintf("config/config-%s.yaml", env)
 	}
 
-	// Load Master Config File
+	// Load Master Graylog File
 	var configFile string
 	flag.StringVar(&configFile, "config", defaultConfigFile, "The environment configuration file of application")
 	flag.Usage = usage

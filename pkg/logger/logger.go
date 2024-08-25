@@ -12,18 +12,18 @@ type StandardLogger struct {
 	*logrus.Logger
 }
 
-type Config struct {
-	LogLevel      string `yaml:"LOG_LEVEL" envconfig:"LOGGER_LEVEL"`
-	GrayLogActive bool   `yaml:"GRAYLOG_ACTIVE" envconfig:"LOGGER_GRAYLOG_ACTIVE"`
-	GrayLogServer string `yaml:"GRAYLOG_SERVER" envconfig:"LOGGER_GRAYLOG_SERVER"`
-	GrayLogStream string `yaml:"GRAYLOG_STREAM" envconfig:"LOGGER_GRAYLOG_STREAM"`
+type Graylog struct {
+	Level  string `envconfig:"LEVEL"`
+	Active bool   `envconfig:"ACTIVE"`
+	Server string `envconfig:"SERVER"`
+	Stream string `envconfig:"STREAM"`
 }
 
 var StandardLoggerVar *logrus.Logger
 
 // CreateLogger create an instance of logger
-func CreateLogger(cfg Config) *StandardLogger {
-	level, _ := logrus.ParseLevel(cfg.LogLevel)
+func CreateLogger(cfg Graylog) *StandardLogger {
+	level, _ := logrus.ParseLevel(cfg.Level)
 
 	logger := logrus.New()
 	logger.Out = os.Stdout
@@ -33,8 +33,8 @@ func CreateLogger(cfg Config) *StandardLogger {
 	})
 	logger.SetLevel(level)
 
-	if cfg.GrayLogActive {
-		hook := graylog.NewGraylogHook(cfg.GrayLogServer, map[string]interface{}{"stream": cfg.GrayLogStream})
+	if cfg.Active {
+		hook := graylog.NewGraylogHook(cfg.Server, map[string]interface{}{"stream": cfg.Stream})
 		logger.AddHook(hook)
 	}
 
@@ -45,8 +45,8 @@ func CreateLogger(cfg Config) *StandardLogger {
 }
 
 // DefaultLogger configs logrus default instance
-func DefaultLogger(cfg Config) {
-	level, _ := logrus.ParseLevel(cfg.LogLevel)
+func DefaultLogger(cfg Graylog) {
+	level, _ := logrus.ParseLevel(cfg.Level)
 	logrus.SetOutput(os.Stdout)
 	logrus.SetFormatter(&nested.Formatter{
 		FieldsOrder: []string{"hostname", "operation"},
@@ -54,8 +54,8 @@ func DefaultLogger(cfg Config) {
 	})
 	logrus.SetLevel(level)
 
-	if cfg.GrayLogActive {
-		hook := graylog.NewGraylogHook(cfg.GrayLogServer, map[string]interface{}{"stream": cfg.GrayLogStream})
+	if cfg.Active {
+		hook := graylog.NewGraylogHook(cfg.Server, map[string]interface{}{"stream": cfg.Stream})
 		logrus.AddHook(hook)
 	}
 }
