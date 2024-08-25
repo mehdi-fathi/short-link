@@ -235,13 +235,13 @@ func (service *Service) checkPendingLinks() int {
 	return 1
 }
 
-func (service *Service) SetUrl(link string) string {
+func (service *Service) SetUrl(link string) bool {
 
-	shortKey := service.createLink(link)
+	service.createLink(link)
 
 	service.publishQueue(link)
 
-	return shortKey
+	return true
 }
 
 func (service *Service) createLink(link string) string {

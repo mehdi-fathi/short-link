@@ -10,7 +10,7 @@ type LinkServiceInterface interface {
 	GetUrl(shortKey string) *Domin.Link
 	FindValidUrlByShortKey(shortKey string) *Domin.Link
 	UpdateStats(s *sync.WaitGroup, ctx context.Context) int
-	SetUrl(link string) string
+	SetUrl(link string) bool
 	//GetAllUrl() map[string]string
 	GetAllUrlV2() (map[int]*Domin.Link, error)
 	GenerateShortLink(count int, isActive bool) string

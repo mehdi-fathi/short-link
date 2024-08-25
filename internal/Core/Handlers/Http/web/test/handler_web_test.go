@@ -166,13 +166,14 @@ func TestHandleRedirectSuccess(t *testing.T) {
 
 	runTest(t, func(t *testing.T, handler *web.HandlerWeb, handlerMain *Infrastructure.Handler, router *gin.Engine, dbLayer *Db.Db) {
 
-		shortLink := handler.LinkService.SetUrl("https://www.google.com")
-
-		status := Domin.LINK_STATUS_APPROVE
-
-		handler.LinkService.UpdateStatusByLink(status, "https://www.google.com")
+		handler.LinkService.SetUrl("https://www.google.com")
 
 		router.GET("/short/:url", handler.HandleRedirect)
+
+		shortLink := handler.LinkService.GenerateShortLink(1, true)
+		status := Domin.LINK_STATUS_APPROVE
+
+		handler.LinkService.UpdateStatusShortKey(status, shortLink, "https://www.google.com")
 
 		// Create a new HTTP request with the form data
 		req, err := http.NewRequest(http.MethodGet, "/short/"+shortLink, nil)
