@@ -20,7 +20,7 @@ RUN go mod download
 COPY .. .
 
 # Copy the wait-for-it.sh script
-COPY ../wait-for-it.sh /wait-for-it.sh
+COPY wait-for-it.sh /wait-for-it.sh
 RUN chmod +x /wait-for-it.sh
 
 RUN go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
