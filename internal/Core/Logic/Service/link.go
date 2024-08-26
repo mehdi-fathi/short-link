@@ -39,7 +39,6 @@ func (linkService *LinkService) IntToBase62(num int) string {
 	return result
 }
 
-
 func (linkService *LinkService) GetUrl(shortKey string) *Domin.Link {
 
 	link, _ := linkService.LinkRepo.FindByShortKey(shortKey)

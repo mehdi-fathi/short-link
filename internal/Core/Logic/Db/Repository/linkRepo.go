@@ -3,17 +3,8 @@ package Repository
 import (
 	"database/sql"
 	"errors"
-	"short-link/internal/Config"
 	"short-link/internal/Core/Domin"
-	"short-link/internal/Core/Logic/Db"
-	"short-link/internal/Core/Ports"
 )
-
-// Db holds database connection to Postgres
-type Repository struct {
-	*Db.Db
-	Config *Config.Config
-}
 
 func (db *Repository) FindById(idIn int) (*Domin.Link, error) {
 
@@ -212,11 +203,4 @@ func (db *Repository) UpdateStatusShortKey(status string, shortKey string, link 
 
 	return id, err
 
-}
-
-func CreateLinkRepository(cfg *Config.Config, dbLayer *Db.Db) Ports.LinkRepositoryInterface {
-
-	Repo := &Repository{dbLayer, cfg}
-
-	return Repo
 }
