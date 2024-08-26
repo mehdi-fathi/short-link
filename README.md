@@ -14,9 +14,9 @@ I try to take advantage of substantial concept Golang, engineering and well-stru
 
 ## Tech Features
 
-- Shutdown gracefully
-- Memory Cache
-- Take advantage of go routine in stat and validate links
+- Shutdown gracefully GO app with all containers
+- Up project with docker
+- Take advantage of go routine in saving stat and validate links
 - Use redis for saving count visits
 - Event-Driven-Design: We used queue with go routines to validate all links right after create a new one. 
 - Hexagonal Architecture
@@ -33,9 +33,10 @@ I try to take advantage of substantial concept Golang, engineering and well-stru
 ### Steps to run
 
 1. **Clone the Repository**:
-2. `make build-docker` for first time.
-3. `make migration_up_v2`
+2. `cp .env.example .env.local`.
+3. `make build-docker` for first time.
 4. `make up`
+5. `make migration_up_v2`
 
 ### Step to shut down gracefully
 
