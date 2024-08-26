@@ -42,7 +42,7 @@ func CreateDependencies(cfg *Config.Config) dependencies {
 
 	queueMain = queue
 
-	var service = Service.CreateService(cfg, linkRepo, shortKeyRepo, cache, memCache, queue)
+	var service = Service.CreateLinkService(cfg, linkRepo, shortKeyRepo, cache, memCache, queue)
 
 	queue.Service = service
 

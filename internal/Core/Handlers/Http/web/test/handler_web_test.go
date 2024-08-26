@@ -68,7 +68,7 @@ func setupRouterAndHandler(cfg *Config.Config, db *Db.Db) (*web.HandlerWeb, *Inf
 	repoShortKey := Repository.CreateShortKeyRepository(cfg, db)
 
 	//httpHandler := &Handler{
-	//	Service: internal.CreateService(cfg),
+	//	LinkService: internal.CreateLinkService(cfg),
 	//}
 
 	cache := Cache.CreateCache(cfg)
@@ -77,13 +77,13 @@ func setupRouterAndHandler(cfg *Config.Config, db *Db.Db) (*web.HandlerWeb, *Inf
 
 	memCache := MemCache.CreateMemCache(cfg)
 
-	//Service := tt.initService()
+	//LinkService := tt.initService()
 	//var configServer ConfigModel
 
-	var ser = Service.CreateService(cfg, repoLink, repoShortKey, cache, memCache, queue)
+	var ser = Service.CreateLinkService(cfg, repoLink, repoShortKey, cache, memCache, queue)
 	handlerWeb := Infrastructure.CreateHandlerWeb(ser)
 	handler := Infrastructure.CreateHandlerMain()
-	//handler := CreateHandler(Service,bookstore.CreateService(nil))
+	//handler := CreateHandler(LinkService,bookstore.CreateLinkService(nil))
 	gin.SetMode(gin.TestMode)
 	gin.DefaultWriter = ioutil.Discard
 	router := gin.Default()

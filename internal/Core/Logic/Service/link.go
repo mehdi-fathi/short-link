@@ -5,11 +5,8 @@ import (
 	"fmt"
 	"github.com/pkg/errors"
 	"log"
-	"short-link/internal/Config"
 	"short-link/internal/Core/Domin"
-	"short-link/internal/Core/Ports"
 	"short-link/internal/Event"
-	"short-link/internal/Queue"
 	"short-link/pkg/logger"
 	"short-link/pkg/url"
 	"strconv"
@@ -17,22 +14,9 @@ import (
 	"time"
 )
 
-type UrlShortener struct {
-	Config *Config.Config
-}
-
-type Service struct {
-	Shortener    *UrlShortener
-	LinkRepo     Ports.LinkRepositoryInterface
-	ShortKeyRepo Ports.ShortKeyRepositoryInterface
-	Cache        Ports.CacheInterface
-	MemCache     Ports.MemCacheInterface
-	Queue        *Queue.Queue
-}
-
 const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
 
-func (service *Service) IntToBase62(num int) string {
+func (linkService *LinkService) IntToBase62(num int) string {
 	if num == 0 {
 		return string(charset[0])
 	}
@@ -55,44 +39,21 @@ func (service *Service) IntToBase62(num int) string {
 	return result
 }
 
-// CreateService creates an instance of membership interface with the necessary dependencies
-func CreateService(
-	cfg *Config.Config,
-	linkRepo Ports.LinkRepositoryInterface,
-	shortKeyRepo Ports.ShortKeyRepositoryInterface,
-	cache Ports.CacheInterface,
-	memCache Ports.MemCacheInterface,
-	queue *Queue.Queue,
-) Ports.LinkServiceInterface {
 
-	shortenerUrl := &UrlShortener{
-		Config: cfg,
-	}
+func (linkService *LinkService) GetUrl(shortKey string) *Domin.Link {
 
-	return &Service{
-		Shortener:    shortenerUrl,
-		LinkRepo:     linkRepo,
-		ShortKeyRepo: shortKeyRepo,
-		Cache:        cache,
-		MemCache:     memCache,
-		Queue:        queue,
-	}
-}
-
-func (service *Service) GetUrl(shortKey string) *Domin.Link {
-
-	link, _ := service.LinkRepo.FindByShortKey(shortKey)
+	link, _ := linkService.LinkRepo.FindByShortKey(shortKey)
 
 	if link != nil && link.Link != "" {
-		service.Cache.IncrBy(shortKey, 1)
+		linkService.Cache.IncrBy(shortKey, 1)
 	}
 
 	return link
 }
 
-func (service *Service) FindValidUrlByShortKey(shortKey string) *Domin.Link {
+func (linkService *LinkService) FindValidUrlByShortKey(shortKey string) *Domin.Link {
 
-	link := service.GetUrl(shortKey)
+	link := linkService.GetUrl(shortKey)
 
 	if link != nil && link.Status == Domin.LINK_STATUS_APPROVE {
 		// Redirect the user to the original URL
@@ -102,7 +63,7 @@ func (service *Service) FindValidUrlByShortKey(shortKey string) *Domin.Link {
 	return link
 }
 
-func (service *Service) UpdateStats(wg *sync.WaitGroup, ctx context.Context) int {
+func (linkService *LinkService) UpdateStats(wg *sync.WaitGroup, ctx context.Context) int {
 
 	var bunchOfLinks map[int]*Domin.Link
 
@@ -121,7 +82,7 @@ func (service *Service) UpdateStats(wg *sync.WaitGroup, ctx context.Context) int
 			start = counter * limit
 		}
 
-		bunchOfLinks, _ = service.LinkRepo.GetChunk(start, limit, "approve")
+		bunchOfLinks, _ = linkService.LinkRepo.GetChunk(start, limit, "approve")
 
 		if bunchOfLinks[0] != nil {
 
@@ -131,11 +92,11 @@ func (service *Service) UpdateStats(wg *sync.WaitGroup, ctx context.Context) int
 			//time.Sleep(20 * time.Second)
 
 			// Goroutine 1
-			go service.updateStatusWorker(wg, ctx, bunchOfLinks, linkCh)
+			go linkService.updateStatusWorker(wg, ctx, bunchOfLinks, linkCh)
 
 			wg.Add(1)
 			// Goroutine 2
-			go service.updateStatWorker(wg, linkCh)
+			go linkService.updateStatWorker(wg, linkCh)
 
 		}
 
@@ -151,7 +112,7 @@ func (service *Service) UpdateStats(wg *sync.WaitGroup, ctx context.Context) int
 	return 1
 }
 
-func (service *Service) updateStatusWorker(wg *sync.WaitGroup, ctx context.Context, bunchOfLinks map[int]*Domin.Link, ch chan *Domin.Link) {
+func (linkService *LinkService) updateStatusWorker(wg *sync.WaitGroup, ctx context.Context, bunchOfLinks map[int]*Domin.Link, ch chan *Domin.Link) {
 
 	defer wg.Done()
 
@@ -172,7 +133,7 @@ func (service *Service) updateStatusWorker(wg *sync.WaitGroup, ctx context.Conte
 		}
 
 		if data.Status != status {
-			service.LinkRepo.UpdateStatus(status, data.Link)
+			linkService.LinkRepo.UpdateStatus(status, data.Link)
 		}
 
 		if data.Status == Domin.LINK_STATUS_APPROVE {
@@ -185,39 +146,39 @@ func (service *Service) updateStatusWorker(wg *sync.WaitGroup, ctx context.Conte
 
 }
 
-func (service *Service) updateStatWorker(wg *sync.WaitGroup, ch chan *Domin.Link) {
+func (linkService *LinkService) updateStatWorker(wg *sync.WaitGroup, ch chan *Domin.Link) {
 	defer wg.Done()
 	fmt.Println("Goroutine updateStatWorker receiving data...")
 	data := <-ch // Receive data from the channel
 	fmt.Println("Goroutine updateStatWorker received data:", data)
 
-	hget, _ := service.Cache.Get(data.ShortKey)
+	hget, _ := linkService.Cache.Get(data.ShortKey)
 
 	fmt.Println("Goroutine updateStatWorker hget:", hget)
 
 	visitCache, _ := strconv.Atoi(hget)
 
 	if visitCache > data.Visit {
-		service.LinkRepo.UpdateVisit(visitCache, data.ShortKey)
+		linkService.LinkRepo.UpdateVisit(visitCache, data.ShortKey)
 		logger.CreateLogInfo(fmt.Sprintf("Updated %wg : visit :%v", data.ShortKey, visitCache))
 	}
 }
 
-func (service *Service) UpdateStatusByLink(status string, link string) {
+func (linkService *LinkService) UpdateStatusByLink(status string, link string) {
 
-	service.LinkRepo.UpdateStatus(status, link)
-
-}
-
-func (service *Service) UpdateStatusShortKey(status string, shortKey string, link string) {
-
-	service.LinkRepo.UpdateStatusShortKey(status, shortKey, link)
+	linkService.LinkRepo.UpdateStatus(status, link)
 
 }
 
-func (service *Service) checkPendingLinks() int {
+func (linkService *LinkService) UpdateStatusShortKey(status string, shortKey string, link string) {
 
-	all, _ := service.LinkRepo.GetByStatus("pending")
+	linkService.LinkRepo.UpdateStatusShortKey(status, shortKey, link)
+
+}
+
+func (linkService *LinkService) checkPendingLinks() int {
+
+	all, _ := linkService.LinkRepo.GetByStatus("pending")
 
 	var status string
 	for _, data := range all {
@@ -229,24 +190,24 @@ func (service *Service) checkPendingLinks() int {
 			status = "reject"
 		}
 
-		service.LinkRepo.UpdateStatus(status, data.ShortKey)
+		linkService.LinkRepo.UpdateStatus(status, data.ShortKey)
 
 	}
 	return 1
 }
 
-func (service *Service) SetUrl(link string) bool {
+func (linkService *LinkService) SetUrl(link string) bool {
 
-	service.createLink(link)
+	linkService.createLink(link)
 
-	service.publishQueue(link)
+	linkService.publishQueue(link)
 
 	return true
 }
 
-func (service *Service) createLink(link string) string {
+func (linkService *LinkService) createLink(link string) string {
 
-	_, err := service.LinkRepo.Create(link, "")
+	_, err := linkService.LinkRepo.Create(link, "")
 
 	if err != nil {
 		log.Fatal(errors.Wrap(err, "DB has an errorMsg."))
@@ -254,30 +215,30 @@ func (service *Service) createLink(link string) string {
 	return ""
 }
 
-func (service *Service) publishQueue(link string) {
+func (linkService *LinkService) publishQueue(link string) {
 	var data = make(map[string]string)
 
 	data["link"] = link
 
 	event := Event.Event{Type: Event.CreateLink, Data: data}
 
-	ch, err := service.Queue.Connection.Channel()
+	ch, err := linkService.Queue.Connection.Channel()
 
 	if err != nil {
 		log.Fatal(errors.Wrap(err, "Queue has an errorMsg."))
 	}
 
-	service.Queue.Publish(ch, service.Shortener.Config.QueueRabbit.MainQueueName, event)
+	linkService.Queue.Publish(ch, linkService.Config.QueueRabbit.MainQueueName, event)
 }
 
-//func (Service *Service) GetAllUrl() map[string]string {
-//	//return Service.Shortener.Urls
-//	return Service.LinkRepo.GetAll()
+//func (LinkService *LinkService) GetAllUrl() map[string]string {
+//	//return LinkService.Shortener.Urls
+//	return LinkService.LinkRepo.GetAll()
 //}
 
-func (service *Service) GetAllUrlV2() (map[int]*Domin.Link, error) {
-	//return Service.Shortener.Urls
-	data, err := service.LinkRepo.GetAll()
+func (linkService *LinkService) GetAllUrlV2() (map[int]*Domin.Link, error) {
+	//return LinkService.Shortener.Urls
+	data, err := linkService.LinkRepo.GetAll()
 
 	// Convert to a slice of interfaces
 	var myInterfaceSlice []interface{}
@@ -287,13 +248,13 @@ func (service *Service) GetAllUrlV2() (map[int]*Domin.Link, error) {
 
 	//service.GenerateShortLink()
 
-	service.MemCache.SetSlice("list", myInterfaceSlice, 5*time.Minute)
+	linkService.MemCache.SetSlice("list", myInterfaceSlice, 5*time.Minute)
 
 	return data, err
 }
 
-func (service *Service) GenerateShortLink(count int, isActive bool) string {
-	ShortKey, _ := service.ShortKeyRepo.GetLast()
+func (linkService *LinkService) GenerateShortLink(count int, isActive bool) string {
+	ShortKey, _ := linkService.ShortKeyRepo.GetLast()
 
 	lastId := 1
 	if ShortKey != nil {
@@ -305,9 +266,9 @@ func (service *Service) GenerateShortLink(count int, isActive bool) string {
 	for i := lastId; i < lastId+count; i++ { // Generate first 100 unique IDs as an example
 		//log.Println(h.LinkService.IntToBase62(i))
 
-		shortLink = service.IntToBase62(int(i))
+		shortLink = linkService.IntToBase62(int(i))
 
-		service.ShortKeyRepo.Create(int(i), shortLink, isActive)
+		linkService.ShortKeyRepo.Create(int(i), shortLink, isActive)
 
 		//logger.CreateLogInfo(h.LinkService.IntToBase62(i))
 	}
@@ -315,9 +276,9 @@ func (service *Service) GenerateShortLink(count int, isActive bool) string {
 	return shortLink
 }
 
-func (service *Service) GetAllLinkApi() ([]interface{}, error) {
-	//return Service.Shortener.Urls
-	data, err := service.LinkRepo.GetAll()
+func (linkService *LinkService) GetAllLinkApi() ([]interface{}, error) {
+	//return LinkService.Shortener.Urls
+	data, err := linkService.LinkRepo.GetAll()
 
 	// Convert to a slice of interfaces
 	var myInterfaceSlice []interface{}
@@ -330,14 +291,14 @@ func (service *Service) GetAllLinkApi() ([]interface{}, error) {
 	//todo use serializer here and make full url in seprated field in serilizer
 
 	// Try to get data from cache
-	if dataMem, found := service.MemCache.GetSlice("list"); found {
+	if dataMem, found := linkService.MemCache.GetSlice("list"); found {
 		return dataMem, nil
 	}
 
 	return dataMem, err
 }
 
-func (service *Service) VerifyLinkIsValid(link string) string {
+func (linkService *LinkService) VerifyLinkIsValid(link string) string {
 	status := Domin.LINK_STATUS_APPROVE
 	if !url.CheckURL(link) {
 		logger.CreateLogInfo(fmt.Sprintf("[*] Queue Rejected link :%s", link))
@@ -345,11 +306,11 @@ func (service *Service) VerifyLinkIsValid(link string) string {
 	}
 
 	if status == Domin.LINK_STATUS_APPROVE {
-		short_key := service.GenerateShortLink(1, true)
+		short_key := linkService.GenerateShortLink(1, true)
 
-		service.UpdateStatusShortKey(status, short_key, link)
+		linkService.UpdateStatusShortKey(status, short_key, link)
 	} else {
-		service.UpdateStatusByLink(status, link)
+		linkService.UpdateStatusByLink(status, link)
 	}
 	return status
 }
