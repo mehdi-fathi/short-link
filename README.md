@@ -40,4 +40,4 @@ I try to take advantage of substantial concept Golang, engineering and well-stru
 
 ### Step to shut down gracefully
 
-`make down`
+- `make down`
