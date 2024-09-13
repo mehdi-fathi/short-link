@@ -1,6 +1,7 @@
 package Serialization
 
 import (
+	"fmt"
 	"short-link/internal/Config"
 	"short-link/internal/Core/Domin"
 	"time"
@@ -10,33 +11,42 @@ import (
 type LinkSerialized struct {
 	*Domin.Link
 	UrlShort string
+	UpdatedAt string
 }
 
 func DeserializeLink(link *Domin.Link) *LinkSerialized {
 
 	var dataLinkSerialized LinkSerialized
+	dataLinkSerialized.Link = link
 
 	// Example transformation: parsing a timestamp string to time.Time
 	// Assuming link has a LastLogin field which is a string timestamp in the database
-	if link.UpdatedAt != "" {
-		parsedTime, err := time.Parse(time.RFC3339, link.UpdatedAt)
+	// Check if UpdatedAt is valid before parsing and formatting
+	if link.UpdatedAt.Valid {
+		parsedTime := link.UpdatedAt.Time // Directly use the Time from sql.NullTime
+
+		// Format the time to your desired format
+		dataLinkSerialized.UpdatedAt = parsedTime.Format(`2006-01-02 15:04:05`) // Correct date format (YYYY-MM-DD HH:MM:SS)
+
+		// Optionally assign the Link struct to the serialized data
 		dataLinkSerialized.Link = link
-		if err == nil {
-			dataLinkSerialized.UpdatedAt = parsedTime.Format(`2006-02-01 15:04:05`) // Assuming ParsedLastLogin is a time.Time field
-		}
+	} else {
+		// Handle the case when UpdatedAt is null
+		fmt.Println("UpdatedAt is null")
+		dataLinkSerialized.UpdatedAt = "-" // Or any default value you prefer
 	}
+
 
 	// Example transformation: parsing a timestamp string to time.Time
 	// Assuming link has a LastLogin field which is a string timestamp in the database
 	if link.CreatedAt != "" {
 		parsedTime, err := time.Parse(time.RFC3339, link.CreatedAt)
-		dataLinkSerialized.Link = link
 		if err == nil {
 			dataLinkSerialized.CreatedAt = parsedTime.Format(`2006-02-01 15:04:05`) // Assuming ParsedLastLogin is a time.Time field
 		}
 	}
 
-	if link.ShortKey != "" {
+	if link.ShortKey != ""{
 		dataLinkSerialized.UrlShort = Config.GetBaseUrl() + "/short/" + link.ShortKey
 	}
 

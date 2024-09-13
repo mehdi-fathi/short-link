@@ -135,7 +135,7 @@ func (linkService *LinkService) updateStatusWorker(wg *sync.WaitGroup, ctx conte
 			linkService.LinkRepo.UpdateStatus(status, data.Link)
 		}
 
-		if data.Status == Domin.LINK_STATUS_APPROVE {
+		if status == Domin.LINK_STATUS_APPROVE {
 			fmt.Println("Goroutine updateStatusWorker send data...")
 			ch <- data // Send data to the channel
 		}
@@ -230,11 +230,6 @@ func (linkService *LinkService) publishQueue(link string) {
 	linkService.Queue.Publish(ch, linkService.Config.QueueRabbit.MainQueueName, event)
 }
 
-//func (LinkService *LinkService) GetAllUrl() map[string]string {
-//	//return LinkService.Shortener.Urls
-//	return LinkService.LinkRepo.GetAll()
-//}
-
 func (linkService *LinkService) GetAllUrlV2() (map[int]*Domin.Link, error) {
 	//return LinkService.Shortener.Urls
 	data, err := linkService.LinkRepo.GetAll()
@@ -263,13 +258,8 @@ func (linkService *LinkService) GenerateShortLink(count int, isActive bool) stri
 	var shortLink string
 
 	for i := lastId; i < lastId+count; i++ { // Generate first 100 unique IDs as an example
-		//log.Println(h.LinkService.IntToBase62(i))
-
 		shortLink = linkService.IntToBase62(int(i))
-
 		linkService.ShortKeyRepo.Create(int(i), shortLink, isActive)
-
-		//logger.CreateLogInfo(h.LinkService.IntToBase62(i))
 	}
 
 	return shortLink
@@ -298,18 +288,31 @@ func (linkService *LinkService) GetAllLinkApi() ([]interface{}, error) {
 }
 
 func (linkService *LinkService) VerifyLinkIsValid(link string) string {
+	status := getStatusCheckUrl(link)
+
+	linkService.UpdateFinalLinkByStatus(link, status)
+	return status
+}
+
+func (linkService *LinkService) UpdateFinalLinkByStatus(link string, status string) {
+	if status == Domin.LINK_STATUS_APPROVE {
+		linkService.approveLink(link, status)
+	} else {
+		linkService.UpdateStatusByLink(status, link)
+	}
+}
+
+func (linkService *LinkService) approveLink(link string, status string) {
+	shortKey := linkService.GenerateShortLink(1, true)
+
+	linkService.UpdateStatusShortKey(status, shortKey, link)
+}
+
+func getStatusCheckUrl(link string) string {
 	status := Domin.LINK_STATUS_APPROVE
 	if !url.CheckURL(link) {
 		logger.CreateLogInfo(fmt.Sprintf("[*] Queue Rejected link :%s", link))
 		status = Domin.Link_STATUS_REJECT
-	}
-
-	if status == Domin.LINK_STATUS_APPROVE {
-		short_key := linkService.GenerateShortLink(1, true)
-
-		linkService.UpdateStatusShortKey(status, short_key, link)
-	} else {
-		linkService.UpdateStatusByLink(status, link)
 	}
 	return status
 }

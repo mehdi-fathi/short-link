@@ -8,19 +8,10 @@ import (
 	"github.com/streadway/amqp"
 	"log"
 	"short-link/internal/Config"
-	service_interface "short-link/internal/Core/Ports"
 	"short-link/internal/Event"
 	"short-link/pkg/logger"
 	"time"
 )
-
-//todo make interface
-
-type Queue struct {
-	Connection *amqp.Connection
-	cfg        *Config.Config
-	Service    service_interface.LinkServiceInterface
-}
 
 func CreateConnection(cfg *Config.Config) *amqp.Connection {
 
@@ -102,17 +93,6 @@ func (qu *Queue) Publish(ch *amqp.Channel, queueName string, event Event.Event) 
 	logger.CreateLogInfo(fmt.Sprintf("Successfully published message - Queue status: %v", queue))
 }
 
-func CreateQueue(cfg *Config.Config) *Queue {
-
-	queue := &Queue{
-		Connection: CreateConnection(cfg),
-		cfg:        cfg,
-		Service:    nil,
-	}
-
-	return queue
-}
-
 // ConsumeEvents listens for messages on a RabbitMQ queue and processes them
 func (qu *Queue) ConsumeEvents(ctx context.Context, queueName string) {
 
@@ -145,12 +125,10 @@ func (qu *Queue) listenEvents(ctx context.Context, msgs <-chan amqp.Delivery) {
 			logger.CreateLogInfo(" [*] Queue Received a message")
 
 			event, err := unmarshalMsgEvent(msg)
-
 			if err != nil {
-				logger.CreateLogError(fmt.Sprintf("Error decoding event: %s", err))
-				msg.Nack(false, true) // negative acknowledgment, requeue the message
 				continue
 			}
+
 			// Create a new context with a timeout for the processing
 			procCtx, cancelProc := context.WithTimeout(ctx, 10*time.Second)
 			defer cancelProc()
@@ -166,6 +144,11 @@ func unmarshalMsgEvent(msg amqp.Delivery) (Event.Event, error) {
 
 	if len(msg.Body) == 0 {
 		err = errors.New("Event Msg is empty")
+	}
+
+	if err != nil {
+		logger.CreateLogError(fmt.Sprintf("Error decoding event: %s", err))
+		msg.Nack(false, true) // negative acknowledgment, requeue the message
 	}
 
 	return event, err
