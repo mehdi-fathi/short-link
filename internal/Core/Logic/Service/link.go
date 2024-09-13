@@ -177,7 +177,7 @@ func (linkService *LinkService) UpdateStatusShortKey(status string, shortKey str
 
 func (linkService *LinkService) checkPendingLinks() int {
 
-	all, _ := linkService.LinkRepo.GetByStatus("pending")
+	all, _ := linkService.LinkRepo.GetByStatus(Domin.LINK_STATUS_PENDING)
 
 	var status string
 	for _, data := range all {

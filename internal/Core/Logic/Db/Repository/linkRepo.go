@@ -114,7 +114,7 @@ func (db *Repository) GetByStatus(status string) (map[int]*Domin.Link, error) {
 	q := `SELECT * 
 		  FROM links
 		  where status = $1
-		   limit 100;`
+		  limit 100;`
 
 	rows, _ := db.Sql.Query(q, status)
 
