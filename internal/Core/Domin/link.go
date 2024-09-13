@@ -1,12 +1,14 @@
 package Domin
 
+import "database/sql"
+
 // Character is one character from the database.
 type Link struct {
 	ID        int64
 	Link      string
 	ShortKey  string
 	Visit     int
-	UpdatedAt string
+	UpdatedAt sql.NullTime
 	Status    string
 	CreatedAt string
 }
