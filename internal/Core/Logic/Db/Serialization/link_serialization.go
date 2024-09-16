@@ -22,23 +22,23 @@ func DeserializeLink(link *Domin.Link) *LinkSerialized {
 	// Example transformation: parsing a timestamp string to time.Time
 	// Assuming link has a LastLogin field which is a string timestamp in the database
 	// Check if UpdatedAt is valid before parsing and formatting
-	setUpdatedAtData(link, dataLinkSerialized)
+	setUpdatedAtData(link, &dataLinkSerialized)
 
-	setCreatedAtData(link, dataLinkSerialized)
+	setCreatedAtData(link, &dataLinkSerialized)
 
-	setShortKeyData(link, dataLinkSerialized)
+	setShortKeyData(link, &dataLinkSerialized)
 
 	return &dataLinkSerialized
 	// Add other transformations as needed
 }
 
-func setShortKeyData(link *Domin.Link, dataLinkSerialized LinkSerialized) {
+func setShortKeyData(link *Domin.Link, dataLinkSerialized *LinkSerialized) {
 	if link.ShortKey != "" {
 		dataLinkSerialized.UrlShort = Config.GetBaseUrl() + "/short/" + link.ShortKey
 	}
 }
 
-func setCreatedAtData(link *Domin.Link, dataLinkSerialized LinkSerialized) {
+func setCreatedAtData(link *Domin.Link, dataLinkSerialized *LinkSerialized) {
 	// Example transformation: parsing a timestamp string to time.Time
 	// Assuming link has a LastLogin field which is a string timestamp in the database
 	if link.CreatedAt != "" {
@@ -49,7 +49,7 @@ func setCreatedAtData(link *Domin.Link, dataLinkSerialized LinkSerialized) {
 	}
 }
 
-func setUpdatedAtData(link *Domin.Link, dataLinkSerialized LinkSerialized) {
+func setUpdatedAtData(link *Domin.Link, dataLinkSerialized *LinkSerialized) {
 	if link.UpdatedAt.Valid {
 		parsedTime := link.UpdatedAt.Time // Directly use the Time from sql.NullTime
 
