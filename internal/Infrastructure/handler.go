@@ -14,14 +14,7 @@ import (
 )
 
 type Handler struct {
-	VersionInfo struct {
-		GitCommit string
-		BuildTime string
-		StartTime time.Time
-	}
-	loggerInstance *logger.StandardLogger
-	HTTPServer     *http.Server
-	LinkService    service_interface.LinkServiceInterface
+	HTTPServer *http.Server
 }
 
 // CreateHandler Creates a new instance of REST handler
@@ -32,8 +25,23 @@ func CreateHandler(linkService service_interface.LinkServiceInterface) *rest.Han
 }
 
 // CreateHandler Creates a new instance of REST handler
-func CreateHandlerMain() *Handler {
-	return &Handler{}
+func CreateHandlerMain(r *gin.Engine, defaultPort int) *Handler {
+
+	const op = "http.rest.start"
+
+	addr := fmt.Sprintf(":%d", defaultPort)
+
+	HTTPServer := &http.Server{
+		Addr:    addr,
+		Handler: r,
+		// Good practice to set timeouts to avoid Slowloris attacks.
+		WriteTimeout: time.Second * 15,
+		ReadTimeout:  time.Second * 15,
+		IdleTimeout:  time.Second * 60,
+	}
+	return &Handler{
+		HTTPServer: HTTPServer,
+	}
 }
 
 // CreateHandler Creates a new instance of REST handler
@@ -44,19 +52,9 @@ func CreateHandlerWeb(linkService service_interface.LinkServiceInterface) *web.H
 }
 
 // Start starts the http server
-func (h *Handler) Start(r *gin.Engine, defaultPort int) {
+func (h *Handler) Start() {
+
 	const op = "http.rest.start"
-
-	addr := fmt.Sprintf(":%d", defaultPort)
-
-	h.HTTPServer = &http.Server{
-		Addr:    addr,
-		Handler: r,
-		// Good practice to set timeouts to avoid Slowloris attacks.
-		WriteTimeout: time.Second * 15,
-		ReadTimeout:  time.Second * 15,
-		IdleTimeout:  time.Second * 60,
-	}
 
 	//h.Graylog.Infof("[OK] Starting HTTP REST Server on %s ", addr)
 	err := h.HTTPServer.ListenAndServe()

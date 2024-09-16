@@ -10,7 +10,7 @@ import (
 // Character is one character from the database.
 type LinkSerialized struct {
 	*Domin.Link
-	UrlShort string
+	UrlShort  string
 	UpdatedAt string
 }
 
@@ -22,6 +22,34 @@ func DeserializeLink(link *Domin.Link) *LinkSerialized {
 	// Example transformation: parsing a timestamp string to time.Time
 	// Assuming link has a LastLogin field which is a string timestamp in the database
 	// Check if UpdatedAt is valid before parsing and formatting
+	setUpdatedAtData(link, &dataLinkSerialized)
+
+	setCreatedAtData(link, &dataLinkSerialized)
+
+	setShortKeyData(link, &dataLinkSerialized)
+
+	return &dataLinkSerialized
+	// Add other transformations as needed
+}
+
+func setShortKeyData(link *Domin.Link, dataLinkSerialized *LinkSerialized) {
+	if link.ShortKey != "" {
+		dataLinkSerialized.UrlShort = Config.GetBaseUrl() + "/short/" + link.ShortKey
+	}
+}
+
+func setCreatedAtData(link *Domin.Link, dataLinkSerialized *LinkSerialized) {
+	// Example transformation: parsing a timestamp string to time.Time
+	// Assuming link has a LastLogin field which is a string timestamp in the database
+	if link.CreatedAt != "" {
+		parsedTime, err := time.Parse(time.RFC3339, link.CreatedAt)
+		if err == nil {
+			dataLinkSerialized.CreatedAt = parsedTime.Format(`2006-02-01 15:04:05`) // Assuming ParsedLastLogin is a time.Time field
+		}
+	}
+}
+
+func setUpdatedAtData(link *Domin.Link, dataLinkSerialized *LinkSerialized) {
 	if link.UpdatedAt.Valid {
 		parsedTime := link.UpdatedAt.Time // Directly use the Time from sql.NullTime
 
@@ -35,23 +63,6 @@ func DeserializeLink(link *Domin.Link) *LinkSerialized {
 		fmt.Println("UpdatedAt is null")
 		dataLinkSerialized.UpdatedAt = "-" // Or any default value you prefer
 	}
-
-
-	// Example transformation: parsing a timestamp string to time.Time
-	// Assuming link has a LastLogin field which is a string timestamp in the database
-	if link.CreatedAt != "" {
-		parsedTime, err := time.Parse(time.RFC3339, link.CreatedAt)
-		if err == nil {
-			dataLinkSerialized.CreatedAt = parsedTime.Format(`2006-02-01 15:04:05`) // Assuming ParsedLastLogin is a time.Time field
-		}
-	}
-
-	if link.ShortKey != ""{
-		dataLinkSerialized.UrlShort = Config.GetBaseUrl() + "/short/" + link.ShortKey
-	}
-
-	return &dataLinkSerialized
-	// Add other transformations as needed
 }
 
 func DeserializeAllLink(link map[int]*Domin.Link) map[int]*LinkSerialized {

@@ -8,12 +8,10 @@ import (
 	"short-link/internal/Core/Logic/Db/Serialization"
 	service_interface "short-link/internal/Core/Ports"
 	"short-link/pkg/errorMsg"
-	"short-link/pkg/logger"
 )
 
 type HandlerWeb struct {
-	loggerInstance *logger.StandardLogger
-	LinkService    service_interface.LinkServiceInterface
+	LinkService service_interface.LinkServiceInterface
 }
 
 func (h *HandlerWeb) HandleIndex(c *gin.Context) {

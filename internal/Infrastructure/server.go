@@ -35,7 +35,7 @@ func NewServer(startTime time.Time) *server {
 	}
 }
 
-// StartApp is responsible for app initialization and wrapping required dependencies
+// StartApp is responsible for app initialization and wrapping required handlerDependencies
 func (s *server) StartApp() error {
 
 	s.injectServerDependencies()
@@ -52,20 +52,14 @@ func (s *server) injectServerDependencies() {
 
 	//cfg := Graylog.LoadConfigApp()
 
-	cfg := Config.LoadConfigEnvApp()
-	initLogger(cfg)
+	cfg := createConfigDependency()
 
-	dependencies := CreateDependencies(cfg)
+	dependencies := CreateHandlerDependencies(cfg)
 
 	s.Handler = dependencies.Handler
 	s.Config = cfg
 	s.RESTHandler = dependencies.HandlerRest
 	s.WebHandler = dependencies.HandlerWeb
-}
-
-func initLogger(cfg *Config.Config) {
-	loggerInstance := logger.CreateLogger(cfg.Graylog)
-	loggerInstance.Info("[OK] Graylog Configured")
 }
 
 func (s *server) shutdownListener() {
@@ -106,13 +100,11 @@ func (s *server) mainStartHttp(cancel context.CancelFunc) {
 }
 
 func (s *server) startHttp() {
-	// Create Router for HTTP server
-	router := SetupRouter(s.RESTHandler, s.WebHandler)
 
 	// Start GRPC server in go-routine
 	//go s.GRPCHandler.Start(ctx, s.Graylog.GRPCPort)
 	// Start REST server in Blocking mode
-	s.Handler.Start(router, s.Config.HTTPPort)
+	s.Handler.Start()
 
 }
 
@@ -137,7 +129,7 @@ func (s *server) startListenEvents(ctx context.Context) {
 	go func() {
 		defer s.Done()
 		// Start the consumer
-		queueMain.ConsumeEvents(ctx, s.Config.QueueRabbit.MainQueueName)
+		getQueue().ConsumeEvents(ctx, s.Config.QueueRabbit.MainQueueName)
 	}()
 }
 
