@@ -48,8 +48,13 @@ func CreateHandlerDependencies(cfg *Config.Config) handlerDependencies {
 	setServiceForQueue(queue, linkService)
 
 	HandlerRest := CreateHandler(linkService)
-	HandlerMain := CreateHandlerMain()
+
 	handlerWeb := CreateHandlerWeb(linkService)
+
+	router := SetupRouter(HandlerRest, handlerWeb)
+
+	// Create Router for HTTP server
+	HandlerMain := CreateHandlerMain(router, cfg.HTTPPort)
 
 	return handlerDependencies{
 		HandlerMain,

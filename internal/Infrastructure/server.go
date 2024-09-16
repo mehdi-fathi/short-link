@@ -100,13 +100,11 @@ func (s *server) mainStartHttp(cancel context.CancelFunc) {
 }
 
 func (s *server) startHttp() {
-	// Create Router for HTTP server
-	router := SetupRouter(s.RESTHandler, s.WebHandler)
 
 	// Start GRPC server in go-routine
 	//go s.GRPCHandler.Start(ctx, s.Graylog.GRPCPort)
 	// Start REST server in Blocking mode
-	s.Handler.Start(router, s.Config.HTTPPort)
+	s.Handler.Start()
 
 }
 
