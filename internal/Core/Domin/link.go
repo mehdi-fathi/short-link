@@ -8,8 +8,8 @@ type Link struct {
 	Link      string
 	ShortKey  string
 	Visit     int
-	UpdatedAt sql.NullTime
 	Status    string
+	UpdatedAt sql.NullTime
 	CreatedAt string
 }
 
