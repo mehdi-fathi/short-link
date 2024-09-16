@@ -16,7 +16,6 @@ import (
 )
 
 var queueMain *Queue.Queue
-var cfg *Config.Config
 
 type handlerDependencies struct {
 	Handler     *Handler
@@ -47,7 +46,7 @@ func CreateHandlerDependencies(cfg *Config.Config) handlerDependencies {
 
 	setServiceForQueue(queue, linkService)
 
-	HandlerRest := CreateHandler(linkService)
+	HandlerRest := CreateHandlerRest(linkService)
 
 	handlerWeb := CreateHandlerWeb(linkService)
 
