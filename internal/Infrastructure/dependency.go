@@ -25,16 +25,9 @@ type handlerDependencies struct {
 
 func CreateHandlerDependencies(cfg *Config.Config) handlerDependencies {
 
-	// connect to DB first
-	var errDb error
-	dbLayer := Db.CreateDb(cfg)
-	_, errDb = dbLayer.ConnectDB()
-	if errDb != nil {
-		log.Fatalf("failed to start the server: %v", errDb)
-	}
+	dbLayer := connectDbDependency(cfg)
 
-	linkRepo := Repository.CreateLinkRepository(cfg, dbLayer)
-	shortKeyRepo := Repository.CreateShortKeyRepository(cfg, dbLayer)
+	linkRepo, shortKeyRepo := createRepoDependency(cfg, dbLayer)
 
 	cache := Cache.CreateCache(cfg)
 
@@ -61,6 +54,23 @@ func CreateHandlerDependencies(cfg *Config.Config) handlerDependencies {
 		handlerWeb,
 	}
 
+}
+
+func createRepoDependency(cfg *Config.Config, dbLayer *Db.Db) (Ports.LinkRepositoryInterface, Ports.ShortKeyRepositoryInterface) {
+	linkRepo := Repository.CreateLinkRepository(cfg, dbLayer)
+	shortKeyRepo := Repository.CreateShortKeyRepository(cfg, dbLayer)
+	return linkRepo, shortKeyRepo
+}
+
+func connectDbDependency(cfg *Config.Config) *Db.Db {
+	// connect to DB first
+	var errDb error
+	dbLayer := Db.CreateDb(cfg)
+	_, errDb = dbLayer.ConnectDB()
+	if errDb != nil {
+		log.Fatalf("failed to start the server: %v", errDb)
+	}
+	return dbLayer
 }
 
 func createConfigDependency() *Config.Config {

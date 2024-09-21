@@ -24,7 +24,7 @@ func CreateHandlerRest(linkService service_interface.LinkServiceInterface) *rest
 	}
 }
 
-// CreateHandlerRest Creates a new instance of REST handler
+// CreateHandlerMain Creates a new instance of HTTP handler
 func CreateHandlerMain(r *gin.Engine, defaultPort int) *Handler {
 
 	const op = "http.rest.start"
@@ -44,7 +44,7 @@ func CreateHandlerMain(r *gin.Engine, defaultPort int) *Handler {
 	}
 }
 
-// CreateHandlerRest Creates a new instance of REST handler
+// CreateHandlerWeb Creates a new instance of web handler
 func CreateHandlerWeb(linkService service_interface.LinkServiceInterface) *web.HandlerWeb {
 	return &web.HandlerWeb{
 		LinkService: linkService,
