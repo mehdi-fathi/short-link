@@ -17,14 +17,14 @@ type Handler struct {
 	HTTPServer *http.Server
 }
 
-// CreateHandler Creates a new instance of REST handler
-func CreateHandler(linkService service_interface.LinkServiceInterface) *rest.HandlerRest {
+// CreateHandlerRest Creates a new instance of REST handler
+func CreateHandlerRest(linkService service_interface.LinkServiceInterface) *rest.HandlerRest {
 	return &rest.HandlerRest{
 		LinkService: linkService,
 	}
 }
 
-// CreateHandler Creates a new instance of REST handler
+// CreateHandlerMain Creates a new instance of HTTP handler
 func CreateHandlerMain(r *gin.Engine, defaultPort int) *Handler {
 
 	const op = "http.rest.start"
@@ -44,7 +44,7 @@ func CreateHandlerMain(r *gin.Engine, defaultPort int) *Handler {
 	}
 }
 
-// CreateHandler Creates a new instance of REST handler
+// CreateHandlerWeb Creates a new instance of web handler
 func CreateHandlerWeb(linkService service_interface.LinkServiceInterface) *web.HandlerWeb {
 	return &web.HandlerWeb{
 		LinkService: linkService,

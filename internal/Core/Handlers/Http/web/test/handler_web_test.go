@@ -82,11 +82,12 @@ func setupRouterAndHandler(cfg *Config.Config, db *Db.Db) (*web.HandlerWeb, *Inf
 
 	var ser = Service.CreateLinkService(cfg, repoLink, repoShortKey, cache, memCache, queue)
 	handlerWeb := Infrastructure.CreateHandlerWeb(ser)
-	handler := Infrastructure.CreateHandlerMain()
-	//handler := CreateHandler(LinkService,bookstore.CreateLinkService(nil))
+	//handler := CreateHandlerRest(LinkService,bookstore.CreateLinkService(nil))
 	gin.SetMode(gin.TestMode)
 	gin.DefaultWriter = ioutil.Discard
 	router := gin.Default()
+	handler := Infrastructure.CreateHandlerMain(nil, 78)
+
 	log.Println(cfg.AppPath)
 	router.LoadHTMLGlob(cfg.AppPath + "tmp/*")
 
