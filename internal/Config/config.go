@@ -18,6 +18,7 @@ var ErrInvalidYamlFile = errors.New("invalid yaml file")
 // Config holds the app master configuration
 type Config struct {
 	HTTPPort     int    `envconfig:"HTTP_PORT"`
+	GRAFANAPort  int    `envconfig:"GRAFANA_PORT"`
 	GRPCPort     int    `envconfig:"GRPC_PORT"`
 	RefererHost  string `envconfig:"REFERER_HOST"`
 	HttpProtocol string `envconfig:"HTTP_PROTOCOL"`

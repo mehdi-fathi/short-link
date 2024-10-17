@@ -2,7 +2,10 @@ package Infrastructure
 
 import (
 	"context"
+	"fmt"
 	"github.com/go-co-op/gocron"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"net/http"
 	"os"
 	"os/signal"
 	"short-link/internal/Config"
@@ -83,8 +86,30 @@ func (s *server) Start() {
 
 	s.startListenEvents(ctx)
 
+	s.startWatchingGoRoutine()
+
+	s.startGrafanaDashboard()
+
 	s.mainStartHttp(cancel)
 
+}
+
+func (s *server) startGrafanaDashboard() {
+	go func() {
+
+		http.Handle("/metrics", promhttp.Handler())
+		path := fmt.Sprintf("0.0.0.0:%d", s.Config.GRAFANAPort)
+
+		http.ListenAndServe(path, nil)
+
+	}()
+}
+
+func (s *server) startWatchingGoRoutine() {
+	go func() {
+		// Start the pprof HTTP server on port 6060
+		http.ListenAndServe("0.0.0.0:6060", nil)
+	}()
 }
 
 func (s *server) buildContext() (context.Context, context.CancelFunc) {

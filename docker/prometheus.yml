@@ -1,0 +1,7 @@
+global:
+  scrape_interval: 5s # How frequently to scrape metrics
+
+scrape_configs:
+  - job_name: 'goapp'
+    static_configs:
+      - targets: ['app:2112'] # The Prometheus metrics endpoint for your Go app
