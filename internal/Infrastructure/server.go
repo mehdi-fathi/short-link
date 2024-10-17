@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/go-co-op/gocron"
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"net/http"
 	"os"
@@ -11,6 +12,7 @@ import (
 	"short-link/internal/Config"
 	"short-link/internal/Core/Handlers/Http/rest"
 	"short-link/internal/Core/Handlers/Http/web"
+	"short-link/internal/Core/Logic/Service"
 	"short-link/internal/Cron"
 	"short-link/pkg/logger"
 	"sync"
@@ -36,6 +38,13 @@ func NewServer(startTime time.Time) *server {
 	return &server{
 		StartTime: startTime,
 	}
+}
+
+
+func init() {
+	// Register the metrics with Prometheus
+	prometheus.MustRegister(Service.TotalGoroutinesStarted)
+	prometheus.MustRegister(Service.TotalGoroutinesClosed)
 }
 
 // StartApp is responsible for app initialization and wrapping required handlerDependencies

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/pkg/errors"
+	"github.com/prometheus/client_golang/prometheus"
 	"log"
 	"short-link/internal/Core/Domin"
 	"short-link/internal/Event"
@@ -15,6 +16,24 @@ import (
 )
 
 const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+
+var (
+	TotalGoroutinesStarted = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "goroutines_started_total",
+			Help: "Total number of Goroutines started.",
+		},
+		[]string{"type"}, // Add labels to differentiate types of Goroutines if needed
+	)
+
+	TotalGoroutinesClosed = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "goroutines_closed_total",
+			Help: "Total number of Goroutines that have been closed (finished).",
+		},
+		[]string{"type"},
+	)
+)
 
 func (linkService *LinkService) IntToBase62(num int) string {
 	if num == 0 {
@@ -81,15 +100,14 @@ func (linkService *LinkService) UpdateStats(wg *sync.WaitGroup, ctx context.Cont
 			start = counter * limit
 		}
 
-		bunchOfLinks, _ = linkService.LinkRepo.GetChunk(start, limit, "approve")
+		bunchOfLinks, _ = linkService.LinkRepo.GetChunk(start, limit, Domin.LINK_STATUS_APPROVE)
 
 		if bunchOfLinks[0] != nil {
-
-			wg.Add(1)
 
 			linkCh := make(chan *Domin.Link) // we consider as unbuffered for synchronize purpose.
 			//time.Sleep(20 * time.Second)
 
+			wg.Add(1)
 			// Goroutine 1
 			go linkService.updateStatusWorker(wg, ctx, bunchOfLinks, linkCh)
 
@@ -112,6 +130,8 @@ func (linkService *LinkService) UpdateStats(wg *sync.WaitGroup, ctx context.Cont
 }
 
 func (linkService *LinkService) updateStatusWorker(wg *sync.WaitGroup, ctx context.Context, bunchOfLinks map[int]*Domin.Link, ch chan *Domin.Link) {
+
+	TotalGoroutinesStarted.WithLabelValues("updateStatusWorker").Inc()
 
 	defer wg.Done()
 
@@ -141,6 +161,9 @@ func (linkService *LinkService) updateStatusWorker(wg *sync.WaitGroup, ctx conte
 		}
 
 	}
+
+	TotalGoroutinesClosed.WithLabelValues("updateStatusWorker").Inc()
+
 	//logger.CreateLogInfo(fmt.Sprintf("Finish Go routine  %d", start))
 
 }
@@ -150,6 +173,8 @@ func (linkService *LinkService) updateStatWorker(wg *sync.WaitGroup, ch chan *Do
 	fmt.Println("Goroutine updateStatWorker receiving data...")
 	data := <-ch // Receive data from the channel
 	fmt.Println("Goroutine updateStatWorker received data:", data)
+
+	TotalGoroutinesStarted.WithLabelValues("updateStatWorker").Inc()
 
 	hget, _ := linkService.Cache.Get(data.ShortKey)
 
@@ -161,6 +186,9 @@ func (linkService *LinkService) updateStatWorker(wg *sync.WaitGroup, ch chan *Do
 		linkService.LinkRepo.UpdateVisit(visitCache, data.ShortKey)
 		logger.CreateLogInfo(fmt.Sprintf("Updated %wg : visit :%v", data.ShortKey, visitCache))
 	}
+
+	TotalGoroutinesClosed.WithLabelValues("updateStatWorker").Inc()
+
 }
 
 func (linkService *LinkService) UpdateStatusByLink(status string, link string) {
