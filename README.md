@@ -44,4 +44,3 @@ Open `http://localhost:8080/index`
 ### Step to shut down gracefully
 
 - `make down`
-``
