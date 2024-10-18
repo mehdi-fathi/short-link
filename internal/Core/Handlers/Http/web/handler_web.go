@@ -2,13 +2,32 @@ package web
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/prometheus/client_golang/prometheus"
 	"net/http"
 	"short-link/internal/Config"
 	_ "short-link/internal/Core/Handlers/Http/rest"
 	"short-link/internal/Core/Logic/Db/Serialization"
 	service_interface "short-link/internal/Core/Ports"
 	"short-link/pkg/errorMsg"
+	"time"
 )
+
+var (
+	// Histogram to track the duration of HTTP requests
+	HttpRequestDuration = prometheus.NewHistogramVec(
+		prometheus.HistogramOpts{
+			Name:    "http_request_duration_seconds",
+			Help:    "Duration of HTTP requests in seconds",
+			Buckets: prometheus.DefBuckets, // Default bucket sizes
+		},
+		[]string{"path"},
+	)
+)
+
+func init() {
+	prometheus.MustRegister(HttpRequestDuration)
+
+}
 
 type HandlerWeb struct {
 	LinkService service_interface.LinkServiceInterface
@@ -39,6 +58,13 @@ func (h *HandlerWeb) HandleShorten(c *gin.Context) {
 
 func (h *HandlerWeb) HandleRedirect(c *gin.Context) {
 
+	start := time.Now()
+
+	defer func() {
+		duration := time.Since(start).Seconds()
+		HttpRequestDuration.WithLabelValues("HandleRedirect").Observe(duration)
+	}()
+
 	shortKey := c.Param("url")
 
 	// Retrieve the original URL from the `urls` map using the shortened key
@@ -54,6 +80,13 @@ func (h *HandlerWeb) HandleRedirect(c *gin.Context) {
 }
 
 func (h *HandlerWeb) HandleList(c *gin.Context) {
+
+	start := time.Now()
+
+	defer func() {
+		duration := time.Since(start).Seconds()
+		HttpRequestDuration.WithLabelValues("HandleList").Observe(duration)
+	}()
 
 	linksDb, _ := h.LinkService.GetAllUrlV2()
 
