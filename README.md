@@ -38,6 +38,10 @@ I try to take advantage of substantial concept Golang, engineering and well-stru
 4. `make up`
 5. `make migration_up_v2`
 
+Open `http://localhost:8080/index`
+`http://localhost:3000/` is Grafana Dashboard. 
+
 ### Step to shut down gracefully
 
 - `make down`
+``
