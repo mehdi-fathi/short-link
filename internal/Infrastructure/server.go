@@ -40,7 +40,6 @@ func NewServer(startTime time.Time) *server {
 	}
 }
 
-
 func init() {
 	// Register the metrics with Prometheus
 	prometheus.MustRegister(Service.GoroutinesCount)

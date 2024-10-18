@@ -3,6 +3,8 @@ include .env
 
 ENTRY_BUILD_FILE=./cmd/.
 
+.PHONY: up open build-docker create_kind_cluster down doc run build run_build fmt migration_create migration_up migration_down migration_fix migration_up_v2 create_test_db
+
 BINARY := short-link
 
 # Define variables
@@ -12,7 +14,10 @@ MIGRATION_PATH = -path database/migration/
 MIGRATE_CMD = run --rm app migrate $(MIGRATION_PATH) -database "$(DB_URL)"
 
 up:
-	$(DOCKER_COMPOSE) up
+	$(DOCKER_COMPOSE) up -d && make open
+
+open:
+	./docker/start-and-open.sh
 
 build-docker:
 	$(DOCKER_COMPOSE) build
