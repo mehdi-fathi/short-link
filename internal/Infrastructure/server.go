@@ -43,8 +43,7 @@ func NewServer(startTime time.Time) *server {
 
 func init() {
 	// Register the metrics with Prometheus
-	prometheus.MustRegister(Service.TotalGoroutinesStarted)
-	prometheus.MustRegister(Service.TotalGoroutinesClosed)
+	prometheus.MustRegister(Service.GoroutinesCount)
 }
 
 // StartApp is responsible for app initialization and wrapping required handlerDependencies
@@ -160,6 +159,7 @@ func (s *server) startListenEvents(ctx context.Context) {
 	// Use a WaitGroup to wait for goroutines to finish
 	s.Add(1)
 
+	Service.GoroutinesCount.WithLabelValues("startListenEvents").Inc()
 	go func() {
 		defer s.Done()
 		// Start the consumer
@@ -174,6 +174,7 @@ func (s *server) startCronJob(ctx context.Context) {
 	s.Add(1)
 	logger.CreateLogInfo("startCronJob ...")
 
+	Service.GoroutinesCount.WithLabelValues("startCronJob").Inc()
 	go func() {
 		defer s.Done()
 		Cron.StartCron(ctx, cronjob, s.RESTHandler.LinkService)

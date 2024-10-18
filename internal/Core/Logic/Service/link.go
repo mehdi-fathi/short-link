@@ -18,20 +18,12 @@ import (
 const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
 
 var (
-	TotalGoroutinesStarted = prometheus.NewCounterVec(
-		prometheus.CounterOpts{
-			Name: "goroutines_started_total",
-			Help: "Total number of Goroutines started.",
+	GoroutinesCount = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "active_goroutines",
+			Help: "Number of active goroutines running in the application",
 		},
-		[]string{"type"}, // Add labels to differentiate types of Goroutines if needed
-	)
-
-	TotalGoroutinesClosed = prometheus.NewCounterVec(
-		prometheus.CounterOpts{
-			Name: "goroutines_closed_total",
-			Help: "Total number of Goroutines that have been closed (finished).",
-		},
-		[]string{"type"},
+		[]string{"type"}, // Adding a label named "type" to the gauge
 	)
 )
 
@@ -108,6 +100,7 @@ func (linkService *LinkService) UpdateStats(wg *sync.WaitGroup, ctx context.Cont
 			//time.Sleep(20 * time.Second)
 
 			wg.Add(1)
+			GoroutinesCount.WithLabelValues("updateStatusWorker").Inc()
 			// Goroutine 1
 			go linkService.updateStatusWorker(wg, ctx, bunchOfLinks, linkCh)
 
@@ -130,8 +123,6 @@ func (linkService *LinkService) UpdateStats(wg *sync.WaitGroup, ctx context.Cont
 }
 
 func (linkService *LinkService) updateStatusWorker(wg *sync.WaitGroup, ctx context.Context, bunchOfLinks map[int]*Domin.Link, ch chan *Domin.Link) {
-
-	TotalGoroutinesStarted.WithLabelValues("updateStatusWorker").Inc()
 
 	defer wg.Done()
 
@@ -162,8 +153,6 @@ func (linkService *LinkService) updateStatusWorker(wg *sync.WaitGroup, ctx conte
 
 	}
 
-	TotalGoroutinesClosed.WithLabelValues("updateStatusWorker").Inc()
-
 	//logger.CreateLogInfo(fmt.Sprintf("Finish Go routine  %d", start))
 
 }
@@ -174,7 +163,7 @@ func (linkService *LinkService) updateStatWorker(wg *sync.WaitGroup, ch chan *Do
 	data := <-ch // Receive data from the channel
 	fmt.Println("Goroutine updateStatWorker received data:", data)
 
-	TotalGoroutinesStarted.WithLabelValues("updateStatWorker").Inc()
+	GoroutinesCount.WithLabelValues("updateStatWorker").Inc()
 
 	hget, _ := linkService.Cache.Get(data.ShortKey)
 
@@ -186,8 +175,6 @@ func (linkService *LinkService) updateStatWorker(wg *sync.WaitGroup, ch chan *Do
 		linkService.LinkRepo.UpdateVisit(visitCache, data.ShortKey)
 		logger.CreateLogInfo(fmt.Sprintf("Updated %wg : visit :%v", data.ShortKey, visitCache))
 	}
-
-	TotalGoroutinesClosed.WithLabelValues("updateStatWorker").Inc()
 
 }
 
