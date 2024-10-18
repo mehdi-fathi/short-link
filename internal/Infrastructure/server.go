@@ -94,8 +94,6 @@ func (s *server) Start() {
 
 	s.startListenEvents(ctx)
 
-	s.startWatchingGoRoutine()
-
 	s.startGrafanaDashboard()
 
 	s.mainStartHttp(cancel)
@@ -110,13 +108,6 @@ func (s *server) startGrafanaDashboard() {
 
 		http.ListenAndServe(path, nil)
 
-	}()
-}
-
-func (s *server) startWatchingGoRoutine() {
-	go func() {
-		// Start the pprof HTTP server on port 6060
-		http.ListenAndServe("0.0.0.0:6060", nil)
 	}()
 }
 
