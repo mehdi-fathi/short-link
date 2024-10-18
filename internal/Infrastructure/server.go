@@ -2,12 +2,17 @@ package Infrastructure
 
 import (
 	"context"
+	"fmt"
 	"github.com/go-co-op/gocron"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"net/http"
 	"os"
 	"os/signal"
 	"short-link/internal/Config"
 	"short-link/internal/Core/Handlers/Http/rest"
 	"short-link/internal/Core/Handlers/Http/web"
+	"short-link/internal/Core/Logic/Service"
 	"short-link/internal/Cron"
 	"short-link/pkg/logger"
 	"sync"
@@ -33,6 +38,12 @@ func NewServer(startTime time.Time) *server {
 	return &server{
 		StartTime: startTime,
 	}
+}
+
+
+func init() {
+	// Register the metrics with Prometheus
+	prometheus.MustRegister(Service.GoroutinesCount)
 }
 
 // StartApp is responsible for app initialization and wrapping required handlerDependencies
@@ -83,8 +94,21 @@ func (s *server) Start() {
 
 	s.startListenEvents(ctx)
 
+	s.startGrafanaDashboard()
+
 	s.mainStartHttp(cancel)
 
+}
+
+func (s *server) startGrafanaDashboard() {
+	go func() {
+
+		http.Handle("/metrics", promhttp.Handler())
+		path := fmt.Sprintf("0.0.0.0:%d", s.Config.GRAFANAPort)
+
+		http.ListenAndServe(path, nil)
+
+	}()
 }
 
 func (s *server) buildContext() (context.Context, context.CancelFunc) {
@@ -126,6 +150,7 @@ func (s *server) startListenEvents(ctx context.Context) {
 	// Use a WaitGroup to wait for goroutines to finish
 	s.Add(1)
 
+	Service.GoroutinesCount.WithLabelValues("startListenEvents").Inc()
 	go func() {
 		defer s.Done()
 		// Start the consumer
@@ -140,6 +165,7 @@ func (s *server) startCronJob(ctx context.Context) {
 	s.Add(1)
 	logger.CreateLogInfo("startCronJob ...")
 
+	Service.GoroutinesCount.WithLabelValues("startCronJob").Inc()
 	go func() {
 		defer s.Done()
 		Cron.StartCron(ctx, cronjob, s.RESTHandler.LinkService)
