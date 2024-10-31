@@ -30,18 +30,27 @@ I try to take advantage of substantial concept Golang, engineering and well-stru
 - PostgreSQL
 - Redis
 - RabbitMq
+- Grafana
 
 ### Steps to run
 
 1. **Clone the Repository**:
-2. `cp .env.example .env.local`.
-3. `make build-docker` for first time.
-4. `make up`
-5. `make migration_up_v2`
+2. Local(docker-compose)
+   1. `cp .env.example .env.local`.
+   2. `make build-docker` for first time.
+   3. `make up`
+   4. `make migration_up_v2`
+   5. Open `http://localhost:8080/index`
+3. Kubernetes
+   1. `cd deploy/kuber`
+   2. `make install_all_cluster`
+   3. `make upgrade_app` - After any update in order to create a new version and upgrade.
+   4. Run `kubectl get pods` to make sure all pods are running.
+   5. Set `127.0.0.1 shortlink.com` in etc/hosts.
+   6. Open `https://shortlink.com`
 
-Open `http://localhost:8080/index`
 `http://localhost:3000/` is Grafana Dashboard. 
 
-### Step to shut down gracefully
+### Step to shut down gracefully in local side (docker)
 
 - `make down`
