@@ -58,7 +58,6 @@ install_ingress_controller:
 delete_ingress_nginx:
 	kubectl delete -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
 
-
 apply_ingress:
 	kubectl apply -f ingress.yaml
 
@@ -97,7 +96,7 @@ create_kind_cluster_with_registry: build_docker create_docker_tag
 	$(MAKE) create_kind_cluster && $(MAKE) connect_registry_to_kind && $(MAKE) push_docker_container
 
 migration:
-	kubectl exec -it shortlink-website-659fb44854-ldkr2  -- migrate -path database/migration/  -database "postgresql://postgres:postgres@postgres:5432/slink?sslmode=disable" -verbose up
+	kubectl exec -it $$(kubectl get pod -l app=shortlink-website -o jsonpath='{.items[0].metadata.name}') -- migrate -path database/migration/ -database "postgresql://postgres:postgres@postgres:5432/slink?sslmode=disable" -verbose up
 
 # When you use --atomic with helm upgrade or helm install, Helm will automatically roll back the release if the deployment fails,
 
