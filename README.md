@@ -47,7 +47,8 @@ I try to take advantage of substantial concept Golang, engineering and well-stru
    3. `make upgrade_app` - After any update in order to create a new version and upgrade.
    4. Run `kubectl get pods` to make sure all pods are running.
    5. Set `127.0.0.1 shortlink.com` in etc/hosts.
-   6. Open `https://shortlink.com`
+   6. Run `make migration`
+   7. Open `https://shortlink.com`
 
 `http://localhost:3000/` is Grafana Dashboard. 
 
