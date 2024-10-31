@@ -1,0 +1,7 @@
+appName: shortlink-website
+imageName: localhost:5001/shortlink.com
+serviceName: shortlink-svc
+imagePullSecretName: shortlink
+serviceAddress: shortlink.com
+servicePort: 8080
+replicas: 3

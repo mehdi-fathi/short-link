@@ -8,22 +8,22 @@ ENTRY_BUILD_FILE=./cmd/.
 BINARY := short-link
 
 # Define variables
-DOCKER_COMPOSE = docker compose -f docker/docker-compose.yml --env-file .env
+DOCKER_COMPOSE = docker compose -f deploy/dev/docker-compose.yml --env-file .env
 DB_URL = postgresql://$(DB_USER):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=disable
 MIGRATION_PATH = -path database/migration/
 MIGRATE_CMD = run --rm app migrate $(MIGRATION_PATH) -database "$(DB_URL)"
 
 up:
-	$(DOCKER_COMPOSE) up -d && make open
+	$(DOCKER_COMPOSE) up
 
 open:
-	./docker/start-and-open.sh
+	./deploy/dev/start-and-open.sh
 
 build-docker:
 	$(DOCKER_COMPOSE) build
 
 down:
-	./docker/stop-gracefully.sh
+	./deploy/dev/stop-gracefully.sh
 
 doc:
 	godoc -index
@@ -67,3 +67,6 @@ migration_up_v2:
 
 create_test_db:
 	$(DOCKER_COMPOSE) exec db psql -U $(DB_USER) -c "CREATE DATABASE $(DB_TEST_NAME);"
+
+build_docker:
+	docker build -f deploy/kuber/Dockerfile -t go_app .

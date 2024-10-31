@@ -65,13 +65,16 @@ func (db *Repository) GetAll() (map[int]*Domin.Link, error) {
 
 	var links = make(map[int]*Domin.Link)
 
-	for i := 0; rows.Next(); i++ {
-		var linkTable Domin.Link
+	if rows != nil {
 
-		err = db.FillLinkRows(rows, &linkTable)
+		for i := 0; rows.Next(); i++ {
+			var linkTable Domin.Link
 
-		links[i] = &linkTable
+			err = db.FillLinkRows(rows, &linkTable)
 
+			links[i] = &linkTable
+
+		}
 	}
 
 	if errors.Is(err, sql.ErrNoRows) {
@@ -93,13 +96,16 @@ func (db *Repository) GetChunk(start int, limit int, status string) (map[int]*Do
 
 	var links = make(map[int]*Domin.Link)
 
-	for i := 0; rows.Next(); i++ {
-		var linkTable Domin.Link
+	if rows != nil {
 
-		err = db.FillLinkRows(rows, &linkTable)
+		for i := 0; rows.Next(); i++ {
+			var linkTable Domin.Link
 
-		links[i] = &linkTable
+			err = db.FillLinkRows(rows, &linkTable)
 
+			links[i] = &linkTable
+
+		}
 	}
 
 	if errors.Is(err, sql.ErrNoRows) {
@@ -122,13 +128,16 @@ func (db *Repository) GetByStatus(status string) (map[int]*Domin.Link, error) {
 
 	var links = make(map[int]*Domin.Link)
 
-	for i := 0; rows.Next(); i++ {
-		var linkTable Domin.Link
+	if rows != nil {
 
-		err = db.FillLinkRows(rows, &linkTable)
+		for i := 0; rows.Next(); i++ {
+			var linkTable Domin.Link
 
-		links[i] = &linkTable
+			err = db.FillLinkRows(rows, &linkTable)
 
+			links[i] = &linkTable
+
+		}
 	}
 
 	if errors.Is(err, sql.ErrNoRows) {

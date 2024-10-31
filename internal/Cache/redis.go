@@ -16,11 +16,11 @@ type Cache struct {
 
 func Connect(cfg *Config.Config) *redis.Client {
 
-	url := fmt.Sprintf("%s:%d", cfg.Redis.HOST, cfg.Redis.PORT)
+	url := fmt.Sprintf("%s:%d", cfg.Redis.Host, cfg.Redis.Port)
 
 	client := redis.NewClient(&redis.Options{
 		Addr:     url,
-		Password: cfg.Redis.PASSWORD,
+		Password: cfg.Redis.Password,
 		DB:       0,
 	})
 
@@ -60,7 +60,7 @@ func CreateCache(cfg *Config.Config) cache_interface.CacheInterface {
 	// Send a PING command to check the connection.
 	_, err := cache.Ping()
 	if err != nil {
-		panic(errors.New("Redis: Can't connect to redis").(interface{}))
+		panic(errors.New("REDIS: Can't connect to redis").(interface{}))
 	}
 
 	return cache
