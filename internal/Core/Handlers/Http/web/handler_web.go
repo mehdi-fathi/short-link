@@ -34,7 +34,12 @@ type HandlerWeb struct {
 }
 
 func (h *HandlerWeb) HandleIndex(c *gin.Context) {
+	start := time.Now()
 
+	defer func() {
+		duration := time.Since(start).Seconds()
+		HttpRequestDuration.WithLabelValues("HandleIndex").Observe(duration)
+	}()
 	errorMsg := errorMsg.GetErrorMsg(c, "error_msg")
 
 	c.HTML(http.StatusOK, "index.html", gin.H{
@@ -46,6 +51,13 @@ func (h *HandlerWeb) HandleIndex(c *gin.Context) {
 }
 
 func (h *HandlerWeb) HandleShorten(c *gin.Context) {
+
+	start := time.Now()
+
+	defer func() {
+		duration := time.Since(start).Seconds()
+		HttpRequestDuration.WithLabelValues("HandleShorten").Observe(duration)
+	}()
 
 	link := c.PostForm("link")
 

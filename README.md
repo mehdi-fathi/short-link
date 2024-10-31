@@ -15,12 +15,13 @@ I try to take advantage of substantial concept Golang, engineering and well-stru
 ## Tech Features
 
 - Shutdown gracefully GO app with all containers
-- Up project with docker
+- Up project with docker for local mode
 - Take advantage of go routine in saving stat and validate links
 - Use redis for saving count visits
 - Event-Driven-Design: We used queue with go routines to validate all links right after create a new one. 
 - Hexagonal Architecture
 - Integration tests
+- Implement kubernetes for production(helm-nginx)
 
 ## Installation Instructions
 
@@ -37,6 +38,9 @@ I try to take advantage of substantial concept Golang, engineering and well-stru
 3. `make build-docker` for first time.
 4. `make up`
 5. `make migration_up_v2`
+
+Open `http://localhost:8080/index`
+`http://localhost:3000/` is Grafana Dashboard. 
 
 ### Step to shut down gracefully
 

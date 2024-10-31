@@ -18,6 +18,7 @@ var ErrInvalidYamlFile = errors.New("invalid yaml file")
 // Config holds the app master configuration
 type Config struct {
 	HTTPPort     int    `envconfig:"HTTP_PORT"`
+	HTTPPortUrl  int    `envconfig:"HTTP_PORT_URL"`
 	GRAFANAPort  int    `envconfig:"GRAFANA_PORT"`
 	GRPCPort     int    `envconfig:"GRPC_PORT"`
 	RefererHost  string `envconfig:"REFERER_HOST"`
@@ -27,8 +28,8 @@ type Config struct {
 	DB           DB
 	QueueRabbit  QueueRabbit
 	Graylog      logger.Graylog `envconfig:"LOGGER_GRAYLOG"`
-	Redis        Redis
-	AppPath      string `envconfig:"APP_PATH"`
+	Redis        REDIS          `envconfig:"REDIS"`
+	AppPath      string         `envconfig:"APP_PATH"`
 }
 
 type DB struct {
@@ -48,11 +49,11 @@ type QueueRabbit struct {
 	Password      string `envconfig:"PASSWORD"`
 }
 
-type Redis struct {
-	HOST     string `envconfig:"HOST"`
-	PORT     int    `envconfig:"PORT"`
-	USEAUTH  bool   `envconfig:"USE_AUTH"`
-	PASSWORD string `envconfig:"PASSWORD"`
+type REDIS struct {
+	Host     string `envconfig:"HOST"`
+	Port     int    `envconfig:"PORT"`
+	UseAuth  bool   `envconfig:"USE_AUTH"`
+	Password string `envconfig:"PASSWORD"`
 }
 
 var ConfigHandy *Config
@@ -97,8 +98,8 @@ func readEnv(cfg *Config) error {
 func GetBaseUrl() string {
 	url := fmt.Sprintf("%s://%s", ConfigHandy.HttpProtocol, ConfigHandy.RefererHost)
 
-	if ConfigHandy.HTTPPort > 0 {
-		url = fmt.Sprintf("%s:%d", url, ConfigHandy.HTTPPort)
+	if ConfigHandy.HTTPPortUrl != 80 {
+		url = fmt.Sprintf("%s:%d", url, ConfigHandy.HTTPPortUrl)
 	}
 
 	return url
@@ -111,6 +112,9 @@ func LoadConfigEnvApp() *Config {
 	if env == "" {
 		env = "local"
 	}
+
+	os.Unsetenv("REDIS_HOST")
+	os.Unsetenv("REDIS_PORT")
 
 	// Load environment variables from .env file
 	var err error

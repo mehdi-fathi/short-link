@@ -3,24 +3,26 @@ name: "short-link"
 services:
   app:
     image: golang:1.21
-    build: ..
+    build:
+      context: .
     working_dir: /app
     volumes:
-      - ../:/app
+      - ../../:/app
     ports:
       - "${HTTP_PORT}:8080"
       - "${GRAFANA_PORT}:2112"
     container_name: go_app
     depends_on:
       - rabbitmq
-      - db
+      - postgres
       - redis
     stdin_open: true
     tty: true
     stop_signal: SIGINT # Specify the signal to be sent for graceful shutdown
     stop_grace_period: 3s # Time to wait for graceful shutdown before killing the container
     restart: no
-    command: [ "/wait-for-it.sh", "rabbitmq", "5672", "/wait-for-it.sh", "db", "5432", "go run ./cmd/main.go" ]
+    command: [ "/wait-for-it.sh", "rabbitmq", "5672", "/wait-for-it.sh", "postgres", "5432", "go run ./cmd/main.go" ]
+#    command: [ "/wait-for-it.sh", "rabbitmq", "5672", "/wait-for-it.sh", "postgres", "5432", "go build -o main ./cmd/main.go" , "./main" ]
 
   rabbitmq:
     image: rabbitmq:3-management
@@ -31,9 +33,9 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
-  db:
+  postgres:
     image: postgres:13
-    container_name: postgres_db
+    container_name: postgres
     environment:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
