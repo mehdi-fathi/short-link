@@ -1,14 +1,18 @@
 
-include .env
-
 ENTRY_BUILD_FILE=./cmd/.
 
 .PHONY: up open build-docker create_kind_cluster down doc run build run_build fmt migration_create migration_up migration_down migration_fix migration_up_v2 create_test_db
 
 BINARY := short-link
 
+DB_HOST = postgres
+DB_USER = postgres
+DB_PASSWORD = postgres
+DB_PORT = 5432
+DB_NAME = slink
+
 # Define variables
-DOCKER_COMPOSE = docker compose -f deploy/dev/docker-compose.yml --env-file .env
+DOCKER_COMPOSE = docker compose -f deploy/dev/docker-compose.yml --env-file .env.local
 DB_URL = postgresql://$(DB_USER):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=disable
 MIGRATION_PATH = -path database/migration/
 MIGRATE_CMD = run --rm app migrate $(MIGRATION_PATH) -database "$(DB_URL)"
