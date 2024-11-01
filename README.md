@@ -39,6 +39,7 @@ I try to take advantage of substantial concept Golang, engineering and well-stru
    1. `cp .env.example .env.local`.
    2. `make build-docker` for first time.
    3. `make up`
+   3. `create database slink`
    4. `make migration_up_v2`
    5. Open `http://localhost:8080/index`
 3. Kubernetes

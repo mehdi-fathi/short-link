@@ -6,3 +6,4 @@ coverage.out
 .env.local
 .env.test
 deploy/dev/grafana-storage/
+deploy/dev/postgres_data/
