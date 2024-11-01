@@ -43,7 +43,7 @@ I try to take advantage of substantial concept Golang, engineering and well-stru
    5. `make migration_up_v2`
    6. Open `http://localhost:8080/index`
 3. Kubernetes
-   1. `cd deploy/kuber`
+   1. `cd deploy/kuber` and `cp .env.example .env.production`.
    2. `make install_all_cluster`
    3. `make upgrade_app` - After any update in order to create a new version and upgrade.
    4. Run `kubectl get pods` to make sure all pods are running.
